@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Token Generated</h2>
+    <p>A secure recovery token has been generated for <code>{{ username }}</code>.</p>
+    <p><b>Token:</b> <code>{{ token }}</code></p>
+    <p>Click the tracked link below to proceed:</p>
+    <p><a href="{{ reset_url }}" style="word-break: break-all;">{{ reset_url }}</a></p>
+    <div class="links">
+        <a href="{{ url_for('login') }}">Return to Login</a>
+    </div>
+{% endblock %}
