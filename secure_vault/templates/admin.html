@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Vault - Manager Panel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+        :root {
+            --bg: #09090b; --surface: #121216; --surface-border: #27272a;
+            --accent: #00ff66; --text-main: #f4f4f5; --text-muted: #a1a1aa;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 1000px; background: var(--surface); padding: 30px; border: 1px solid var(--surface-border); border-radius: 8px; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--surface-border); padding-bottom: 15px; margin-bottom: 25px; }
+        h2 { font-size: 1.4rem; color: var(--accent); margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; white-space: nowrap; }
+        th, td { padding: 12px; text-align: left; font-size: 12px; border-bottom: 1px solid var(--surface-border); }
+        th { background: #121216; color: var(--text-muted); text-transform: uppercase; }
+        tr:hover td { background: #18181b; }
+        .btn { padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; display: inline-block; margin-right: 5px; }
+        .btn-approve { background: rgba(0, 255, 102, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+        .btn-reject { background: rgba(255, 51, 102, 0.2); color: #ff3366; border: 1px solid #ff3366; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 12px; }
+        .nav-link:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>Manager Order Dashboard</h2>
+            <a href="/" class="nav-link">&larr; Back to Home</a>
+        </header>
+        <h3>All Incoming Orders</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date & Time</th>
+                    <th>Reference Code</th>
+                    <th>Current Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in transactions %}
+                <tr>
+                    <td><a href="/transaction/{{ row[0] }}" style="color: var(--accent); text-decoration: none;">#{{ row[0] }}</a></td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2][:16] }}...</td>
+                    <td>{{ row[3] }}</td>
+                    <td>
+                        <form action="/admin/update/{{ row[0] }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="status" value="APPROVED">
+                            <button type="submit" class="btn btn-approve">Approve</button>
+                        </form>
+                        <form action="/admin/update/{{ row[0] }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="status" value="REJECTED">
+                            <button type="submit" class="btn btn-reject">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

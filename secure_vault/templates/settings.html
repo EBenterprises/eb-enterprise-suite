@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; word-break: break-word; overflow-wrap: break-word; }
+        html { width: 100%; background: #121214; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #121214; color: #e4e4e7; padding: 1rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 500px; background: #18181b; padding: 1.5rem; border: 1px solid #27272a; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); margin-top: 1rem; margin-bottom: 2rem; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #27272a; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        h2 { font-size: 1.25rem; font-weight: 600; color: #f4f4f5; margin: 0; }
+        h3 { font-size: 1rem; font-weight: 600; color: #f4f4f5; margin-bottom: 0.75rem; }
+        form { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+        label { color: #a1a1aa; font-size: 0.85rem; font-weight: 500; }
+        input { width: 100%; padding: 0.85rem 1rem; border: 1px solid #3f3f46; border-radius: 6px; background: #09090b; color: #f4f4f5; font-size: 0.95rem; outline: none; font-family: inherit; }
+        input:focus { border-color: #71717a; }
+        button { padding: 0.75rem 1.25rem; background: #f4f4f5; color: #09090b; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; margin-top: 0.5rem; }
+        button:hover { background: #e4e4e7; }
+        .alert-success { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; }
+        .alert-error { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; }
+        a { color: #f4f4f5; text-decoration: underline; font-size: 0.85rem; font-weight: 500; }
+        a:hover { color: #d4d4d8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h2>Account Settings</h2>
+            <a href="/">Dashboard</a>
+        </header>
+
+        {% if message %}
+            <div class="alert-success">{{ message }}</div>
+        {% endif %}
+        {% if error %}
+            <div class="alert-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="hidden" name="action" value="update_username">
+            <h3>Change Username</h3>
+            <div>
+                <label>New Username</label>
+                <input type="text" name="new_username" value="{{ session.username }}" required>
+            </div>
+            <button type="submit">Update Username</button>
+        </form>
+
+        <form method="POST">
+            <input type="hidden" name="action" value="update_password">
+            <h3>Change Password</h3>
+            <div>
+                <label>Current Password</label>
+                <input type="password" name="current_password" required>
+            </div>
+            <div>
+                <label>New Password</label>
+                <input type="password" name="new_password" required>
+            </div>
+            <button type="submit">Update Password</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -4,10 +4,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+<<<<<<< HEAD
+ADMIN_USER = "admin"
+ADMIN_PASS = "admin123"
+=======
 # In-memory user store for demo & persistence during session
 USERS = {
     "admin": "admin123"
 }
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
 
 @app.route('/')
 def index():
@@ -20,7 +25,11 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+<<<<<<< HEAD
+        if username == ADMIN_USER and password == ADMIN_PASS:
+=======
         if username in USERS and USERS[username] == password:
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
             session['logged_in'] = True
             session['user'] = username
             flash('Successfully authenticated into EB Enterprises vault.', 'success')
@@ -29,6 +38,8 @@ def login():
             flash('Invalid credentials. Access denied.', 'danger')
     return render_template('login.html')
 
+<<<<<<< HEAD
+=======
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -54,6 +65,7 @@ def forgot():
             flash('Username not found in registry.', 'danger')
     return render_template('forgot.html')
 
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
 @app.route('/logout')
 def logout():
     session.clear()

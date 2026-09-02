@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EB Enterprises | Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>EB Enterprises // Admin Console</h1>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </header>
+        <main>
+            <div class="card">
+                <h2>System Status</h2>
+                <p>Status: <span class="badge">SECURE</span></p>
+                <p>Logged in as: <strong>{{ user }}</strong></p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

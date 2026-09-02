@@ -26,7 +26,12 @@ def send_push_notification(title, message):
         print(f"[-] Push notification warning: {e}")
 
 def get_db_connection():
+<<<<<<< HEAD
+    conn = sqlite3.connect(DB_PATH, timeout=10.0)
+    conn.execute("PRAGMA journal_mode=WAL;")
+=======
     conn = sqlite3.connect(DB_PATH)
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -158,4 +163,8 @@ def update_status(order_id):
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+    app.run(host="127.0.0.1", port=5001, debug=True)
+=======
     app.run(host="127.0.0.1", port=5000, debug=True)
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)

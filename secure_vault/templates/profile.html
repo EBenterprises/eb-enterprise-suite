@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Operator Profile</h2>
+    <div style="background-color: var(--bg-obsidian); border: 1px solid var(--border-color); padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0 0 8px 0;">Username: <code>{{ user_data[1] }}</code></p>
+        <p style="margin: 0 0 8px 0;">Role: <code>{{ user_data[4] }}</code></p>
+        <p style="margin: 0 0 8px 0;">Created: <code>{{ user_data[5] }}</code></p>
+        <p style="margin: 0;">Last Login: <code>{{ user_data[6] or 'Current Session' }}</code></p>
+    </div>
+    <div class="links">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Vault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+</head>
+<body>
+    <div class="container">
+        <h2>Secure Vault Portal</h2>
+        <form method="POST">
+            <label for="passcode">Enter Passcode / Key:</label>
+            <input type="password" id="passcode" name="passcode" required placeholder="Enter key...">
+            <button type="submit">Access Vault</button>
+        </form>
+    </div>
+</body>
+</html>
