@@ -1,0 +1,12 @@
+{
+  "name":"omega",
+  "version":"1.0.0",
+  "private":true,
+  "type":"module",
+  "bin":{"omega":"./bin/omega.js"},
+  "scripts":{
+    "start":"node server.js",
+    "test":"node --test",
+    "cli":"node bin/omega.js"
+  }
+}

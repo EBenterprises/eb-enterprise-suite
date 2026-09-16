@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="color: #2dd4bf;">Welcome, {{ fullname }}</h2>
+<p style="color: #9ca3af; font-size: 0.85rem; text-align: center; margin-bottom: 1.5rem;">User: @{{ username }} | V5 Active</p>
+<a class="btn" href="/secrets">Manage Secrets</a>
+<a class="btn" href="/settings" style="background: #374151; margin-top: 10px;">Settings</a>
+<a class="btn btn-danger" href="/logout" style="margin-top: 10px;">Logout</a>
+{% endblock %}

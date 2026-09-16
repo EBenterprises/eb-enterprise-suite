@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Vault - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Secure Vault Dashboard</h1>
+            <div>
+                <span>Logged in as: <strong>{{ user.username }}</strong></span> | 
+                <a href="{{ url_for('logout') }}" class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;">Logout</a>
+            </div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #30363d; margin: 20px 0;">
+        
+        <h2>{% if user.is_admin %}Admin Control Panel{% else %}Your Vault Orders{% endif %}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Item / Dossier</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td><a href="{{ url_for('view_order', order_id=order.id) }}">{{ order.item_name }}</a></td>
+                    <td>{{ order.status }}</td>
+                    <td>
+                        {% if user.is_admin %}
+                        <form action="{{ url_for('admin_update', order_id=order.id) }}" method="POST" style="display:flex; gap:5px; margin:0;">
+                            <select name="status" style="width: auto; margin:0; padding:4px;">
+                                <option value="Approved">Approve</option>
+                                <option value="Processing">Process</option>
+                                <option value="Completed">Complete</option>
+                            </select>
+                            <button type="submit" class="btn" style="padding: 4px 8px;">Update</button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn" style="padding: 4px 8px; font-size: 12px;">View Details</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

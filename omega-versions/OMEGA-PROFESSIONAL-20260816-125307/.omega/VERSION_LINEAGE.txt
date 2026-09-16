@@ -1,0 +1,18 @@
+OMEGA® VERSION LINEAGE
+
+PARENT
+/data/data/com.termux/files/home/omega
+
+FORK
+/data/data/com.termux/files/home/omega-versions/OMEGA-PROFESSIONAL-20260816-125307
+
+CREATED
+2026-08-16T12:53:15-07:00
+
+TYPE
+Professional Application Development
+
+PRESERVATION POLICY
+Parent remains untouched.
+Previous versions remain untouched.
+Future versions fork from an explicitly selected parent.

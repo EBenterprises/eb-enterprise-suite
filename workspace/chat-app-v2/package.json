@@ -1,0 +1,13 @@
+{
+  "name": "chat-app-v2",
+  "version": "2.0.0",
+  "description": "Executive Spectrum v2 - Isolated direct messaging repository with multi-convo threading and zero userbase telemetry.",
+  "main": "cluster.js",
+  "scripts": {
+    "start": "node cluster.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "version": "72",
+  "timestamp": "2026-08-11T21:04:46-07:00",
+  "classification": "PRODUCTION_BUILD_FAILURE",
+  "build_exit": 129,
+  "routes": "22/22",
+  "repair": "ISOLATED"
+}

@@ -1,0 +1,7 @@
+timestamp=2026-08-11T19:21:56-07:00
+next=
+node=v24.17.0
+npm=11.17.0
+arch=aarch64
+kernel=5.15.189-android13-3-33503169
+pwd=/data/data/com.termux/files/home/request-runner

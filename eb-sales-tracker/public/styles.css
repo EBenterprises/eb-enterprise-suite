@@ -1,0 +1,190 @@
+:root {
+    --bg-obsidian: #0b0f12;
+    --card-bg: #131b22;
+    --teal-accent: #00d2c4;
+    --gold-highlight: #d4af37;
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border-color: #1e293b;
+}
+
+body {
+    background-color: var(--bg-obsidian);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 1rem;
+}
+
+.app-container {
+    max-width: 550px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+header h1 {
+    color: var(--teal-accent);
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.subtitle {
+    color: var(--gold-highlight);
+    font-size: 0.8rem;
+    margin: 0.2rem 0 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.tab-nav {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 110px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: var(--teal-accent);
+    color: var(--bg-obsidian);
+    border-color: var(--teal-accent);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-section, .list-section {
+    background: var(--card-bg);
+    padding: 1.2rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.form-section h2, .list-section h2 {
+    color: var(--teal-accent);
+    font-size: 1.1rem;
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.4rem;
+}
+
+.preset-buttons {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.preset-btn {
+    background: transparent;
+    border: 1px solid var(--gold-highlight);
+    color: var(--gold-highlight);
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.preset-btn:hover {
+    background: var(--gold-highlight);
+    color: var(--bg-obsidian);
+}
+
+.input-group {
+    margin-bottom: 0.8rem;
+}
+
+input {
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--bg-obsidian);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input:focus {
+    border-color: var(--teal-accent);
+    outline: none;
+}
+
+.btn-submit {
+    background: var(--teal-accent);
+    color: var(--bg-obsidian);
+    border: none;
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.sale-item, .inventory-item, .customer-item, .analytics-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sale-item:last-child, .inventory-item:last-child, .customer-item:last-child, .analytics-row:last-child {
+    border-bottom: none;
+}
+
+.revenue-big {
+    font-size: 2rem;
+    font-family: monospace;
+    color: var(--teal-accent);
+    text-align: center;
+    font-weight: bold;
+}
+
+.timestamp {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.loading {
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+select {
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--bg-obsidian);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+select:focus {
+    border-color: var(--teal-accent);
+    outline: none;
+}

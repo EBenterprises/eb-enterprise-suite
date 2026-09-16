@@ -1,0 +1,12 @@
+{
+  "modules": [
+    {
+      "name": "dynamic_user_widget.js",
+      "type": "frontend",
+      "path": "/data/data/com.termux/files/home/public/dynamic_user_widget.js",
+      "timestamp": "2026-09-15T22:34:20.134Z"
+    }
+  ],
+  "routes": [],
+  "assets": []
+}

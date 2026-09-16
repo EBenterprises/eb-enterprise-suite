@@ -1,0 +1,15 @@
+{
+  "enabled": [
+    "customers",
+    "requests",
+    "orders",
+    "dispatch",
+    "drivers",
+    "locations",
+    "scheduling",
+    "payments",
+    "notifications",
+    "operations",
+    "administration"
+  ]
+}

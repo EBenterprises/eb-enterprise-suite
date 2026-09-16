@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Reset Password</h2>
+    <form method="POST">
+        <div>
+            <label>Reset Token</label><br><br>
+            <input type="text" name="token" value="{{ token }}" required style="width: 100%;">
+        </div>
+        <div>
+            <label>New Password</label><br><br>
+            <input type="password" name="password" required style="width: 100%;">
+        </div>
+        <input type="submit" value="Update Password">
+    </form>
+    <div class="links">
+        <a href="{{ url_for('login') }}">Cancel</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Token Generated</h2>
+<p>Secure reset token for <b>{{ username }}</b>:</p>
+<p><code>{{ token }}</code></p>
+<p style="font-size: 0.85rem; word-break: break-all;"><b>Tracked Link:</b> <a href="{{ reset_url }}">{{ reset_url }}</a></p>
+<div class="links">
+    <a href="{{ reset_url }}">Proceed to Reset</a>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+/*
+ * Request Runner® — Proprietary IP Presentation
+ *
+ * The registered-symbol treatment is visual only.
+ * Legal registration status is determined independently by jurisdiction.
+ */
+
+.ip-symbol {
+    display: inline-block;
+    font-size: 0.58em;
+    line-height: 0;
+    vertical-align: super;
+    position: relative;
+    top: -0.05em;
+    margin-left: 0.04em;
+    font-weight: inherit;
+    text-decoration: none;
+}
+
+.ip-trademark {
+    display: inline-block;
+    font-size: 0.58em;
+    line-height: 0;
+    vertical-align: super;
+    position: relative;
+    top: -0.05em;
+    margin-left: 0.04em;
+    font-weight: inherit;
+    text-decoration: none;
+}

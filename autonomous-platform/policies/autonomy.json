@@ -1,0 +1,38 @@
+{
+  "name": "Autonomous Platform Completion Policy®",
+
+  "continueAutomatically": true,
+
+  "failurePolicy": {
+    "retry": true,
+    "repair": true,
+    "replan": true,
+    "branchRepair": true,
+    "verifyAfterRepair": true,
+    "noFixedAttemptLimit": true
+  },
+
+  "progressPolicy": {
+    "neverWaitForContinuePrompt": true,
+    "persistState": true,
+    "checkpointProgress": true,
+    "resumeAfterProcessRestart": true,
+    "resumeAfterDeviceRestart": true
+  },
+
+  "safetyPolicy": {
+    "doNotFabricateCredentials": true,
+    "doNotFabricateExternalApproval": true,
+    "doNotDestroyProductionDataWithoutApproval": true,
+    "doNotClaimDeploymentWithoutVerification": true
+  },
+
+  "completionPolicy": {
+    "implementation": true,
+    "integration": true,
+    "testing": true,
+    "verification": true,
+    "deployment": true,
+    "postDeploymentHealth": true
+  }
+}

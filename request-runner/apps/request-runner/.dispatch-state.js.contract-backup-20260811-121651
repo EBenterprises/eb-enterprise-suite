@@ -1,0 +1,99 @@
+"use strict";
+
+/**
+ * Request Runner® — Dispatch® State Registry
+ *
+ * Tracks Request® dispatch lifecycle independently from
+ * transportation method and independently from persistence.
+ */
+
+const states = new Map();
+
+const VALID_STATES = new Set([
+    "queued",
+    "dispatched",
+    "accepted",
+    "in_progress",
+    "completed",
+    "cancelled",
+    "failed"
+]);
+
+function normalize(requestId, input = {}) {
+    if (!requestId) {
+        throw new Error("Request id is required");
+    }
+
+    const state = input.state || "queued";
+
+    if (!VALID_STATES.has(state)) {
+        throw new Error(`Invalid dispatch state: ${state}`);
+    }
+
+    return {
+        requestId: String(requestId),
+        state,
+        runnerId: input.runnerId || null,
+        createdAt: input.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+}
+
+function create(requestId, input = {}) {
+    const id = String(requestId);
+
+    if (states.has(id)) {
+        throw new Error(`Dispatch state already exists: ${id}`);
+    }
+
+    const record = normalize(id, input);
+    states.set(id, record);
+
+    return { ...record };
+}
+
+function get(requestId) {
+    const record = states.get(String(requestId));
+    return record ? { ...record } : null;
+}
+
+function update(requestId, patch = {}) {
+    const id = String(requestId);
+    const existing = states.get(id);
+
+    if (!existing) {
+        throw new Error(`Dispatch state not found: ${requestId}`);
+    }
+
+    const updated = normalize(id, {
+        ...existing,
+        ...patch,
+        createdAt: existing.createdAt
+    });
+
+    states.set(id, updated);
+
+    return { ...updated };
+}
+
+function remove(requestId) {
+    return states.delete(String(requestId));
+}
+
+function list() {
+    return [...states.values()].map(record => ({ ...record }));
+}
+
+function clear() {
+    states.clear();
+}
+
+module.exports = {
+    VALID_STATES: [...VALID_STATES],
+    create,
+    get,
+    update,
+    remove,
+    list,
+    clear
+};

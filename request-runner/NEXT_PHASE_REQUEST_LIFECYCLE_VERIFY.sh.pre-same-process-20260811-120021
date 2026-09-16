@@ -1,0 +1,262 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -u
+
+cd "$(dirname "$0")" || exit 1
+
+PASS=0
+FAIL=0
+
+ok() {
+    echo "✓ $1"
+    PASS=$((PASS+1))
+}
+
+bad() {
+    echo "✗ $1"
+    FAIL=$((FAIL+1))
+}
+
+echo "=============================================================="
+echo " REQUEST RUNNER® — REQUEST LIFECYCLE® VERIFICATION"
+echo " ISOLATED TEST DATA / PRESERVE GREEN BASELINE"
+echo "=============================================================="
+
+echo
+echo "[1] PRODUCTION BASELINE"
+echo "--------------------------------------------------------------"
+
+if ./FINAL_PRODUCTION_SNAPSHOT.sh >/dev/null 2>&1; then
+    ok "Production baseline remains GREEN"
+else
+    bad "Production baseline failed"
+fi
+
+echo
+echo "[2] REQUEST MODULE"
+echo "--------------------------------------------------------------"
+
+if [ -f apps/request-runner/requests.js ] &&
+   node --check apps/request-runner/requests.js >/dev/null 2>&1; then
+    ok "Request® module valid"
+else
+    bad "Request® module missing or invalid"
+fi
+
+echo
+echo "[3] REQUEST LIFECYCLE SURFACE"
+echo "--------------------------------------------------------------"
+
+node - <<'NODE'
+const requests = require("./apps/request-runner/requests");
+
+if (!requests || typeof requests !== "object") {
+    throw new Error("Request® service unavailable");
+}
+
+const keys = Object.keys(requests);
+
+console.log("Request® exports:");
+console.log(keys.sort().join(", ") || "(none)");
+NODE
+
+if [ "$?" -eq 0 ]; then
+    ok "Request® service loaded"
+else
+    bad "Request® service unavailable"
+fi
+
+echo
+echo "[4] REQUEST CREATION / RETRIEVAL"
+echo "--------------------------------------------------------------"
+
+if node - <<'NODE'
+const requests = require("./apps/request-runner/requests");
+
+const id = "__lifecycle_request__";
+
+function pick(nameList) {
+    for (const name of nameList) {
+        if (typeof requests[name] === "function") {
+            return requests[name];
+        }
+    }
+    return null;
+}
+
+const create =
+    pick(["create", "register", "add", "submit"]);
+
+const get =
+    pick(["get", "find", "retrieve"]);
+
+if (!create || !get) {
+    throw new Error("Request creation/retrieval operations unavailable");
+}
+
+const request = create.call(requests, {
+    id,
+    status: "created"
+});
+
+if (!request) {
+    throw new Error("Request creation failed");
+}
+
+const found = get.call(requests, id);
+
+if (!found) {
+    throw new Error("Request retrieval failed");
+}
+
+console.log("✓ Request® creation and retrieval verified");
+NODE
+then
+    ok "Request® creation/retrieval verified"
+else
+    bad "Request® creation/retrieval failed"
+fi
+
+echo
+echo "[5] REQUEST STATE TRANSITIONS"
+echo "--------------------------------------------------------------"
+
+if node - <<'NODE'
+const requests = require("./apps/request-runner/requests");
+
+const id = "__lifecycle_request__";
+
+const transition =
+    requests.update ||
+    requests.setStatus ||
+    requests.transition ||
+    requests.changeStatus;
+
+const get =
+    requests.get ||
+    requests.find ||
+    requests.retrieve;
+
+if (typeof transition !== "function" || typeof get !== "function") {
+    throw new Error("Request state transition operation unavailable");
+}
+
+const states = [
+    "queued",
+    "assigned",
+    "in_progress",
+    "completed"
+];
+
+for (const status of states) {
+    let result;
+
+    try {
+        result = transition.call(
+            requests,
+            id,
+            { status }
+        );
+    } catch (_) {
+        result = transition.call(
+            requests,
+            id,
+            status
+        );
+    }
+
+    if (!result) {
+        throw new Error(`Request transition failed: ${status}`);
+    }
+
+    const current = get.call(requests, id);
+
+    if (!current || current.status !== status) {
+        throw new Error(`Request state not established: ${status}`);
+    }
+}
+
+console.log("✓ Request® state transitions verified");
+NODE
+then
+    ok "Request® lifecycle transitions verified"
+else
+    bad "Request® lifecycle transitions failed"
+fi
+
+echo
+echo "[6] TEST STATE CLEANUP"
+echo "--------------------------------------------------------------"
+
+node - <<'NODE'
+const requests = require("./apps/request-runner/requests");
+
+const id = "__lifecycle_request__";
+
+if (typeof requests.remove === "function") {
+    requests.remove(id);
+} else if (typeof requests.delete === "function") {
+    requests.delete(id);
+} else if (typeof requests.clear === "function") {
+    /*
+     * Do not clear the production registry if no targeted
+     * removal operation exists.
+     */
+    console.log("⚠ No targeted Request® removal operation");
+}
+
+const get =
+    requests.get ||
+    requests.find ||
+    requests.retrieve;
+
+if (typeof get === "function" && get.call(requests, id)) {
+    throw new Error("Lifecycle test state leaked");
+}
+
+console.log("✓ Isolated Request® lifecycle state cleared");
+NODE
+
+if [ "$?" -eq 0 ]; then
+    ok "No lifecycle test state leaked"
+else
+    bad "Lifecycle test state leaked"
+fi
+
+echo
+echo "[7] LOCAL SERVER"
+echo "--------------------------------------------------------------"
+
+HTTP_CODE="$(
+    curl -sS \
+        -o /dev/null \
+        -w '%{http_code}' \
+        --max-time 5 \
+        http://127.0.0.1:3000/ 2>/dev/null
+)"
+
+if [ "$HTTP_CODE" = "200" ]; then
+    ok "Request Runner® HTTP 200"
+else
+    bad "Request Runner® HTTP $HTTP_CODE"
+fi
+
+echo
+echo "=============================================================="
+echo " REQUEST LIFECYCLE® RESULT"
+echo "=============================================================="
+echo
+echo "PASS: $PASS"
+echo "FAIL: $FAIL"
+echo
+
+if [ "$FAIL" -eq 0 ]; then
+    echo "STATUS: GREEN"
+    echo "REQUEST LIFECYCLE® VERIFIED"
+    echo "READY FOR NEXT PRODUCT SURFACE"
+else
+    echo "STATUS: RED"
+    echo "STOP — DO NOT ADVANCE"
+    exit 1
+fi
+
+echo "=============================================================="

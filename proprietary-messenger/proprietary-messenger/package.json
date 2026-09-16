@@ -1,0 +1,8 @@
+{
+  "name": "proprietary-messenger",
+  "version": "2.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "deploy": "echo 'Triggering live deployment pipeline for carrier gateway...' && node server.js"
+  }
+}

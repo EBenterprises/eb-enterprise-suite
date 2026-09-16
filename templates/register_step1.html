@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>📝 Step 1: Credentials</h2>
+<form method="POST">
+    <div class="input-group"><input type="text" name="fullname" placeholder="Full Name" required></div>
+    <div class="input-group"><input type="text" name="username" placeholder="Username" required autocomplete="off"></div>
+    <div class="input-group"><input type="email" name="email" placeholder="Email Address" required></div>
+    <div class="input-group"><input type="password" name="password" placeholder="Password" required></div>
+    <button type="submit">Next</button>
+</form>
+<div class="links" style="justify-content: center;"><a href="/login">Back to Login</a></div>
+{% endblock %}

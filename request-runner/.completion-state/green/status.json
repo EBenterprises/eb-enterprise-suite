@@ -1,0 +1,11 @@
+{
+  "state": "GREEN",
+  "build": "PASS",
+  "server_artifact": "PASS",
+  "server_files": 155,
+  "smoke_test": "PASS",
+  "existing_test_runner": "",
+  "existing_tests": "NOT_CONFIGURED",
+  "engine": "STOPPED",
+  "timestamp": "2026-08-12T09:03:12-07:00"
+}

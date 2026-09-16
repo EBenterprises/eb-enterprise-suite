@@ -1,0 +1,31 @@
++ set -e
++ echo '=== EB PLATFORM® STEP 11 — COMPACT E2E ==='
++ BACKUP=.backups/pre-real-lifecycle-20260810-143832
++ test -d .backups/pre-real-lifecycle-20260810-143832
++ PASS 'Backup verified'
++ echo '✓ Backup verified'
++ node --check api/domain-service.js
++ node --check framework/lifecycle/canonical-lifecycle.js
++ PASS Syntax
++ echo '✓ Syntax'
++ curl -fsS http://127.0.0.1:3000/api/health
++ PASS 'API healthy'
++ echo '✓ API healthy'
++ node
++ PASS 'Canonical transitions'
++ echo '✓ Canonical transitions'
+++ curl -fsS -X POST http://127.0.0.1:3000/api/customers -H 'Content-Type: application/json' -d '{"name":"STEP11 TEST","phone":"0000000011"}'
+++ node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>process.stdout.write((JSON.parse(s).data||{}).id||""))'
++ C=customers_1786422225166_4ed1ce2db8b6
++ test -n customers_1786422225166_4ed1ce2db8b6
++ PASS 'Test customer created'
++ echo '✓ Test customer created'
+++ curl -fsS -X POST http://127.0.0.1:3000/api/requests -H 'Content-Type: application/json' -d '{"customerId":"customers_1786422225166_4ed1ce2db8b6","pickup":"STEP11","destination":"STEP11"}'
+++ node -e 'let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>process.stdout.write((JSON.parse(s).data||{}).id||""))'
++ R=requests_1786422225496_d980ec2e23c6
++ test -n requests_1786422225496_d980ec2e23c6
++ PASS 'Test request created'
++ echo '✓ Test request created'
+++ curl -fsS -X POST http://127.0.0.1:3000/api/requests/requests_1786422225496_d980ec2e23c6/accept
+curl: (22) The requested URL returned error: 404
++ A=

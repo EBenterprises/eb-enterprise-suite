@@ -1,0 +1,51 @@
+name: Enterprise Pipeline Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: enterprise_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        working-directory: ./enterprise-scale-app/backend
+        run: npm ci
+
+      - name: Run Database Migrations
+        working-directory: ./enterprise-scale-app/backend
+        env:
+          DATABASE_URL: postgres://user:password@localhost:5432/enterprise_db
+          JWT_SECRET: pipeline_test_secret
+          NODE_ENV: development
+        run: npm run migrate

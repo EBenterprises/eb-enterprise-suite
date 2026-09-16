@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Vault - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Secure Vault Sign In</h2>
+        <form method="POST">
+            <label>Username</label>
+            <input type="text" name="username" required placeholder="Enter username...">
+            <label>Password</label>
+            <input type="password" name="password" required placeholder="Enter password...">
+            <button type="submit">Login</button>
+        </form>
+        <p style="margin-top: 15px; font-size: 12px; text-align: center;">Need an account? <a href="/register" style="color: #34d399;">Register</a></p>
+    </div>
+</body>
+</html>

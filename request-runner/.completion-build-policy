@@ -1,0 +1,20 @@
+# COMPLETION ENGINE® — VERIFIED PRODUCTION BUILD POLICY
+
+PLATFORM=android
+ARCH=arm64
+
+NEXT_BUILD_ENGINE=webpack
+NEXT_BUILD_COMMAND=next build --webpack
+
+TURBOPACK=disabled
+
+# package.json owns the --webpack flag.
+# Runtime must execute npm run build only.
+# Webpack cache snapshot warnings are non-fatal.
+
+WEBPACK_CACHE_WARNINGS=nonfatal
+
+VERIFY_BUILD_EXIT=0
+VERIFY_NEXT_DIRECTORY=true
+VERIFY_NEXT_SERVER=true
+VERIFY_PAGES_MANIFEST=true

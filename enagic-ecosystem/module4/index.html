@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Stage 4: Checkout</title><link rel="stylesheet" href="../assets/css/executive-spectrum.css"></head>
+<body>
+    <div class="nav-bar">
+        <a href="http://localhost:3001">1. Lead</a> | <a href="http://localhost:3002">2. Education</a> | <a href="http://localhost:3003">3. Booking</a> | <a href="http://localhost:3004">4. Checkout</a> | <a href="http://localhost:3005">5. Distributor</a>
+    </div>
+    <div class="card">
+        <h2>K8 / SD501 Secure Acquisition Portal</h2>
+        <p>Select fulfillment path: Direct Purchase or Financing.</p>
+        <form action="http://localhost:3004/checkout" method="POST">
+            <input type="text" name="buyer_name" placeholder="Full Billing Name" required>
+            <input type="text" name="model" placeholder="Model Selection (K8 or SD501)" required>
+            <select name="payment_type">
+                <option value="direct">Direct Payment (Full Settlement)</option>
+                <option value="financing">Enagic Approved Financing Program</option>
+            </select>
+            <button type="submit">Complete Secure Order</button>
+        </form>
+    </div>
+</body>
+</html>

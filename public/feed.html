@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EB Enterprises - Live Userbase Feed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <nav class="nav-bar">
+            <a href="/" class="nav-link">Register</a>
+            <a href="/feed" class="nav-link active">Live Feed</a>
+            <a href="/directory" class="nav-link">Directory</a>
+            <a href="/about" class="nav-link">About</a>
+        </nav>
+
+        <div class="brand-header">
+            <h1 class="brand-title">EB ENTERPRISES</h1>
+            <p class="brand-subtitle">Live Userbase Activity Stream</p>
+        </div>
+
+        <div id="feed-list" class="feed-list">
+            <div style="color: var(--text-secondary); text-align: center; padding: 2rem;">Loading live feed...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadFeed() {
+            try {
+                const res = await fetch('/api/users');
+                const users = await res.json();
+                const feedList = document.getElementById('feed-list');
+                feedList.innerHTML = '';
+
+                if (!users || users.length === 0) {
+                    feedList.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">No registered profiles found.</div>';
+                    return;
+                }
+
+                users.forEach(user => {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item';
+                    item.innerHTML = `
+                        <div class="feed-user">${escapeHtml(user.email)}</div>
+                        <div class="feed-bio">${escapeHtml(user.bio || 'No bio provided.')}</div>
+                        <div class="feed-meta">Tier: ${escapeHtml(user.userTier)} | Joined: ${new Date(user.createdAt).toLocaleDateString()}</div>
+                    `;
+                    feedList.appendChild(item);
+                });
+            } catch (err) {
+                console.error("Feed load error:", err);
+            }
+        }
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        loadFeed();
+    </script>
+</body>
+</html>

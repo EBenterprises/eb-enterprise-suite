@@ -1,0 +1,19 @@
+1:"$Sreact.fragment"
+2:I[8500,["974","static/chunks/app/page-445851d6c933792c.js"],""]
+3:I[484,[],"OutletBoundary"]
+4:"$Sreact.suspense"
+8:I[484,[],"ViewportBoundary"]
+9:I[484,[],"MetadataBoundary"]
+b:I[7121,[],""]
+c:I[4581,[],""]
+:HL["/_next/static/css/4f32b1408a844119.css","style"]
+7:X
+0:{"buildId":"tWq5S6WekY707NOC7HR_v","data":[{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"shell","children":[["$","section",null,{"className":"hero","children":[["$","span",null,{"className":"eyebrow","children":"REQUEST RUNNER®"}],["$","h1",null,{"children":"Tell us what you’re looking for."}],["$","p",null,{"children":"Submit a pickup or delivery request in plain language. Your request appears on the operations server in real time."}],["$","div",null,{"className":"actions","children":[["$","$L2",null,{"className":"button primary","href":"/request","children":"Make a Request"}],["$","$L2",null,{"className":"button","href":"/ops","children":"Open Operations"}]]}]]}],["$","section",null,{"className":"cards","children":[["$","article",null,{"children":[["$","b",null,{"children":"1. Request"}],["$","span",null,{"children":"Describe what you need."}]]}],["$","article",null,{"children":[["$","b",null,{"children":"2. Match"}],["$","span",null,{"children":"Operations sees it instantly."}]]}],["$","article",null,{"children":[["$","b",null,{"children":"3. Complete"}],["$","span",null,{"children":"Status and ETA update live."}]]}]]}]]}],null,["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L8",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L9",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Request Runner®"}],["$","meta","1",{"name":"description","content":"Real-time pickup and delivery request platform."}]]}]}]}],null]}],"isPartial":"$@a","staleTime":"$7","varyParams":null},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/4f32b1408a844119.css","precedence":"next"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$Lb",null,{"parallelRouterKey":"children","template":["$","$Lc",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]}]}]]}],"isPartial":"$@d","staleTime":"$7","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@e","rootVaryParams":null,"needsRuntimeRequest":"$@f"}
+5:null
+7:300
+f:true
+7:C
+e:0
+a:"$undefined"
+d:"$undefined"
+6:"$undefined"

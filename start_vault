@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Configuration & Directories
+VAULT_DIR="$HOME/.vault_core"
+LOG_FILE="$VAULT_DIR/vault.log"
+PID_FILE="$VAULT_DIR/vault.pid"
+
+mkdir -p "$VAULT_DIR"
+
+# Check if already running
+if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
+    echo "Error: Secure Vault is already running (PID $(cat "$PID_FILE"))."
+    exit 1
+fi
+
+echo "Initializing Secure Vault services..."
+
+# Start background services (simulating local server & tunnel with dummy background loops for demonstration)
+# Replace these with your actual server and tunneling commands (e.g., python3 -m http.server 5001 &)
+python3 -m http.server 5001 --directory "$VAULT_DIR" > "$LOG_FILE" 2>&1 &
+SERVER_PID=$!
+
+# Save PID for management
+echo "$SERVER_PID" > "$PID_FILE"
+
+# Wait briefly for services to spin up
+sleep 1
+
+# Display Clean Status (No Box Borders)
+TEAL='\033[38;5;30m'
+GOLD='\033[38;5;220m'
+RESET='\033[0m'
+
+echo -e "\n${GOLD}=== SECURE VAULT ACTIVE ===${RESET}"
+echo -e "${TEAL}Local  :${RESET} http://127.0.0.1:5001"
+echo -e "${TEAL}Public :${RESET} https://808be7e72afbccc9-23-16-92-159.serveousercontent.com"
+echo -e "${TEAL}Onion  :${RESET} xwswd4xgahwrm6t6nv6hdplikscsnkddntwudt4iygelv44atsd6erqd.onion"
+echo -e "${TEAL}Status :${RESET} Running (PID: $SERVER_PID)"
+echo -e "${TEAL}Logs   :${RESET} $LOG_FILE\n"

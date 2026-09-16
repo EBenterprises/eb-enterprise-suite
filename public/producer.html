@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EggFinder® — Producer Dedicated Stock Portal</title>
+    <style>
+        :root {
+            --bg-obsidian: #050608;
+            --surface-panel: #0d1117;
+            --accent-teal: #00ffea;
+            --accent-teal-glow: rgba(0, 255, 234, 0.2);
+            --accent-gold: #f4c430;
+            --accent-gold-glow: rgba(244, 196, 48, 0.3);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border-subtle: rgba(0, 255, 234, 0.15);
+            --success: #00ff66;
+            --danger: #ff3366;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg-obsidian); color: var(--text-main); padding: 40px 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 550px; background: var(--surface-panel); border: 1px solid var(--border-subtle); border-radius: 20px; padding: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px var(--accent-teal-glow); height: fit-content; }
+        h1 { color: var(--accent-teal); font-size: 1.5rem; margin-bottom: 6px; text-shadow: 0 0 12px var(--accent-teal-glow); }
+        .token-sub { font-size: 0.8rem; color: var(--accent-gold); font-family: monospace; margin-bottom: 25px; background: rgba(244,196,48,0.05); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(244,196,48,0.2); display: inline-block; }
+        
+        .station-box { background: rgba(0, 255, 234, 0.03); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 25px; margin-bottom: 25px; }
+        .station-name { font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .station-loc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 20px; }
+        
+        .stock-control-group { display: flex; flex-direction: column; gap: 10px; }
+        label { font-size: 0.85rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
+        .input-row { display: flex; gap: 10px; }
+        input[type="number"] { flex: 1; background: var(--bg-obsidian); border: 1px solid var(--accent-teal); color: var(--accent-teal); font-size: 1.5rem; font-weight: 800; padding: 12px; border-radius: 10px; text-align: center; outline: none; }
+        
+        button { background: linear-gradient(135deg, var(--accent-teal), #00b3a4); color: var(--bg-obsidian); border: none; padding: 0 24px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 1rem; box-shadow: 0 0 12px var(--accent-teal-glow); transition: filter 0.2s; }
+        button:hover { filter: brightness(1.1); }
+        
+        .status-msg { margin-top: 15px; font-size: 0.85rem; font-weight: 700; text-align: center; min-height: 20px; }
+        .success { color: var(--success); }
+        .error { color: var(--danger); }
+        
+        .footer-note { margin-top: 25px; font-size: 0.75rem; color: var(--text-dim); text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="appContainer">
+        <h1>🌾 Producer Stock Portal</h1>
+        <div class="token-sub" id="tokenDisplay">Loading secure token...</div>
+        
+        <div class="station-box">
+            <div class="station-name" id="farmName">Resolving station...</div>
+            <div class="station-loc" id="farmCoords">GPS: --</div>
+            
+            <div class="stock-control-group">
+                <label>Available Dozens Stock</label>
+                <div class="input-row">
+                    <input type="number" id="stockInput" min="0">
+                    <button onclick="updateStock()">Update</button>
+                </div>
+            </div>
+            <div class="status-msg" id="statusMsg"></div>
+        </div>
+        
+        <div class="footer-note">
+            🔒 Secured via cryptographic producer token link. Changes sync instantly to the P2P mesh network.
+        </div>
+    </div>
+
+    <script>
+        // Extract secret token from URL path: /manage/:token
+        const pathSegments = window.location.pathname.split('/');
+        const token = pathSegments[pathSegments.length - 1];
+        document.getElementById('tokenDisplay').innerText = `Secure Token: ${token}`;
+
+        let currentFarmId = null;
+
+        async function loadProducerPortal() {
+            try {
+                const res = await fetch(`/api/producer/${token}`);
+                if (!res.ok) throw new Error('Invalid or expired management token.');
+                const data = await res.json();
+                
+                currentFarmId = data.farm.id;
+                document.getElementById('farmName').innerText = data.farm.name;
+                document.getElementById('farmCoords').innerText = `GPS: ${data.farm.lat.toFixed(4)}, ${data.farm.lng.toFixed(4)} | Price: $${data.farm.price.toFixed(2)}/dz`;
+                document.getElementById('stockInput').value = data.farm.stock;
+            } catch (err) {
+                document.getElementById('appContainer').innerHTML = `
+                    <h1 style="color:var(--danger)">Access Denied</h1>
+                    <p style="color:var(--text-dim); margin-top:10px;">This producer management link is invalid, expired, or unassigned.</p>
+                `;
+            }
+        }
+
+        async function updateStock() {
+            const stock = parseInt(document.getElementById('stockInput').value);
+            const msgEl = document.getElementById('statusMsg');
+            
+            if (isNaN(stock) || stock < 0) {
+                msgEl.className = 'status-msg error';
+                msgEl.innerText = 'Please enter a valid positive stock quantity.';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/producer/${token}/stock`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stock })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    msgEl.className = 'status-msg success';
+                    msgEl.innerText = '⚡ Stock successfully updated & broadcasted across cluster!';
+                    setTimeout(() => { msgEl.innerText = ''; }, 3000);
+                } else {
+                    throw new Error(data.error || 'Update failed.');
+                }
+            } catch (err) {
+                msgEl.className = 'status-msg error';
+                msgEl.innerText = err.message;
+            }
+        }
+
+        loadProducerPortal();
+    </script>
+</body>
+</html>

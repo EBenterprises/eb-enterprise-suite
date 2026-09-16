@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Executive Terminal - Dashboard</title>
+  <style>
+    body { background: #0b0f19; color: #f3f4f6; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .box { background: #111827; border: 1px solid #1f2937; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 450px; }
+    h1 { color: #38bdf8; font-size: 24px; }
+    p { color: #9ca3af; }
+    button { padding: 12px 24px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 20px; font-size: 16px; width: 100%; }
+    button:hover { background: #dc2626; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h1>Executive Terminal Access Granted</h1>
+  <p>Multi-factor authentication verified successfully with cryptographic session control.</p>
+  <button id="logoutBtn">Secure Logout</button>
+</div>
+<script>
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
+  });
+</script>
+</body>
+</html>

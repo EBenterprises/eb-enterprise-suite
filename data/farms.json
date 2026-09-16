@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Sunny Slope Poultry",
+    "lat": 49.8850,
+    "lng": -119.5800,
+    "stock": 24,
+    "price": 7.50,
+    "image": "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=500&auto=format&fit=crop&q=60",
+    "description": "Free-range heritage browns. Grab 'em before they're gone!"
+  },
+  {
+    "id": 2,
+    "name": "Okanagan Golden Yolks",
+    "lat": 49.8620,
+    "lng": -119.6100,
+    "stock": 12,
+    "price": 8.00,
+    "image": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=500&auto=format&fit=crop&q=60",
+    "description": "Organic pasture-raised layers. Fresh daily."
+  },
+  {
+    "id": 3,
+    "name": "Valley Ridge Coop",
+    "lat": 49.9010,
+    "lng": -119.5300,
+    "stock": 45,
+    "price": 6.75,
+    "image": "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=500&auto=format&fit=crop&q=60",
+    "description": "Big jumbo blue & green eggs. Self-serve honor fridge."
+  }
+]

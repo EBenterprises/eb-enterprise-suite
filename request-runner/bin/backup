@@ -1,0 +1,18 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+APP="$HOME/request-runner"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+DEST="$HOME/request-runner-backups/$STAMP"
+
+mkdir -p "$DEST"
+
+cp -a "$APP" "$DEST/request-runner"
+
+rm -rf "$DEST/request-runner/.next"
+rm -rf "$DEST/request-runner/node_modules"
+rm -rf "$DEST/request-runner/.repair-backup-"*
+rm -rf "$DEST/request-runner/.platform-backup-"*
+
+echo "Backup created:"
+echo "$DEST"

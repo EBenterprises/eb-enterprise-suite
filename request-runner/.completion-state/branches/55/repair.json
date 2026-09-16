@@ -1,0 +1,9 @@
+{
+  "version": "55",
+  "branch": "completion-engine/repair-55-20260811-183341",
+  "classification": "PRODUCTION_BUILD_FAILURE",
+  "source_rewrite": false,
+  "route_rewrite": false,
+  "isolated": true,
+  "promotion": "gated"
+}

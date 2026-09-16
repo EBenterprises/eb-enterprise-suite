@@ -1,0 +1,47 @@
+Root: /data/data/com.termux/files/home/request-runner
+Time: Tue Aug 11 00:23:49 PDT 2026
+✓ package.json exists
+✓ server.js exists
+✓ next.config.js exists
+✓ EB_PLATFORM.sh exists
+✓ start.sh exists
+✓ launch.sh exists
+✓ REQUEST_RUNNER_RELEASE_GATE.sh exists
+✓ STEPS35_40_PRODUCT_VERIFICATION.sh exists
+⚠ Port 3000 has no listener
+⚠ Port 3001 has no listener
+⚠ next.pid → stale PID 21924
+200  http://127.0.0.1:3000/request
+200  http://127.0.0.1:3000/ops
+200  http://127.0.0.1:3000/api/health
+200  http://127.0.0.1:3001/health
+✓ Socket.IO handshake
+
+> request-runner@1.0.0 dev
+> next dev --webpack
+
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+[?25h
+✓ Safety backup created
+Backup: /data/data/com.termux/files/home/request-runner/.platform-backup-20260811-002349
+✓ EB_PLATFORM.sh syntax
+✓ start.sh syntax
+✓ launch.sh syntax
+✓ REQUEST_RUNNER_RELEASE_GATE.sh syntax
+✓ STEPS35_40_PRODUCT_VERIFICATION.sh syntax
+✓ Removed stale PID file next.pid
+✓ Platform start command completed
+✓ Customer /request — HTTP 200
+✓ Operations /ops — HTTP 200
+✓ Realtime /health — HTTP 200
+✓ Socket.IO handshake
+✓ Release gate GREEN

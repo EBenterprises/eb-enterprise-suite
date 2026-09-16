@@ -1,0 +1,25 @@
+
+> request-runner@1.0.0 build
+> next build --webpack
+
+▲ Next.js 16.3.0 (webpack)
+✓ Running next.config.js took 234ms
+  Skipping creating a lockfile at /data/data/com.termux/files/home/request-runner/.next/lock because we're using WASM bindings
+
+  Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+✓ Compiled successfully in 96s
+  Running TypeScript ...
+  Finished TypeScript in 124ms ...
+  Collecting page data using 1 worker ...
+
+> Build error occurred
+Error: ENOENT: no such file or directory, open '/data/data/com.termux/files/home/request-runner/.next/server/pages-manifest.json'
+    at ignore-listed frames {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/data/data/com.termux/files/home/request-runner/.next/server/pages-manifest.json'
+}

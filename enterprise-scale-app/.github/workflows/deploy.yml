@@ -1,0 +1,49 @@
+name: Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: enterprise_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: enterprise-scale-app/backend/package-lock.json
+
+      - name: Install Backend Dependencies
+        working-directory: ./enterprise-scale-app/backend
+        run: npm ci
+
+      - name: Run Database Migrations
+        working-directory: ./enterprise-scale-app/backend
+        env:
+          DATABASE_URL: postgres://user:password@localhost:5432/enterprise_db
+          JWT_SECRET: test_secret
+          NODE_ENV: development
+        run: npm run migrate

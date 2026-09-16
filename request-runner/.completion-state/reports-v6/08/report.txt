@@ -1,0 +1,6 @@
+WORKER=08
+NAME=SECURITY
+START=2026-08-11T18:26:34-07:00
+
+SECURITY / SECRET HYGIENE
+PASS no obvious embedded secret signature

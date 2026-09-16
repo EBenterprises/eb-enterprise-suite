@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>System Dashboard // v2</h2>
+    <p>Operational status: <span style="color: var(--neon-cyan);">SECURE</span></p>
+    <div style="background-color: var(--bg-cyber); border: 1px solid var(--border-cyber); padding: 15px; margin: 20px 0; border-radius: 2px;">
+        <p style="margin: 0 0 10px 0; color: var(--text-cyber);">Active User: <code>{{ session.get('user') }}</code></p>
+        <p style="margin: 0; color: var(--text-cyber);">Security Protocol: <code>SHA-256 + Token Reset</code></p>
+    </div>
+    <div class="links" style="justify-content: flex-start; gap: 15px;">
+        <a href="{{ url_for('settings') }}">[ Settings ]</a>
+        <a href="{{ url_for('logs') }}">[ Audit Logs ]</a>
+        <a href="{{ url_for('logout') }}" style="color: var(--neon-magenta);">[ Terminate ]</a>
+    </div>
+{% endblock %}

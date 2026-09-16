@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: enterprise-backend-core
+    env: node
+    buildCommand: npm install && npm run migrate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production

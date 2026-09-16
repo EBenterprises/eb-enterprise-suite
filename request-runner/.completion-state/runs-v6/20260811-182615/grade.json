@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-08-11T18:28:46-07:00",
+  "engine": "COMPLETION_ENGINE® — MAXIMUM AUTONOMOUS V6",
+  "grade": 75,
+  "classification": "REPAIR REQUIRED",
+  "promotion": "FAIL",
+  "workers_defined": 13,
+  "workers_concurrency": 2,
+  "worker_failures": 13,
+  "worker_report_failures": 0,
+  "build_exit_code": 0,
+  "routes_emitted": 22,
+  "routes_expected": 22,
+  "artifact_failures": 0,
+  "manifest_parse_failures": 0,
+  "smoke_failures": 2,
+  "duration_seconds": 129,
+  "policy": "MAXIMUM_ANDROID_ARM64_WEBPACK"
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EB Enterprises - Sales & Inventory Management</title>
+    <style>
+        :root {
+            --bg-obsidian: #0b0f12;
+            --surface-dark: #12181f;
+            --accent-teal: #00b4d8;
+            --accent-teal-hover: #0096b4;
+            --highlight-gold: #d4af37;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border-color: #1e293b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-obsidian);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            border-bottom: 2px solid var(--highlight-gold);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            color: var(--highlight-gold);
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        .card {
+            background-color: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        h2 {
+            color: var(--accent-teal);
+            font-size: 1.1rem;
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        form input, form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: var(--bg-obsidian);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            box-sizing: border-box;
+        }
+        form input:focus, form select:focus {
+            border-color: var(--accent-teal);
+            outline: none;
+        }
+        button {
+            background-color: var(--accent-teal);
+            color: var(--bg-obsidian);
+            border: none;
+            padding: 12px 20px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: var(--accent-teal-hover);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            color: var(--highlight-gold);
+            background-color: rgba(212, 175, 55, 0.05);
+        }
+        tr:hover {
+            background-color: rgba(0, 180, 216, 0.03);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>EB ENTERPRISES // SALES TRACKER</h1>
+        <span style="color: var(--accent-teal); font-size: 0.85rem;">Executive Spectrum OS</span>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Log New Sale</h2>
+            <form id="saleForm">
+                <label for="item_name">Item Name / Identifier</label>
+                <input type="text" id="item_name" required placeholder="e.g., Premium Selection">
+
+                <label for="tier">Weight Tier</label>
+                <select id="tier" required onchange="updateTierDefaults()">
+                    <option value="3.5g">3.5g (Eighth)</option>
+                    <option value="7g">7g (Quarter)</option>
+                    <option value="14g">14g (Half-Ounce)</option>
+                    <option value="28g">28g (Full Ounce)</option>
+                </select>
+
+                <label for="weight_grams">Weight (Grams)</label>
+                <input type="number" step="0.1" id="weight_grams" required value="7">
+
+                <label for="price">Price ($)</label>
+                <input type="number" step="0.01" id="price" required placeholder="0.00">
+
+                <button type="submit">Commit Sale Record</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Ledger Records</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Item</th>
+                            <th>Tier</th>
+                            <th>Weight</th>
+                            <th>Price</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">Loading records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTierDefaults() {
+            const tier = document.getElementById('tier').value;
+            const weightInput = document.getElementById('weight_grams');
+            const priceInput = document.getElementById('price');
+            
+            if (tier === '3.5g') {
+                weightInput.value = 3.5;
+            } else if (tier === '7g') {
+                weightInput.value = 7.0;
+            } else if (tier === '14g') {
+                weightInput.value = 14.0;
+                if (priceInput.value && parseFloat(priceInput.value) <= 100) {
+                    priceInput.value = 120.00; // Ensuring 14g tier stays calibrated above 100
+                }
+            } else if (tier === '28g') {
+                weightInput.value = 28.0;
+            }
+        }
+
+        async function fetchSales() {
+            try {
+                const res = await fetch('/api/sales');
+                const data = await res.json();
+                const tbody = document.getElementById('salesTableBody');
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No ledger records found.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(s => `
+                    <tr>
+                        <td>#${s.id}</td>
+                        <td>${escapeHtml(s.item_name)}</td>
+                        <td>${escapeHtml(s.tier)}</td>
+                        <td>${s.weight_grams}g</td>
+                        <td style="color: var(--highlight-gold); font-weight: bold;">$${parseFloat(s.price).toFixed(2)}</td>
+                        <td style="color: var(--text-secondary);">${s.timestamp}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error fetching sales:', err);
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        document.getElementById('saleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                item_name: document.getElementById('item_name').value,
+                tier: document.getElementById('tier').value,
+                weight_grams: parseFloat(document.getElementById('weight_grams').value),
+                price: parseFloat(document.getElementById('price').value)
+            };
+
+            const res = await fetch('/api/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                document.getElementById('saleForm').reset();
+                updateTierDefaults();
+                fetchSales();
+            } else {
+                alert('Failed to log transaction.');
+            }
+        });
+
+        // Initial load
+        updateTierDefaults();
+        fetchSales();
+    </script>
+</body>
+</html>

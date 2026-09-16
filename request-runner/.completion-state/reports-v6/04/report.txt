@@ -1,0 +1,10 @@
+WORKER=04
+NAME=MANIFESTS
+START=2026-08-11T18:26:34-07:00
+
+MANIFEST INTEGRITY
+PASS .next/server/app-paths-manifest.json
+PASS .next/server/pages-manifest.json
+PASS .next/server/middleware-manifest.json
+PASS .next/server/server-reference-manifest.json
+INFO optional next-font-manifest.json absent

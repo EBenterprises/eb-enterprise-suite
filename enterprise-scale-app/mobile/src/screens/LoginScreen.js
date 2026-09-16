@@ -1,0 +1,65 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { loginUser } from '../services/api';
+
+export default function LoginScreen({ onLoginSuccess, onNavigateRegister }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Validation Error', 'All fields are required.');
+      return;
+    }
+    try {
+      setLoading(true);
+      await loginUser(email, password);
+      onLoginSuccess();
+    } catch (error) {
+      Alert.alert('Authentication Failed', error.response?.data?.error || 'Invalid server credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Enterprise Portal</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Corporate Email"
+        placeholderTextColor="#666"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Security Password"
+        placeholderTextColor="#666"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+        <Text style={styles.buttonText}>{loading ? 'Authenticating...' : 'Sign In'}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onNavigateRegister} style={styles.linkContainer}>
+        <Text style={styles.linkText}>New operator? <Text style={styles.linkHighlight}>Register Node</Text></Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', backgroundColor: '#0f172a', paddingHorizontal: 24 },
+  title: { fontSize: 28, fontWeight: 'bold', color: '#f8fafc', marginBottom: 32, textAlign: 'center' },
+  input: { backgroundColor: '#1e293b', borderWidth: 1, borderColor: '#334155', borderRadius: 8, paddingHorizontal: 16, height: 52, fontSize: 16, color: '#f8fafc', marginBottom: 16 },
+  button: { backgroundColor: '#0ea5e9', justifyContent: 'center', alignItems: 'center', borderRadius: 8, height: 52, marginTop: 8 },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  linkContainer: { marginTop: 24, alignItems: 'center' },
+  linkText: { color: '#94a3b8', fontSize: 14 },
+  linkHighlight: { color: '#38bdf8', fontWeight: 'bold' }
+});

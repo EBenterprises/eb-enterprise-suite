@@ -1,0 +1,25 @@
+{
+  "system": "OMEGA®",
+  "priority": [
+    "discover",
+    "architect",
+    "implement",
+    "integrate",
+    "test",
+    "repair",
+    "optimize",
+    "verify",
+    "checkpoint",
+    "repeat"
+  ],
+  "completion_policy": {
+    "build_must_pass": true,
+    "integration_must_pass": true,
+    "verification_must_pass": true,
+    "no_empty_required_files": true,
+    "no_unresolved_required_placeholders": true,
+    "continuous_improvement": true,
+    "time_bounded_execution": true,
+    "checkpoint_after_cycle": true
+  }
+}

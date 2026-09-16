@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Messenger V9 // Executive Suite</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- AUTH GATEWAY -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-card">
+            <h2>GHOST CHAT V9</h2>
+            <p>Secure Enterprise Direct Messaging & Presence Engine</p>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <form id="auth-form" class="auth-form" onsubmit="handleAuth(event)">
+                <input type="text" id="auth-user" placeholder="Username" required />
+                <input type="password" id="auth-pass" placeholder="Password" required />
+                <button type="submit" id="auth-submit-btn" class="auth-action-btn">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-container" class="app-container hidden">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile-badge">
+                    <span id="my-status-dot" class="status-dot online"></span>
+                    <div>
+                        <h3 id="current-user-display">User</h3>
+                        <select id="my-status-select" onchange="updateMyStatus(this.value)">
+                            <option value="online">Online</option>
+                            <option value="away">Away</option>
+                            <option value="offline">Invisible</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button onclick="openSettings()" title="Settings">⚙️</button>
+                    <button id="share-btn" title="Invite Friends">🔗</button>
+                    <button onclick="logout()" title="Sign Out">🚪</button>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="new-contact-input" placeholder="Start chat with username..." />
+                <button onclick="startNewChat()">+</button>
+            </div>
+
+            <div id="contact-list" class="contact-list"></div>
+        </aside>
+
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="chat-title-info">
+                    <span id="active-status-dot" class="status-dot online"></span>
+                    <h3 id="active-chat-title">Select a Conversation</h3>
+                </div>
+            </header>
+
+            <div id="chat-messages" class="chat-messages">
+                <div class="empty-state">Select a contact to begin secure messaging.</div>
+            </div>
+
+            <form id="chat-form" class="chat-input-area hidden" onsubmit="sendMessage(event)">
+                <input type="text" id="message-input" placeholder="Type a secure message..." autocomplete="off" required />
+                <button type="submit">Send</button>
+            </form>
+        </main>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Account Settings</h3>
+            <form onsubmit="saveSettings(event)" class="settings-form">
+                <label>Change Username</label>
+                <input type="text" id="settings-username" />
+                <label>New Password (leave blank to keep)</label>
+                <input type="password" id="settings-password" placeholder="New password" />
+                <div class="modal-buttons">
+                    <button type="button" class="secondary" onclick="document.getElementById('settings-modal').classList.add('hidden')">Cancel</button>
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SHARE MODAL -->
+    <div id="share-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Invite Friends</h3>
+            <div id="qrcode"></div>
+            <input type="text" id="share-url" readonly />
+            <button onclick="document.getElementById('share-modal').classList.add('hidden')">Close</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

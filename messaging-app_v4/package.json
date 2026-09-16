@@ -1,0 +1,19 @@
+{
+  "name": "messaging-app-v4",
+<<<<<<< HEAD
+  "version": "4.0.0",
+  "description": "Full-stack real-time messaging application v4 with automated port collision scanning, public link tunnel generation, auto-browser opening, and git initialization",
+=======
+  "version": "4.1.0",
+  "description": "Full-stack real-time messaging application v4 with automated port collision scanning, public link tunneling, Tor onion service support, auto-browser opening, and git initialization",
+>>>>>>> b3a3620 (feat: release messaging-app_v4 with onion hidden service hooks, automated port scanning, and public tunneling)
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "share": "npx localtunnel --port 3000"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

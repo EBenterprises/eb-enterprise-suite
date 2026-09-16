@@ -1,0 +1,33 @@
+REQUEST RUNNER® — RELEASE MANIFEST
+==================================
+Timestamp: Tue Aug 11 03:40:09 PDT 2026
+Platform: EB Platform®
+
+Node: v24.17.0
+npm: 11.17.0
+
+RELEASE GATE
+------------
+PASS: 30
+FAIL: 0
+STATUS: GREEN
+
+HTTP
+----
+200 http://127.0.0.1:3000/
+200 http://127.0.0.1:3000/request
+200 http://127.0.0.1:3000/ops
+200 http://127.0.0.1:3000/api/health
+200 http://127.0.0.1:3001/health
+
+SOCKET.IO
+---------
+PASS — handshake verified
+
+DOCTOR
+------
+PASS
+
+PLATFORM TESTS
+--------------
+PASS

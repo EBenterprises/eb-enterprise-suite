@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sales Tracker</h1>
+            <p>Log transactions, track quantities, and calculate weights</p>
+        </header>
+
+        <!-- Summary Cards -->
+        <section class="dashboard">
+            <div class="card">
+                <h3>Total Revenue</h3>
+                <p id="totalRevenue">$0.00</p>
+            </div>
+            <div class="card">
+                <h3>Total Weight</h3>
+                <p id="totalWeight">0 g <span id="weightInKg">(0 kg)</span></p>
+            </div>
+            <div class="card">
+                <h3>Total Sales Count</h3>
+                <p id="totalSales">0</p>
+            </div>
+        </section>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <h2>Add New Sale</h2>
+            <form id="salesForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="itemName">Item Name / Description</label>
+                        <input type="text" id="itemName" required placeholder="e.g. Premium Item">
+                    </div>
+                    <div class="form-group">
+                        <label for="unitPrice">Unit Price ($)</label>
+                        <input type="number" id="unitPrice" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weightGrams">Weight per Unit (Grams)</label>
+                        <input type="number" id="weightGrams" step="0.1" min="0" required placeholder="e.g. 7.0">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">Record Sale</button>
+            </form>
+        </section>
+
+        <!-- Sales Log Table -->
+        <section class="table-section">
+            <div class="table-header">
+                <h2>Sales History</h2>
+                <button id="clearDataBtn" class="btn-danger">Clear All Data</button>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Item</th>
+                            <th>Unit Price</th>
+                            <th>Qty</th>
+                            <th>Unit Weight (g)</th>
+                            <th>Total Weight (g)</th>
+                            <th>Total Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <!-- Entries inserted dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

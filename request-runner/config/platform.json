@@ -1,0 +1,30 @@
+{
+  "platform": {
+    "name": "EB Platform®",
+    "version": "1.0.0",
+    "application": "Request Runner®"
+  },
+
+  "runtime": {
+    "environment": "development",
+    "host": "0.0.0.0",
+    "webPort": 3000,
+    "realtimePort": 3001
+  },
+
+  "architecture": {
+    "kernel": "EB Core®",
+    "data": "EB Data®",
+    "api": "EB API®",
+    "realtime": "EB Realtime®",
+    "security": "EB Security®",
+    "observability": "EB Observability®"
+  },
+
+  "deployment": {
+    "targetIndependent": true,
+    "androidTermux": true,
+    "cloudReady": true,
+    "distributedReady": true
+  }
+}

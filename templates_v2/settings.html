@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Vault Settings</h2>
+    <p>Configure interface parameters.</p>
+    <form method="POST">
+        <div>
+            <label>Node Designation</label><br><br>
+            <input type="text" name="node_name" value="Primary-Node-01" required style="width: 100%; box-sizing: border-box;">
+        </div>
+        <div>
+            <label>Encryption Level</label><br><br>
+            <input type="text" value="SHA-256 (Enforced)" disabled style="width: 100%; box-sizing: border-box; background: #030712; color: #64748b; border: 1px solid var(--border-cyber);">
+        </div>
+        <input type="submit" value="Save Parameters">
+    </form>
+    <div class="links">
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+{% endblock %}

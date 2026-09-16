@@ -1,0 +1,5 @@
+export OPENAI_API_KEY='proj_skqjC5KTrYEytkYPe3LIfJRG'
+export OMEGA_GPT_MODEL='gpt-5.6'
+export OMEGA_ENV='production'
+export OMEGA_RUNTIME='termux'
+export OMEGA_LIVE='true'

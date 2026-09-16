@@ -1,0 +1,12 @@
+{
+  "name": "sales-tracker-server",
+  "version": "1.0.0",
+  "description": "Clustered Sales Tracker backend",
+  "main": "cluster.js",
+  "scripts": {
+    "start": "node cluster.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,15 @@
+BEGIN:VCARD
+VERSION:4.0
+N:Bodeux;Easton;;;
+FN:Easton Bodeux
+TITLE:Principal Architect & Founder
+ORG:EB Enterprises (Easton Bodeux Inc.)
+ROLE:Principal Systems Architect & Lead Developer
+TEL;TYPE=cell,pref;VALUE=uri:tel:+16729932001
+BDAY:1994-08-25
+ADR;TYPE=home,pref:;;Old Okanagan Highway;West Kelowna;BC;V4T 1X6;Canada
+NOTE:Executive Spectrum Design System | Zero-Dependency Systems Architecture | Full-Stack Automation & Proprietary Microkernels
+CATEGORIES:Executive,Principal,EB Enterprises,Architecture,Systems,Full-Stack,Omni
+CLIENTPIDMAP:1;urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+REV:2026-09-11T00:00:00Z
+END:VCARD

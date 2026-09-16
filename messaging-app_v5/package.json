@@ -1,0 +1,13 @@
+{
+  "name": "messaging-app-v5",
+  "version": "5.3.0",
+  "description": "Full-stack real-time messaging application v5 with zero-dependency JSON file persistence, automatic dependency checking, port collision scanning, and live public tunneling",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

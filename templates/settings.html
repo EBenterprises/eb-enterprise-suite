@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>⚙️ Settings</h2>
+<form method="POST">
+    <div class="input-group"><input type="password" name="current_password" placeholder="Current Password" required></div>
+    <div class="input-group"><input type="password" name="new_password" placeholder="New Password" required></div>
+    <button type="submit" style="background: #4f46e5;">Update Password</button>
+</form>
+<div class="links" style="justify-content: center;"><a href="/dashboard">Dashboard</a></div>
+{% endblock %}

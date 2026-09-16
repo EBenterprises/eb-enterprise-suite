@@ -1,0 +1,38 @@
+ENGINE=COMPLETION ENGINE® — UNIVERSAL FABRIC®
+VERSION=UNIVERSAL-8.0
+ID=1786508068417221995-30960
+TYPE=BUILD
+PARENT=1786503618156054178-20882
+START=2026-08-11T21:14:29-07:00
+
+BUILD_MODE=WEBPACK
+BUILD_COMMAND=next build --webpack
+BUILD_RESULT=FAIL
+▲ Next.js 16.3.0 (webpack)
+✓ Running next.config.js took 167ms
+  Skipping creating a lockfile at /data/data/com.termux/files/home/request-runner/.next/lock because we're using WASM bindings
+
+  Creating an optimized production build ...
+node:internal/modules/cjs/loader:1503
+  throw err;
+  ^
+
+Error: Cannot find module '/data/data/com.termux/files/home/request-runner/node_modules/next/dist/compiled/jest-worker/processChild.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1500:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1116:12)
+    at Module._load (node:internal/modules/cjs/loader:1285:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.17.0
+Next.js build worker exited with code: 1 and signal: null
+
+END=2026-08-11T21:16:05-07:00
+DURATION=97
+STATUS=COMPLETE

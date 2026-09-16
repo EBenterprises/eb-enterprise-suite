@@ -1,0 +1,10 @@
+WORKER=04
+NAME=MANIFESTS
+START=2026-08-11T18:22:46-07:00
+
+MANIFEST CONTRACT
+PASS .next/server/app-paths-manifest.json
+PASS .next/server/pages-manifest.json
+PASS .next/server/middleware-manifest.json
+PASS .next/server/server-reference-manifest.json
+OPTIONAL next-font-manifest.json PRESENT

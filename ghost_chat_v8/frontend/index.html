@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Messenger V8 // Secure Direct Messaging</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- AUTHENTICATION GATEWAY MODAL -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-card">
+            <h2>GHOST CHAT V8</h2>
+            <p>End-to-End Encrypted Direct Messaging Suite</p>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">Register</button>
+                <button class="tab-btn" onclick="switchAuthTab('otp')">SMS/Email OTP</button>
+            </div>
+
+            <!-- Standard Login Form -->
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+                <input type="text" id="login-user" placeholder="Username" required />
+                <input type="password" id="login-pass" placeholder="Password" required />
+                <button type="submit" class="auth-action-btn">Sign In</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event)">
+                <input type="text" id="reg-user" placeholder="Choose Username" required />
+                <input type="password" id="reg-pass" placeholder="Choose Password" required />
+                <button type="submit" class="auth-action-btn">Create Account</button>
+            </form>
+
+            <!-- OTP Request/Verify Form -->
+            <div id="otp-form" class="auth-form hidden">
+                <input type="text" id="otp-target" placeholder="Enter Email or Phone Number" />
+                <button type="button" class="auth-action-btn secondary" onclick="requestOTP()">Send Verification Code</button>
+                <input type="text" id="otp-code" placeholder="Enter 4-digit Code" />
+                <button type="button" class="auth-action-btn" onclick="verifyOTP()">Verify & Login</button>
+            </div>
+
+            <div class="divider"><span>OR PARTNER SIGN-IN</span></div>
+            <button type="button" class="google-btn" onclick="simulateGoogleLogin()">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.3 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.7s.2-2 .4-2.7L1.6 6.4C.6 8.4 0 10.6 0 13s.6 4.6 1.6 6.6l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.3-6.7-5.3L1.6 15C3.5 18.8 7.4 23 12 23z"/></svg>
+                Continue with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app-container" class="app-container hidden">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <h3 id="current-user-display">User</h3>
+                    <span class="online-status">● Encrypted Session</span>
+                </div>
+                <div class="header-actions">
+                    <button id="share-btn" title="Share App Link">🔗</button>
+                    <button id="logout-btn" title="Sign Out" onclick="logout()">🚪</button>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="new-contact-input" placeholder="Start chat with username..." />
+                <button onclick="startNewChat()">+</button>
+            </div>
+
+            <div id="contact-list" class="contact-list"></div>
+        </aside>
+
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="chat-title-info">
+                    <span class="status-dot"></span>
+                    <h3 id="active-chat-title">Select a Conversation</h3>
+                </div>
+            </header>
+
+            <div id="chat-messages" class="chat-messages">
+                <div class="empty-state">Select a contact on the left or type a username above to begin messaging securely.</div>
+            </div>
+
+            <form id="chat-form" class="chat-input-area hidden" onsubmit="sendMessage(event)">
+                <input type="text" id="message-input" placeholder="Type an encrypted message..." autocomplete="off" required />
+                <button type="submit" id="send-btn">Send</button>
+            </form>
+        </main>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Invite Friends</h3>
+            <p>Scan with any device or share the public link:</p>
+            <div id="qrcode"></div>
+            <input type="text" id="share-url" readonly />
+            <button id="close-modal" onclick="document.getElementById('share-modal').classList.add('hidden')">Close</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

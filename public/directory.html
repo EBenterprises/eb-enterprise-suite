@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EB Enterprises - Member Directory</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <nav class="nav-bar">
+            <a href="/" class="nav-link">Register</a>
+            <a href="/feed" class="nav-link">Live Feed</a>
+            <a href="/directory" class="nav-link active">Directory</a>
+            <a href="/about" class="nav-link">About</a>
+        </nav>
+
+        <div class="brand-header">
+            <h1 class="brand-title">EB ENTERPRISES</h1>
+            <p class="brand-subtitle">Verified Operator Directory</p>
+        </div>
+
+        <div class="card content-section">
+            <h3 style="color: var(--gold); margin-bottom: 0.75rem;">Directory Overview</h3>
+            <p>This directory indexes all active participant nodes registered within the EB Enterprises infrastructure. Use the search filter below to query specific operator nodes.</p>
+            <input type="text" id="search-input" placeholder="Filter by email or tier..." style="margin-top: 0.5rem; margin-bottom: 1rem;">
+        </div>
+
+        <div id="directory-list" class="feed-list"></div>
+    </div>
+
+    <script>
+        let allMembers = [];
+        async function loadDirectory() {
+            try {
+                const res = await fetch('/api/users');
+                allMembers = await res.json();
+                renderDirectory(allMembers);
+            } catch (err) {
+                console.error("Directory load error:", err);
+            }
+        }
+
+        function renderDirectory(members) {
+            const list = document.getElementById('directory-list');
+            list.innerHTML = '';
+            if (!members || members.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">No entries found.</div>';
+                return;
+            }
+            members.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'feed-item';
+                item.innerHTML = `
+                    <div class="feed-user">${escapeHtml(m.email)}</div>
+                    <div class="feed-meta">Access Level: ${escapeHtml(m.userTier)}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allMembers.filter(m => m.email.toLowerCase().includes(query) || m.userTier.toLowerCase().includes(query));
+            renderDirectory(filtered);
+        });
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        loadDirectory();
+    </script>
+</body>
+</html>

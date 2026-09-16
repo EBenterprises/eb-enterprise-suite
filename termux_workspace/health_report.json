@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-09-03T08:25:08.218999",
+  "workspace_directory": "/data/data/com.termux/files/home/termux_workspace",
+  "disk_usage": {
+    "total_gb": 105.91,
+    "used_gb": 68.58,
+    "free_gb": 37.2,
+    "percent_free": 35.13
+  },
+  "git_status": {
+    "branch": "main",
+    "latest_commit": "e74c35e",
+    "clean_working_tree": false
+  },
+  "daemons": [
+    {
+      "process": "workspace_daemon.py",
+      "active": false
+    },
+    {
+      "process": "server.py",
+      "active": false
+    },
+    {
+      "process": "app.py",
+      "active": false
+    },
+    {
+      "process": "run_cron_scheduler.sh",
+      "active": false
+    }
+  ]
+}

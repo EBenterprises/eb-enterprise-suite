@@ -1,0 +1,15 @@
+{
+  "engine": "Completion Engine® V7",
+  "fabric": "Elastic Fabric®",
+  "timestamp": "2026-08-11T20:07:27-07:00",
+  "cpu": 8,
+  "memory_available_mb": 489,
+  "memory_total_mb": 3450,
+  "disk_available_mb": ,
+  "pressure": "HIGH",
+  "resident_capacity": 2,
+  "queued": 0,
+  "running": 0,
+  "completed": 5,
+  "failed": 0
+}

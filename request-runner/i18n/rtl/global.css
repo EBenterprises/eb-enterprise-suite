@@ -1,0 +1,36 @@
+/*
+ * Request Runner® — Global Internationalization Layer
+ */
+
+html {
+    text-rendering: optimizeLegibility;
+}
+
+html[dir="rtl"] {
+    direction: rtl;
+}
+
+html[dir="ltr"] {
+    direction: ltr;
+}
+
+body {
+    unicode-bidi: plaintext;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+[dir="rtl"] {
+    text-align: start;
+}
+
+[dir="ltr"] {
+    text-align: start;
+}
+
+.ip-symbol {
+    font-size: 0.58em;
+    line-height: 0;
+    vertical-align: super;
+    margin-inline-start: 0.04em;
+}

@@ -1,0 +1,27 @@
+WORKER=8
+NAME=FAILURE
+START=2026-08-11T18:29:12-07:00
+
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+Error: Cannot find module '/data/data/com.termux/files/home/request-runner/.next/server/app/api/administration/[id]/route.js'
+Error: Failed to collect page data for /api/administration/[id]
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+[?2004l[?2004h>         'Cannot find module .*\.next/server/app/.*/route\.js|Failed to collect page data' \
+[?2004l[?2004h>         'Unable to snapshot resolve dependencies|PackFileCacheStrategy' \
+[?2004l[?2004h>         'Module not found|Can.t resolve|Cannot resolve' \
+[?2004l[?2004h>         'TS[0-9]{4}|TypeScript error|Type error' \
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+FAILURE_SCAN=COMPLETE
+
+END=2026-08-11T18:29:13-07:00

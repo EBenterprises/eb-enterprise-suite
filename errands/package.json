@@ -1,0 +1,25 @@
+{
+  "name": "errands",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ERRANDS® — full-scale errands, coordination, dispatch and operations platform.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "bash scripts/run-compact.sh build",
+    "start": "next start",
+    "validate": "bash scripts/run-compact.sh validate",
+    "test": "node --test",
+    "clean": "rm -rf .next",
+    "check": "bash scripts/run-compact.sh check"
+  },
+  "dependencies": {
+    "next": "16.3.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {}
+}

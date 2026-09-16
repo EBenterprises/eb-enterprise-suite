@@ -1,0 +1,37 @@
+{
+  "name": "omega",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OMEGA® adaptive invention and application runtime",
+  "bin": {
+    "omega": "./bin/omega.js"
+  },
+  "scripts": {
+    "start": "next start",
+    "test": "node --test",
+    "status": "node bin/omega.js status",
+    "invent": "node bin/omega.js invent",
+    "simulate": "node bin/omega.js simulate",
+    "evolve": "node bin/omega.js evolve",
+    "release": "node bin/omega.js release",
+    "capabilities": "node bin/omega.js capabilities",
+    "metrics": "node bin/omega.js metrics",
+    "help": "node bin/omega.js help",
+    "build": "next build --webpack",
+    "dev": "next dev --webpack",
+    "invent:fast": "bash OMEGA_FAST.sh",
+    "verify:fast": "bash OMEGA_VERIFY_FAST.sh",
+    "omega:fast": "bash OMEGA_ALL_FAST.sh",
+    "omega:invent": "bash OMEGA_INVENT_FAST.sh",
+    "omega:evolve": "bash OMEGA_EVOLVE_FAST.sh",
+    "omega:verify": "bash OMEGA_VERIFY_INCREMENTAL.sh",
+    "omega:status": "bash OMEGA_STATUS.sh"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

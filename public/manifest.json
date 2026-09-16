@@ -1,0 +1,20 @@
+{
+  "name": "EggFinder® Executive Mesh",
+  "short_name": "EggFinder",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050608",
+  "theme_color": "#00ffea",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=192&auto=format&fit=crop&q=60",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=512&auto=format&fit=crop&q=60",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

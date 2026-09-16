@@ -1,0 +1,17 @@
+AGENT_ID=1786498510957943211-21372-17244
+TYPE=MANIFEST_AUDIT
+PRIORITY=50
+START=2026-08-11T18:35:17-07:00
+
+==================================================
+ VIRTUAL AGENT — MANIFEST_AUDIT
+==================================================
+Auditing manifests...
+MISSING .next/server/app-paths-manifest.json
+MISSING .next/server/pages-manifest.json
+MISSING .next/server/middleware-manifest.json
+MISSING .next/server/server-reference-manifest.json
+
+END=2026-08-11T18:35:18-07:00
+DURATION=1
+STATUS=COMPLETE

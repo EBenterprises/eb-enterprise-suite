@@ -1,0 +1,14 @@
+{
+  "name": "messaging-app-v3",
+  "version": "3.1.0",
+  "description": "Full-stack real-time messaging application v3 with smart port collision avoidance, auto-browser launch, public link sharing instructions, and git initialization",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "share": "npx localtunnel --port 3000"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

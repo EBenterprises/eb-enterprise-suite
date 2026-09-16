@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Key Recovery</h2>
+    <form method="POST">
+        <div>
+            <label>Target Identity</label><br><br>
+            <input type="text" name="username" required style="width: 100%; box-sizing: border-box;">
+        </div>
+        <div>
+            <label>Reference Tag (ref=)</label><br><br>
+            <input type="text" name="ref" value="cyber_v2_shortcut" required style="width: 100%; box-sizing: border-box;">
+        </div>
+        <input type="submit" value="Generate Token">
+    </form>
+    <div class="links">
+        <a href="{{ url_for('login') }}">Back to Login</a>
+    </div>
+{% endblock %}

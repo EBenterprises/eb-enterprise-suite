@@ -1,0 +1,9 @@
+{
+  "name": "OMEGA®",
+  "short_name": "OMEGA",
+  "description": "OMEGA® Generative Intelligence Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#07090d"
+}

@@ -1,0 +1,7 @@
+telemetry_stream.jsonl
+.workspace_telemetry.jsonl
+.workspace_daemon.log
+workspace_daemon.log
+__pycache__/
+*.pyc
+diagnostic_report.json

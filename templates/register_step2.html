@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>🎂 Step 2: Birthday</h2>
+<form method="POST">
+    <div class="input-group"><input type="date" name="birthday" max="{{ max_date }}" required></div>
+    <button type="submit">Next</button>
+</form>
+<div class="links" style="justify-content: center;"><a href="/login">Cancel</a></div>
+{% endblock %}

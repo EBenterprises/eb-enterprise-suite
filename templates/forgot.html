@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>🔑 Vault Recovery</h2>
+<form method="POST">
+    <div class="input-group"><input type="text" name="username" placeholder="Username or Email" required></div>
+    <div class="input-group"><input type="text" name="recovery_phrase" placeholder="Recovery Phrase" required></div>
+    <div class="input-group"><input type="text" name="recovery_answer" placeholder="Recovery Answer" required></div>
+    <div class="input-group"><input type="password" name="new_password" placeholder="New Password" required></div>
+    <button type="submit" style="background: #d97706;">Reset Password</button>
+</form>
+<div class="links" style="justify-content: center;"><a href="/login">Back</a></div>
+{% endblock %}

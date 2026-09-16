@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EB Enterprises - Registration Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <nav class="nav-bar">
+            <a href="/" class="nav-link active">Register</a>
+            <a href="/feed" class="nav-link">Live Feed</a>
+            <a href="/directory" class="nav-link">Directory</a>
+            <a href="/about" class="nav-link">About</a>
+        </nav>
+
+        <div class="brand-header">
+            <h1 class="brand-title">EB ENTERPRISES</h1>
+            <p class="brand-subtitle">Userbase Registration Portal</p>
+        </div>
+
+        <div class="card">
+            <form id="user-form">
+                <div class="form-group">
+                    <label for="email">User Email</label>
+                    <input type="email" id="email" placeholder="user@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password / Passkey</label>
+                    <input type="password" id="password" placeholder="••••••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label for="userTier">User Tier</label>
+                    <select id="userTier" required>
+                        <option value="">Select User Tier</option>
+                        <option value="Verified Secure Tier (18+)">Verified Secure Tier (18+)</option>
+                        <option value="Standard Member Tier">Standard Member Tier</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bio">Operator Bio / Note</label>
+                    <textarea id="bio" placeholder="Describe your operator node..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Register User Profile</button>
+            </form>
+            <div id="toast"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const userTier = document.getElementById('userTier').value;
+            const bio = document.getElementById('bio').value.trim();
+            const toast = document.getElementById('toast');
+
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, userTier, bio })
+                });
+                const data = await res.json();
+                toast.style.display = 'block';
+                if (res.ok) {
+                    toast.style.background = 'rgba(34, 197, 94, 0.15)';
+                    toast.style.color = 'var(--success)';
+                    toast.style.border = '1px solid var(--success)';
+                    toast.textContent = 'Success: Registered! Redirecting to feed...';
+                    setTimeout(() => { window.location.href = '/feed'; }, 1500);
+                } else {
+                    throw new Error(data.error || 'Registration failed.');
+                }
+            } catch (err) {
+                toast.style.display = 'block';
+                toast.style.background = 'rgba(239, 68, 68, 0.15)';
+                toast.style.color = 'var(--danger)';
+                toast.style.border = '1px solid var(--danger)';
+                toast.textContent = 'Error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html>

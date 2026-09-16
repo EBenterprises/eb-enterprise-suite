@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aetheris Carrier & Messaging Grid</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand-box">
+                <div class="brand">Aetheris Carrier</div>
+                <div class="phone-display" id="phoneDisplay">Provisioning #...</div>
+                <button class="provision-btn" id="provisionBtn">Acquire Number</button>
+            </div>
+            <div class="contact-list" id="contactList"></div>
+        </aside>
+        <main class="chat-area">
+            <header class="chat-header" id="chatHeader">Select a conversation or enter a phone number</header>
+            <div class="message-stream" id="messageStream">
+                <div class="welcome-banner">Acquire a proprietary mobile number to route SMS and MMS over the network.</div>
+            </div>
+            <footer class="input-footer">
+                <input type="text" id="mmsInput" placeholder="Attach media URL (MMS)..." style="max-width: 200px; display: none;">
+                <input type="text" id="messageInput" placeholder="Type SMS/MMS transmission..." disabled>
+                <button id="mmsToggleBtn" title="Attach Media" disabled>📎</button>
+                <button id="sendBtn" disabled>Transmit</button>
+            </footer>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

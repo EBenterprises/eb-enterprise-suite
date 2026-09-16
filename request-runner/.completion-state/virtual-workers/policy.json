@@ -1,0 +1,14 @@
+{
+  "engine": "VIRTUAL_RESOURCE_FABRIC® V1",
+  "physical_ram_mb": 448,
+  "physical_cpu": 8,
+  "disk_available_mb": ,
+  "virtual_capacity_mb": 512,
+  "hot_workers": 2,
+  "warm_workers": "unbounded_by_design",
+  "cold_workers": "unbounded_by_storage",
+  "strategy": "hot-warm-cold",
+  "ram_policy": "adaptive",
+  "storage_policy": "sparse",
+  "worker_policy": "queue-backed"
+}

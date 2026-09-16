@@ -1,0 +1,39 @@
+ENGINE=COMPLETION ENGINE® — UNIVERSAL FABRIC®
+VERSION=UNIVERSAL-8.0
+ID=1786503619808971600-18181
+TYPE=BUILD
+PARENT=1786503618156054178-20882
+START=2026-08-11T21:14:31-07:00
+
+BUILD_MODE=WEBPACK
+BUILD_COMMAND=next build --webpack
+BUILD_RESULT=FAIL
+▲ Next.js 16.3.0 (webpack)
+✓ Running next.config.js took 167ms
+  Skipping creating a lockfile at /data/data/com.termux/files/home/request-runner/.next/lock because we're using WASM bindings
+
+  Creating an optimized production build ...
+Failed to compile.
+
+Error: Cannot find module 'next/package.json'
+Require stack:
+- /data/data/com.termux/files/home/request-runner/node_modules/next/dist/build/webpack-config.js
+- /data/data/com.termux/files/home/request-runner/node_modules/next/dist/build/webpack-build/impl.js
+- /data/data/com.termux/files/home/request-runner/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1500:15)
+    at /data/data/com.termux/files/home/request-runner/node_modules/next/dist/server/require-hook.js:68:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1116:12)
+    at require.resolve (node:internal/modules/helpers:171:31)
+    at /data/data/com.termux/files/home/request-runner/node_modules/next/dist/build/webpack-config.js:2000:63
+    at Hook.eval [as callAsync] (eval at create (/data/data/com.termux/files/home/request-runner/node_modules/next/dist/compiled/webpack/bundle5.js:14:9222), <anonymous>:9:1)
+    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/data/data/com.termux/files/home/request-runner/node_modules/next/dist/compiled/webpack/bundle5.js:14:6376)
+    at /data/data/com.termux/files/home/request-runner/node_modules/next/dist/compiled/webpack/bundle5.js:29:140918
+    at Compiler.emitRecords (/data/data/com.termux/files/home/request-runner/node_modules/next/dist/compiled/webpack/bundle5.js:29:145944)
+
+
+> Build failed because of webpack errors
+
+END=2026-08-11T21:16:08-07:00
+DURATION=97
+STATUS=COMPLETE

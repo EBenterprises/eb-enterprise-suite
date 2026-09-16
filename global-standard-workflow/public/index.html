@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Standard Workflow - Executive Dashboard</title>
+  <style>
+    :root {
+      --bg-obsidian: #0b0f19;
+      --card-bg: #111827;
+      --border-color: #1f2937;
+      --accent-teal: #0d9488;
+      --accent-gold: #eab308;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --success-green: #10b981;
+    }
+    body {
+      background-color: var(--bg-obsidian);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    h1 {
+      color: var(--accent-gold);
+      font-size: 24px;
+      margin: 0;
+      letter-spacing: 0.5px;
+    }
+    .badge {
+      background: rgba(13, 148, 136, 0.2);
+      color: var(--accent-teal);
+      border: 1px solid var(--accent-teal);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    @media(max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent-teal);
+      margin-top: 0;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    .workflow-item {
+      background: #1f2937;
+      border-left: 4px solid var(--accent-gold);
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+    .workflow-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    .workflow-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    button {
+      background: var(--accent-teal);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0f766e;
+    }
+    ul {
+      margin: 8px 0 0 0;
+      padding-left: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>GLOBAL STANDARD WORKFLOW (GSW)</h1>
+  <div class="badge">Executive Spectrum Active</div>
+</header>
+
+<div class="grid">
+  <!-- Active Global Standards -->
+  <div class="card">
+    <h2>Registered Standard Workflows</h2>
+    <div id="standardsContainer">Loading standards...</div>
+  </div>
+
+  <!-- Live Execution Logs -->
+  <div class="card">
+    <h2>Active Pipeline Executions</h2>
+    <div id="executionsContainer">No active executions logged.</div>
+  </div>
+</div>
+
+<script>
+  async function loadData() {
+    try {
+      const [stdRes, execRes] = await Promise.all([
+        fetch('/api/standards'),
+        fetch('/api/executions')
+      ]);
+      const standards = await stdRes.json();
+      const executions = await execRes.json();
+
+      const stdContainer = document.getElementById('standardsContainer');
+      stdContainer.innerHTML = standards.map(s => `
+        <div class="workflow-item">
+          <div class="workflow-title">[${s.code}] ${s.title}</div>
+          <div class="workflow-meta">Category: ${s.category} | Version: ${s.version}</div>
+          <ul>
+            ${s.steps.map(step => `<li>Step ${step.id}: ${step.title}</li>`).join('')}
+          </ul>
+          <button onclick="executeWorkflow('${s.id}')" style="margin-top: 12px;">Trigger Pipeline Execution</button>
+        </div>
+      `).join('');
+
+      const execContainer = document.getElementById('executionsContainer');
+      if (executions.length === 0) {
+        execContainer.innerHTML = '<p style="color: var(--text-muted);">No pipeline runs recorded yet.</p>';
+      } else {
+        execContainer.innerHTML = executions.map(e => `
+          <div class="workflow-item" style="border-left-color: var(--success-green);">
+            <div class="workflow-title">${e.code}: ${e.title}</div>
+            <div class="workflow-meta">Operator: ${e.operator} | Started: ${new Date(e.timestamp).toLocaleTimeString()}</div>
+            <div style="font-size: 13px; color: var(--success-green); font-weight: bold;">Status: ${e.status}</div>
+          </div>
+        `).join('');
+      }
+    } catch (err) {
+      console.error('Failed to load workflow data:', err);
+    }
+  }
+
+  async function executeWorkflow(standardId) {
+    await fetch('/api/executions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ standardId, operator: 'System Principal' })
+    });
+    loadData();
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>

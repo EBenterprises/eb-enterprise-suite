@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; margin: 0; padding: 40px; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h1 { margin-top: 0; color: #111; }
+        .badge { display: inline-block; padding: 6px 12px; background: #e0f2fe; color: #0369a1; border-radius: 4px; font-weight: bold; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        th { background: #f8fafc; }
+        .form-group { margin-top: 20px; display: flex; gap: 10px; }
+        input, button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #0369a1; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0284c7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sales Tracker Dashboard</h1>
+        <p>Connected to node port: <span id="node-port" class="badge">Connecting...</span></p>
+        
+        <div class="form-group">
+            <input type="text" id="item-input" placeholder="Item Name">
+            <input type="number" id="amount-input" placeholder="Amount ($)">
+            <button onclick="addSale()">Record Sale</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Item</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="sales-rows">
+                <tr><td colspan="3">Fetching telemetry data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchSales() {
+            try {
+                const response = await fetch('/api/sales');
+                const data = await response.json();
+                document.getElementById('node-port').innerText = `Port ${data.instance}`;
+                
+                const tbody = document.getElementById('sales-rows');
+                if (data.salesData && data.salesData.length > 0) {
+                    tbody.innerHTML = data.salesData.map(sale => `
+                        <tr>
+                            <td>${sale.id}</td>
+                            <td>${sale.item}</td>
+                            <td>$${sale.amount}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3">No sales records found.</td></tr>';
+                }
+            } catch (err) {
+                console.error('Failed to load metrics', err);
+                document.getElementById('node-port').innerText = 'Offline';
+            }
+        }
+
+        async function addSale() {
+            const item = document.getElementById('item-input').value;
+            const amount = parseFloat(document.getElementById('amount-input').value);
+            if (!item || isNaN(amount)) return alert('Please enter valid item and amount');
+
+            await fetch('/api/sales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item, amount })
+            });
+
+            document.getElementById('item-input').value = '';
+            document.getElementById('amount-input').value = '';
+            fetchSales();
+        }
+
+        fetchSales();
+    </script>
+</body>
+</html>

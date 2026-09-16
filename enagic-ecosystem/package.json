@@ -1,0 +1,5 @@
+{
+  "name": "enagic-ecosystem-suite",
+  "version": "1.0.0",
+  "dependencies": { "express": "^4.19.2", "sqlite3": "^5.1.7", "cors": "^2.8.5" }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <title>Settings</title>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container" style="max-width: 600px;">
+    <div class="auth-card">
+      <h1>System Settings</h1>
+      <p class="subtitle">Security & Dispatch Configuration</p>
+
+      <div style="text-align: left; display: flex; flex-direction: column; gap: 1rem;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" checked disabled> Enable SMS / Email Gateway Simulations
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" checked disabled> High-contrast Obsidian & Gold Theme
+        </label>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    renderLayout("Settings");
+
+    if (!AuthStore.getSession()) {
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

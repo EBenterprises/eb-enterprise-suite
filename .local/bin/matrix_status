@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+bash ~/github-snippets/system_matrix_status.sh "$@"

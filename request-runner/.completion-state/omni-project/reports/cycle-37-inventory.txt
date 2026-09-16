@@ -1,0 +1,136 @@
+PROJECT ROOT
+/data/data/com.termux/files/home/request-runner
+
+PACKAGE
+{
+  "name": "request-runner",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "NODE_ENV=production node server.js",
+    "eb:status": "node bin/status.js",
+    "eb:doctor": "node bin/doctor.js",
+    "eb:test": "node tests/run.js"
+  }
+}
+
+APPLICATION FILES
+app/api/administration/[id]/route.js
+app/api/administration/route.js
+app/api/customers/[id]/route.js
+app/api/customers/route.js
+app/api/drivers/[id]/route.js
+app/api/drivers/route.js
+app/api/health/route.js
+app/api/locations/[id]/route.js
+app/api/locations/route.js
+app/api/notifications/[id]/route.js
+app/api/notifications/route.js
+app/api/operations/[id]/route.js
+app/api/operations/route.js
+app/api/orders/[id]/route.js
+app/api/orders/route.js
+app/api/payments/[id]/route.js
+app/api/payments/route.js
+app/api/requests/[id]/accept/route.js
+app/api/requests/[id]/route.js
+app/api/requests/route.js
+app/api/scheduling/[id]/route.js
+app/api/scheduling/route.js
+app/drivers/page.js
+app/globals.css
+app/layout.js
+app/ops/page.js
+app/orders/page.js
+app/page.js
+app/request/page.js
+app/requests/page.js
+framework/api/crud-route.js
+framework/api/router.js
+framework/application-service.js
+framework/core/application.js
+framework/core/commands/command-bus.js
+framework/core/container/index.js
+framework/core/errors/platform-error.js
+framework/core/events/event-bus.js
+framework/core/events/event-bus.js.bak.20260810102139
+framework/core/middleware/pipeline.js
+framework/core/modules/module-registry.js
+framework/core/queries/query-bus.js
+framework/data/adapters/json-repository.js
+framework/data/persistence.js
+framework/data/repository.js
+framework/domain/entity.js
+framework/domain/order.js
+framework/domain/request.js
+framework/index.js
+framework/lifecycle/canonical-lifecycle.js
+framework/lifecycle/canonical.js
+framework/observability/audit.js
+framework/observability/health.js
+framework/realtime/realtime-bus.js
+framework/runtime/config.js
+framework/runtime/environment.js
+framework/runtime/logger.js
+framework/security/audit.js
+framework/security/authorization.js
+framework/security/session.js
+
+CONFIGURATION
+./.backups/pre-real-lifecycle-20260810-143800/next.config.js
+./.backups/pre-real-lifecycle-20260810-143832/next.config.js
+./.backups/release-20260810-152143/next.config.js
+./.build-backup-20260810-135248/next.config.js
+./.build-backup-20260810-135334/next.config.js
+./.build-backup-20260810-135415/next.config.js
+./.completion-backups/alias-repair-20260811-170708/next.config.js
+./.completion-backups/android-webpack-20260811-152512/next.config.js
+./.completion-backups/build-lock-20260811-155425/next.config.js
+./.completion-backups/config-20260811-152409/next.config.js
+./.completion-backups/finalization-20260811-191944/jsconfig.json
+./.completion-backups/finalization-20260811-191944/next.config.js
+./.completion-backups/finalization-20260811-192026/jsconfig.json
+./.completion-backups/finalization-20260811-192026/next.config.js
+./.completion-backups/known-good-20260811-180713/jsconfig.json
+./.completion-backups/known-good-20260811-180713/next.config.js
+./.completion-backups/next-build-20260811-152156/next.config.js
+./.completion-backups/next-build-20260811-152302/next.config.js
+./.completion-backups/next16-adaptive-20260811-180251/jsconfig.json
+./.completion-backups/next16-adaptive-20260811-180251/next.config.js
+./.completion-backups/next16-webpack-isolation-20260811-164145/next.config.js
+./.completion-backups/pages-manifest-20260811-155740/next.config.js
+./.completion-backups/pages-rootcause-20260811-160651/jsconfig.json
+./.completion-backups/pages-rootcause-20260811-160651/next.config.js
+./.completion-backups/pages-rootcause-20260811-160848/jsconfig.json
+./.completion-backups/pages-rootcause-20260811-160848/next.config.js
+./.completion-backups/static-finalization-20260811-192156/jsconfig.json
+./.completion-backups/static-finalization-20260811-192156/next.config.js
+./.completion-backups/v72-20260811-192331/jsconfig.json
+./.completion-backups/v72-20260811-192331/next.config.js
+./.completion-backups/wasm-route-emission-20260811-181316/jsconfig.json
+./.completion-backups/wasm-route-emission-20260811-181316/next.config.js
+./.completion-backups/webpack-isolation-20260811-160950/next.config.js
+./.completion-backups/webpack-isolation-20260811-161053/next.config.js
+./.completion-backups/webpack-repair-20260811-161155/jsconfig.json
+./.completion-backups/webpack-repair-20260811-161155/next.config.js
+./.completion-backups/webpack-repair-20260811-161314/jsconfig.json
+./.completion-backups/webpack-repair-20260811-161314/next.config.js
+./.completion-checkpoints/pre-run-20260811-154832/next.config.js
+./.completion-checkpoints/verified-20260811-154645/next.config.js
+./.completion-checkpoints/verified-20260811-154741/next.config.js
+./.crud-alias-backup-20260810-135947/next.config.js
+./.crud-contract-backup-20260810-140314/jsconfig.json
+./.crud-contract-backup-20260810-140314/next.config.js
+./.i18n-backup-20260811-004202/next.config.js
+./.i18n-backup-20260811-031952/next.config.js
+./.legal-backup-20260811-004031/next.config.js
+./.platform-backup-20260809-224054/next.config.js
+./.platform-backup-20260809-224313/next.config.js
+./.platform-backup-20260809-224356/next.config.js
+./.platform-backup-20260810-235501/next.config.js
+./.platform-backup-20260811-002349/next.config.js
+./jsconfig.json
+./next.config.js
+
+TEST SURFACE

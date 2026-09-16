@@ -1,0 +1,35 @@
+{
+  "omni_manifestation": {
+    "entity": {
+      "name": "Easton Bodeux",
+      "title": "Principal Architect & Founder",
+      "organization": "EB Enterprises (Easton Bodeux Inc.)",
+      "birthdate": "1994-08-25",
+      "location": {
+        "address": "Old Okanagan Highway",
+        "city": "West Kelowna",
+        "province": "British Columbia",
+        "postal_code": "V4T 1X6",
+        "country": "Canada"
+      }
+    },
+    "technical_parameters": {
+      "design_system": "Executive Spectrum",
+      "palette": {
+        "obsidian": "#0B0F12",
+        "deep_teal": "#005F73",
+        "champagne_gold": "#E9D8A6"
+      },
+      "architecture_paradigm": "Zero-Dependency",
+      "core_domains": [
+        "Proprietary Core Infrastructure",
+        "Microkernel Engineering",
+        "Full-Stack Automated Deployment"
+      ]
+    },
+    "metadata": {
+      "version": "OMNI.MANIFEST.1.0",
+      "timestamp": "2026-09-11T00:00:00Z"
+    }
+  }
+}

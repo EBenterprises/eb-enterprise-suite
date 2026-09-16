@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EB Enterprises - Userbase Fed Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="brand-header">
+            <h1 class="brand-title">EB ENTERPRISES</h1>
+            <p class="brand-subtitle">Userbase-Fed Application Portal</p>
+        </div>
+
+        <div class="card">
+            <form id="user-form">
+                <div class="form-group">
+                    <label for="email">User Email</label>
+                    <input type="email" id="email" placeholder="user@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password / Passkey</label>
+                    <input type="password" id="password" placeholder="••••••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label for="userTier">User Tier</label>
+                    <select id="userTier" required>
+                        <option value="">Select User Tier</option>
+                        <option value="verified">Verified Secure Tier (18+)</option>
+                        <option value="standard">Standard Member Tier</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Register User Profile</button>
+            </form>
+            <div id="toast"></div>
+        </div>
+
+        <div class="userbase-feed">
+            <h3 class="feed-title">Live Userbase Feed</h3>
+            <div id="feed-list" class="feed-list">
+                <!-- Populated dynamically via client JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

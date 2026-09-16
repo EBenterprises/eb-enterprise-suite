@@ -1,0 +1,10 @@
+{
+  "system": "OMEGA®",
+  "version": "1.0.0",
+  "platform": "android/arm64",
+  "buildEngine": "webpack",
+  "node": "v26.3.1",
+  "npm": "11.17.0",
+  "initialized": true,
+  "initializedAt": "2026-08-15T02:36:55-07:00"
+}

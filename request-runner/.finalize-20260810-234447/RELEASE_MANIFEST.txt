@@ -1,0 +1,39 @@
+REQUEST RUNNER®
+EB Platform®
+
+Release timestamp: 20260810-234447
+Verification: PASSED
+Production build: PASSED
+Doctor: PASSED
+Tests: PASSED
+Status: PASSED
+Health: PASSED
+API surface: PASSED
+Frontend surface: PASSED
+Authorization: PASSED
+Server fatal/unhandled scan: PASSED
+
+Persistence: JSON
+
+Required API modules:
+customers
+requests
+orders
+drivers
+locations
+scheduling
+payments
+notifications
+operations
+administration
+
+Frontend:
+/
+/request
+/requests
+/orders
+/drivers
+/ops
+
+Source archive:
+request-runner-source-20260810-234447.tar.gz

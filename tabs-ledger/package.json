@@ -1,0 +1,28 @@
+{
+  "name": "tabs-ledger",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Tabs® end-game local-first ledger platform",
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "NODE_ENV=production node server.mjs",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run build",
+    "db:verify": "node scripts/db-verify.mjs",
+    "db:backup": "node --experimental-strip-types scripts/db-backup.mjs",
+    "db:reconcile": "node --experimental-strip-types scripts/db-reconcile.mjs",
+    "audit:verify": "node --experimental-strip-types scripts/audit-verify.mjs"
+  },
+  "dependencies": {
+    "next": "16.3.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0"
+  }
+}

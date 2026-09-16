@@ -1,0 +1,21 @@
+# REQUEST RUNNER® AUTONOMOUS PHASE MANIFEST
+#
+# Only explicitly listed executable phase workers are allowed.
+# Order is intentional.
+#
+# Format:
+# PHASE|SCRIPT|DESCRIPTION
+
+FOUNDATION|FINALIZE_CRUD_BUILD.sh|Finalize CRUD foundation
+REQUESTS|NEXT_PHASE_REQUESTS_VERIFY.sh|Request lifecycle
+QUEUE|NEXT_PHASE_QUEUE_VERIFY.sh|Request Queue®
+RUNNERS|NEXT_PHASE_RUNNERS_VERIFY.sh|Runner® lifecycle
+DISPATCH|REPAIR_DISPATCH_STATE_CONTRACT.sh|Dispatch State® contract
+DISPATCH_INTEGRATION|NEXT_PHASE_DISPATCH_STATE_INTEGRATION_VERIFY.sh|Dispatch® State® integration
+DISPATCH_RUNNER|NEXT_PHASE_DISPATCH_RUNNER_VERIFY.sh|Dispatch Runner® orchestration
+API|NEXT_PHASE_API_VERIFY.sh|API surface
+REALTIME|NEXT_PHASE_REALTIME_VERIFY.sh|Realtime surface
+PRODUCT|NEXT_PHASE_PRODUCT_SURFACE_VERIFY.sh|Product surface
+SYSTEM|NEXT_PHASE_SYSTEM_VERIFY.sh|System integration
+END_TO_END|FINAL_END_TO_END_VERIFY.sh|Final end-to-end verification
+PRODUCTION|FINAL_PRODUCTION_SNAPSHOT.sh|Final production verification

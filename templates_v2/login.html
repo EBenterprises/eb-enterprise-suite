@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Authorization // v2</h2>
+    <form method="POST">
+        <div>
+            <label>Identity / Username</label><br><br>
+            <input type="text" name="username" required style="width: 100%; box-sizing: border-box;">
+        </div>
+        <div>
+            <label>Access Key / Password</label><br><br>
+            <input type="password" name="password" required style="width: 100%; box-sizing: border-box;">
+        </div>
+        <input type="submit" value="Authenticate">
+    </form>
+    <div class="links">
+        <a href="{{ url_for('forgot') }}">Forgot Key?</a>
+        <a href="{{ url_for('index') }}">Home</a>
+    </div>
+{% endblock %}

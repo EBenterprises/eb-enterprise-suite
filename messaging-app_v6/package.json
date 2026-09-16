@@ -1,0 +1,13 @@
+{
+  "name": "messaging-app-v6",
+  "version": "6.0.0",
+  "description": "Full-stack real-time messaging application v6 with advanced channel rooms, direct file/image sharing, persistent JSON store, automated port scanning, and live public tunneling",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

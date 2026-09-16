@@ -1,0 +1,2 @@
+.next/server/app-paths-manifest.json
+.next/server/pages-manifest.json

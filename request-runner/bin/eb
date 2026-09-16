@@ -1,0 +1,52 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+APP="$HOME/request-runner"
+cd "$APP"
+
+COMMAND="${1:-help}"
+
+case "$COMMAND" in
+
+start)
+    exec "$APP/bin/start"
+    ;;
+
+stop)
+    "$APP/bin/stop"
+    ;;
+
+status)
+    node "$APP/bin/status.js"
+    ;;
+
+doctor)
+    node "$APP/bin/doctor.js"
+    ;;
+
+test)
+    node "$APP/tests/run.js"
+    ;;
+
+backup)
+    "$APP/bin/backup"
+    ;;
+
+help|*)
+    cat <<'HELP'
+
+EB Platform® CLI
+
+Usage:
+
+  eb start       Start Request Runner®
+  eb stop        Stop Request Runner®
+  eb status      Platform status
+  eb doctor      Platform diagnostics
+  eb test        Run platform tests
+  eb backup      Create application backup
+
+HELP
+    ;;
+
+esac

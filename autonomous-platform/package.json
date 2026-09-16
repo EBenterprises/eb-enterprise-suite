@@ -1,0 +1,13 @@
+{
+  "name": "autonomous-platform-completion-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Autonomous Platform Completion Engine®",
+  "main": "bin/platform.js",
+  "scripts": {
+    "start": "node bin/platform.js",
+    "worker": "node bin/worker.js",
+    "verify": "node bin/verify.js",
+    "status": "node bin/status.js"
+  }
+}

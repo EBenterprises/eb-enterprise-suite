@@ -1,0 +1,24 @@
+# System & Logs
+node_modules/
+dist/
+.env
+.DS_Store
+*.log
+*.db
+*.sqlite
+.cache/
+.npm/
+.cargo/
+
+# Credentials & SSH Keys
+.ssh/id_rsa
+.ssh/id_rsa.pub
+.config/gh/hosts.yml
+
+# Nested repositories & builds
+assets/
+auth-system/
+secure_vault/
+downloads/
+*.zip
+*.tar.gz

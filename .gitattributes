@@ -1,0 +1,7 @@
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.jar filter=lfs diff=lfs merge=lfs -text
+*.tar.gz filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.cache filter=lfs diff=lfs merge=lfs -text
+**/gradle-8.2-bin.zip* filter=lfs diff=lfs merge=lfs -text
+**/*.jar filter=lfs diff=lfs merge=lfs -text

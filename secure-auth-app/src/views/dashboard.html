@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Executive Spectrum</title>
+    <style>
+        :root {
+            --bg-obsidian: #0b0f19;
+            --surface-dark: #131c2e;
+            --teal-accent: #00d2c4;
+            --gold-highlight: #f39c12;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+        }
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+        }
+        sidebar {
+            width: 250px;
+            background-color: var(--surface-dark);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .sidebar-brand {
+            padding: 1.5rem;
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: var(--teal-accent);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+        .nav-links li a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-links li.active a, .nav-links li a:hover {
+            background-color: rgba(0, 210, 196, 0.1);
+            color: var(--teal-accent);
+            border-left: 3px solid var(--teal-accent);
+        }
+        .main-content {
+            flex: 1;
+            padding: 2.5rem;
+            box-sizing: border-box;
+            overflow-y: auto;
+            height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        h1 { margin: 0; color: var(--text-main); font-size: 1.75rem; }
+        .card {
+            background-color: var(--surface-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .logout-btn {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+        .logout-btn:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <sidebar>
+        <div class="sidebar-brand">Executive Suite</div>
+        <ul class="nav-links">
+            <li class="active"><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/settings">Settings</a></li>
+        </ul>
+    </sidebar>
+    <div class="main-content">
+        <div class="header">
+            <h1 id="welcomeHeader">Dashboard</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+        <div class="card">
+            <h3>System Status</h3>
+            <p>Welcome back, <span id="usernameDisplay" style="color: var(--teal-accent); font-weight: bold;">Loading...</span>.</p>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Connected to Executive Spectrum core environment. Zero-dependency network pipeline active.</p>
+        </div>
+    </div>
+    <script>
+        fetch('/api/user')
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) {
+                    document.getElementById('usernameDisplay').textContent = data.user.username;
+                    document.getElementById('welcomeHeader').textContent = `Welcome, ${data.user.username}`;
+                }
+            })
+            .catch(err => console.error('Failed to load user info'));
+    </script>
+</body>
+</html>

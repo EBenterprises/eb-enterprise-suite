@@ -1,0 +1,9 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+APP="$HOME/request-runner"
+
+pkill -f "$APP/realtime-server.js" 2>/dev/null || true
+pkill -f "next dev --webpack" 2>/dev/null || true
+
+echo "Request Runner® stopped."

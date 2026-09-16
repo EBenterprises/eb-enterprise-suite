@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Node Operator Profile</h2>
+    <p>Encrypted identity metadata.</p>
+    <div style="background-color: var(--bg-cyber); border: 1px solid var(--border-cyber); padding: 15px; margin: 20px 0; border-radius: 2px;">
+        <p style="margin: 0 0 8px 0; color: var(--text-cyber);">Identity: <code>{{ user_data[1] }}</code></p>
+        <p style="margin: 0 0 8px 0; color: var(--text-cyber);">Authorization: <code>{{ user_data[4] }}</code></p>
+        <p style="margin: 0 0 8px 0; color: var(--text-cyber);">Provisioned: <code>{{ user_data[5] }}</code></p>
+        <p style="margin: 0; color: var(--text-cyber);">Last Access: <code>{{ user_data[6] or 'Active Session' }}</code></p>
+    </div>
+    <div class="links">
+        <a href="{{ url_for('dashboard') }}">[ Dashboard ]</a>
+        <a href="{{ url_for('logout') }}" style="color: var(--neon-magenta);">[ Terminate ]</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+WORKER=10
+NAME=FILES
+START=2026-08-11T18:26:34-07:00
+
+FILE SYSTEM SANITY
+PASS package.json
+PASS package-lock.json
+PASS next.config.js
+PASS jsconfig.json
+PASS framework/api/crud-route.js

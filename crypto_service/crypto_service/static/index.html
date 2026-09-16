@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Service // Executive Console</title>
+    <style>
+        :root {
+            --bg-obsidian: #0b0f12;
+            --panel-bg: #121820;
+            --border-teal: #008080;
+            --accent-teal: #00a8a8;
+            --highlight-gold: #d4af37;
+            --text-main: #e0e6ed;
+            --text-muted: #8892b0;
+            --error-red: #cf6679;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-teal);
+            padding-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--highlight-gold);
+            letter-spacing: 2px;
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            color: var(--accent-teal);
+            border: 1px solid var(--border-teal);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-teal);
+            border-radius: 6px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 128, 128, 0.1);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--highlight-gold);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background-color: var(--bg-obsidian);
+            border: 1px solid var(--border-teal);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--highlight-gold);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        button {
+            flex: 1;
+            background-color: transparent;
+            color: var(--highlight-gold);
+            border: 1px solid var(--highlight-gold);
+            padding: 0.75rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--highlight-gold);
+            color: var(--bg-obsidian);
+        }
+
+        button.secondary {
+            color: var(--accent-teal);
+            border-color: var(--border-teal);
+        }
+
+        button.secondary:hover {
+            background-color: var(--accent-teal);
+            color: var(--bg-obsidian);
+        }
+
+        .output-box {
+            margin-top: 1rem;
+            background-color: var(--bg-obsidian);
+            border: 1px dashed var(--border-teal);
+            padding: 1rem;
+            border-radius: 4px;
+            word-break: break-all;
+            font-size: 0.9rem;
+            min-height: 50px;
+            color: var(--accent-teal);
+        }
+
+        .error {
+            color: var(--error-red);
+            border-color: var(--error-red);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>[ CRYPTO_SERVICE ]</h1>
+        <div class="status-badge">EXECUTIVE SPECTRUM v1.0</div>
+    </header>
+
+    <div class="container">
+        <!-- Encrypt Panel -->
+        <div class="panel">
+            <h2>AES-256-CBC Encryption</h2>
+            <div class="form-group">
+                <label for="enc-key">Key (Must match block size requirements)</label>
+                <input type="text" id="enc-key" value="0123456789abcdef0123456789abcdef">
+            </div>
+            <div class="form-group">
+                <label for="enc-iv">Initialization Vector (IV)</label>
+                <input type="text" id="enc-iv" value="abcdef9876543210">
+            </div>
+            <div class="form-group">
+                <label for="enc-payload">Plaintext Payload</label>
+                <textarea id="enc-payload">Automated pipeline payload</textarea>
+            </div>
+            <div class="btn-group">
+                <button onclick="executeEncrypt()">Encrypt Payload</button>
+            </div>
+            <div class="output-box" id="enc-output">Output ciphertext hex will appear here...</div>
+        </div>
+
+        <!-- Decrypt Panel -->
+        <div class="panel">
+            <h2>AES-256-CBC Decryption</h2>
+            <div class="form-group">
+                <label for="dec-key">Key</label>
+                <input type="text" id="dec-key" value="0123456789abcdef0123456789abcdef">
+            </div>
+            <div class="form-group">
+                <label for="dec-iv">Initialization Vector (IV)</label>
+                <input type="text" id="dec-iv" value="abcdef9876543210">
+            </div>
+            <div class="form-group">
+                <label for="dec-payload">Ciphertext Hex</label>
+                <textarea id="dec-payload"></textarea>
+            </div>
+            <div class="btn-group">
+                <button class="secondary" onclick="executeDecrypt()">Decrypt Ciphertext</button>
+            </div>
+            <div class="output-box" id="dec-output">Decrypted plaintext will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        async function executeEncrypt() {
+            const key = document.getElementById('enc-key').value;
+            const iv = document.getElementById('enc-iv').value;
+            const payload = document.getElementById('enc-payload').value;
+            const outputBox = document.getElementById('enc-output');
+
+            try {
+                const response = await fetch('/encrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, iv, payload })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    outputBox.classList.remove('error');
+                    outputBox.innerText = data.result;
+                    // Auto-populate decrypt ciphertext field for convenience
+                    document.getElementById('dec-payload').value = data.result;
+                } else {
+                    outputBox.classList.add('error');
+                    outputBox.innerText = 'Error: ' + JSON.stringify(data);
+                }
+            } catch (err) {
+                outputBox.classList.add('error');
+                outputBox.innerText = 'Network Error: ' + err.message;
+            }
+        }
+
+        async function executeDecrypt() {
+            const key = document.getElementById('dec-key').value;
+            const iv = document.getElementById('dec-iv').value;
+            const payload = document.getElementById('dec-payload').value;
+            const outputBox = document.getElementById('dec-output');
+
+            try {
+                const response = await fetch('/decrypt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, iv, payload })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    outputBox.classList.remove('error');
+                    outputBox.innerText = data.result;
+                } else {
+                    outputBox.classList.add('error');
+                    outputBox.innerText = 'Error: ' + JSON.stringify(data);
+                }
+            } catch (err) {
+                outputBox.classList.add('error');
+                outputBox.innerText = 'Network Error: ' + err.message;
+            }
+        }
+    </script>
+</body>
+</html>

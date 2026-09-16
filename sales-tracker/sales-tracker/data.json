@@ -1,0 +1,23 @@
+{
+  "sales": [
+    {
+      "id": "s_1787855058297",
+      "customer": "Dan",
+      "amount": 80,
+      "status": "Unpaid",
+      "description": "3.5g - Syde",
+      "timestamp": 1787738580000,
+      "date": "2026-08-26"
+    },
+    {
+      "id": "s_1787855434214",
+      "customer": "Ryan",
+      "amount": 80,
+      "status": "Unpaid",
+      "description": "3.5g tier",
+      "timestamp": 1787741100000,
+      "date": "2026-08-26"
+    }
+  ],
+  "payments": []
+}

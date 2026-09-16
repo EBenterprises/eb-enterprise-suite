@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-09-02T04:37:26.712710",
+  "services": [
+    {
+      "name": "Executive Web UI",
+      "port": 8080,
+      "active": true
+    },
+    {
+      "name": "Local Telemetry Relay",
+      "port": 9090,
+      "active": false
+    }
+  ]
+}

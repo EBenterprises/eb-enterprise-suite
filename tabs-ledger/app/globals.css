@@ -1,0 +1,260 @@
+:root {
+  --bg: #090a0c;
+  --panel: #111318;
+  --panel2: #171a20;
+  --line: #292d35;
+  --text: #f2f0ea;
+  --muted: #949aa5;
+  --gold: #d6b46a;
+  --teal: #4ec7bd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.shell {
+  width: min(1400px, calc(100% - 24px));
+  margin: auto;
+  padding: 28px 0 60px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 25px;
+}
+
+.eyebrow {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+h1 {
+  margin: 6px 0;
+  font-size: clamp(30px, 6vw, 50px);
+  letter-spacing: -.045em;
+}
+
+p {
+  color: var(--muted);
+}
+
+.status {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 27px;
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  header {
+    flex-direction: column;
+  }
+}
+
+/* STAGE 5 — customer/account UI additions */
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.small {
+  font-size: 0.82rem;
+}
+
+.small-button {
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.empty {
+  display: grid;
+  gap: .35rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.form-card {
+  max-width: 680px;
+  display: grid;
+  gap: 1rem;
+}
+
+.form-card label {
+  display: grid;
+  gap: .45rem;
+  font-weight: 600;
+}
+
+.form-card input,
+.form-card textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: .8rem .9rem;
+  border-radius: .65rem;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.2);
+  color: inherit;
+  font: inherit;
+}
+
+.form-card textarea {
+  resize: vertical;
+}
+
+.error {
+  padding: .75rem .9rem;
+  border-radius: .65rem;
+  border: 1px solid rgba(255,80,80,.35);
+}
+
+.details {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.details > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 180px) 1fr;
+  gap: 1rem;
+  padding: .8rem 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.details dt {
+  font-weight: 700;
+}
+
+.details dd {
+  margin: 0;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+@media (max-width: 700px) {
+  .details > div {
+    grid-template-columns: 1fr;
+    gap: .25rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+}
+
+/* STAGE 6 — transaction UI */
+.form-card select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: .8rem .9rem;
+  border-radius: .65rem;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.2);
+  color: inherit;
+  font: inherit;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* STAGE 7 — payment UI */
+.success-box {
+  padding: 1rem;
+  border: 1px solid rgba(80, 220, 170, .35);
+  border-radius: .7rem;
+  display: grid;
+  gap: .3rem;
+}
+
+.success-box strong {
+  margin-bottom: .2rem;
+}

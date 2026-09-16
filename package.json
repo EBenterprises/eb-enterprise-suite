@@ -1,0 +1,14 @@
+{
+  "name": "egg-finder-live",
+  "version": "2.0.0",
+  "description": "SnapMap meets Tinder for Farm Fresh Eggs with Persistent JSON Storage, Haversine Radius, and Producer Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "deploy": "bash deploy.sh"
+  },
+  "dependencies": {
+    "expo": "^46.0.21",
+    "express": "^4.19.2"
+  }
+}

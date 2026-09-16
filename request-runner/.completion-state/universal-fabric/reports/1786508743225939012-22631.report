@@ -1,0 +1,25 @@
+ENGINE=COMPLETION ENGINE® — UNIVERSAL FABRIC®
+VERSION=UNIVERSAL-8.0
+ID=1786508743225939012-22631
+TYPE=BUILD
+PARENT=1786508733993964519-28671
+START=2026-08-11T21:28:19-07:00
+
+BUILD_MODE=WEBPACK
+BUILD_COMMAND=next build --webpack
+BUILD_RESULT=FAIL
+▲ Next.js 16.3.0 (webpack)
+✓ Running next.config.js took 526ms
+⚠ Attempted to load @next/swc-wasm-nodejs, but it was not installed
+⚠ Attempted to load @next/swc-wasm-web, but it was not installed
+⚠ Attempted to load /data/data/com.termux/files/home/request-runner/node_modules/next/next-swc-fallback/@next/swc-android-arm64/next-swc.android-arm64.node, but it was not installed
+⚠ Attempted to load @next/swc-android-arm64, but it was not installed
+⨯ Failed to load SWC binary for android/arm64, see more info here: https://nextjs.org/docs/messages/failed-loading-swc
+
+> Build error occurred
+Error: Failed to load SWC binary for android/arm64, see more info here: https://nextjs.org/docs/messages/failed-loading-swc
+    at ignore-listed frames
+
+END=2026-08-11T21:28:30-07:00
+DURATION=11
+STATUS=COMPLETE

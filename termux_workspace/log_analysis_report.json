@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-02T04:37:03.290003",
+  "analyzed_files": [
+    {
+      "filename": "web_ui.log",
+      "size_bytes": 0,
+      "error_count": 0,
+      "rotated": false
+    },
+    {
+      "filename": "workspace_daemon.log",
+      "size_bytes": 519,
+      "error_count": 0,
+      "rotated": false
+    },
+    {
+      "filename": "notification_relay.log",
+      "size_bytes": 97,
+      "error_count": 0,
+      "rotated": false
+    },
+    {
+      "filename": "telemetry_stream.jsonl",
+      "size_bytes": 287,
+      "error_count": 0,
+      "rotated": false
+    }
+  ]
+}

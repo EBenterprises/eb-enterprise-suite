@@ -1,0 +1,26 @@
+ENGINE=COMPLETION ENGINE® — UNIVERSAL FABRIC®
+VERSION=UNIVERSAL-8.0
+ID=1786504193532167843-2252
+TYPE=BUILD
+PARENT=1786504182703823197-30626
+START=2026-08-11T20:09:58-07:00
+
+BUILD_MODE=WEBPACK
+BUILD_COMMAND=next build --webpack
+BUILD_RESULT=FAIL
+▲ Next.js 16.3.0 (webpack)
+✓ Running next.config.js took 210ms
+  Skipping creating a lockfile at /data/data/com.termux/files/home/request-runner/.next/lock because we're using WASM bindings
+
+> Build error occurred
+Error: ENOTEMPTY: directory not empty, rmdir '/data/data/com.termux/files/home/request-runner/.next/server'
+    at ignore-listed frames {
+  errno: -39,
+  code: 'ENOTEMPTY',
+  syscall: 'rmdir',
+  path: '/data/data/com.termux/files/home/request-runner/.next/server'
+}
+
+END=2026-08-11T20:10:10-07:00
+DURATION=12
+STATUS=COMPLETE

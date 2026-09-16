@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>System Audit Logs</h2>
+    <div style="background-color: var(--bg-cyber); border: 1px solid var(--border-cyber); padding: 10px; margin: 15px 0; font-size: 0.8rem; max-height: 150px; overflow-y: auto;">
+        <p style="margin: 4px 0; color: var(--neon-cyan);">[INFO] 2026-08-26 12:38:00 - Daemon initialized on port 5002</p>
+        <p style="margin: 4px 0; color: var(--text-cyber);">[AUTH] 2026-08-26 12:38:15 - Connection established for {{ session.get('user', 'Guest') }}</p>
+        <p style="margin: 4px 0; color: var(--neon-cyan);">[SEC] 2026-08-26 12:38:30 - Token verification passed</p>
+    </div>
+    <div class="links" style="justify-content: flex-start;">
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+{% endblock %}

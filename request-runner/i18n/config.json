@@ -1,0 +1,18 @@
+{
+  "schema": "request-runner-i18n/v1",
+  "defaultLocale": "en",
+  "fallbackLocale": "en",
+  "unicode": "UTF-8",
+  "localeStandard": "BCP-47",
+  "directionDetection": true,
+  "legalTranslationPolicy": "localized-reference-with-authoritative-version",
+  "supportedLocaleExpansion": true,
+  "missingTranslationPolicy": "fallback",
+  "numberingSystemDetection": true,
+  "dateTimeLocalization": true,
+  "currencyLocalization": true,
+  "pluralRules": true,
+  "relativeTime": true,
+  "collation": true,
+  "rtlSupport": true
+}

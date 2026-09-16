@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DARKNET // UNIFIED V3 ENCLAVE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="terminal-container">
+        <header class="terminal-header">
+            <span class="status-indicator"></span>
+            <h1>DARKNET SECURE COMM // UNIFIED V3</h1>
+            <button id="rotate-circuit-btn">ROTATE CIRCUIT</button>
+            <span id="node-status">TOPOLOGY: SECURE</span>
+        </header>
+
+        <div class="workspace">
+            <div class="sidebar">
+                <h2>// RELAY TOPOLOGY & PEERS</h2>
+                <ul id="node-list"></ul>
+                
+                <h2>// EXPANSION 1: DEAD-DROP VAULT</h2>
+                <div class="expansion-panel">
+                    <h3>ARM DEAD DROP</h3>
+                    <input type="text" id="drop-recipient" placeholder="Target Hash..." />
+                    <textarea id="drop-payload" placeholder="Asynchronous drop payload..."></textarea>
+                    <button id="drop-btn">ARM DROP</button>
+                    <div id="drop-log" class="drop-log"></div>
+                </div>
+
+                <h2>// EXPANSION 2: ZK LOCKBOX</h2>
+                <div class="expansion-panel">
+                    <h3>SECURE ZK-VAULT</h3>
+                    <input type="text" id="zk-recipient" placeholder="Recipient Hash..." />
+                    <input type="password" id="zk-pass" placeholder="Unlock Passphrase..." />
+                    <textarea id="zk-payload" placeholder="Encrypted ZK payload..."></textarea>
+                    <button id="zk-arm-btn">ARM ZK DROP</button>
+                    <div id="zk-log" class="drop-log"></div>
+                </div>
+
+                <div class="vault-stats">
+                    <p>ENCRYPTION: <strong>AES-256-GCM + STEGANO</strong></p>
+                    <p>STATUS: <strong>ALL MODULES ACTIVE</strong></p>
+                </div>
+            </div>
+
+            <div class="chat-main">
+                <div id="message-log" class="message-log"></div>
+
+                <div class="transmission-box">
+                    <input type="text" id="recipient-input" placeholder="Recipient Onion Hash..." />
+                    <div class="controls-row">
+                        <select id="steg-mode">
+                            <option value="NONE">Stegano: None</option>
+                            <option value="IMAGE_HEADER">Stegano: Image Wrapper</option>
+                            <option value="METADATA_EXIF">Stegano: EXIF Meta</option>
+                        </select>
+                        <select id="burn-timer">
+                            <option value="5">Burn: 5s</option>
+                            <option value="10" selected>Burn: 10s</option>
+                            <option value="30">Burn: 30s</option>
+                        </select>
+                    </div>
+                    <textarea id="payload-input" placeholder="Enter transmission payload..."></textarea>
+                    <button id="transmit-btn">TRANSMIT UNIFIED PAYLOAD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

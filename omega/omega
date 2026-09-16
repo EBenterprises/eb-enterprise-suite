@@ -1,0 +1,3 @@
+#!/data/data/com.termux/files/usr/bin/bash
+cd "$HOME/omega"
+exec node "$HOME/omega/bin/omega.js" "$@"

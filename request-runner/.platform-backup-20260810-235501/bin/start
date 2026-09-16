@@ -1,0 +1,18 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+APP="$HOME/request-runner"
+cd "$APP"
+
+echo "================================================"
+echo " EB Platform®"
+echo " Request Runner®"
+echo "================================================"
+echo
+
+if [ ! -f "$APP/run-request-runner.sh" ]; then
+    echo "ERROR: Existing Request Runner launcher is missing."
+    exit 1
+fi
+
+exec "$APP/run-request-runner.sh"

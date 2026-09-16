@@ -1,0 +1,17 @@
+{
+  "name": "messaging-app",
+  "version": "1.0.0",
+<<<<<<< HEAD
+  "description": "Full-stack real-time messaging application with auto-browser launch",
+=======
+  "description": "Full-stack real-time messaging application",
+>>>>>>> 05bc1c7 (Automated Termux sync: 2026-09-02 02:56:39)
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

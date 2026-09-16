@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Messenger</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Contact List -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Chats</h2>
+                <button id="share-btn" title="Share Access">🔗</button>
+            </div>
+            <div class="contact-list">
+                <div class="contact-item active">
+                    <div class="avatar">🔒</div>
+                    <div class="contact-info">
+                        <span class="contact-name">Secure Enclave</span>
+                        <span class="contact-preview">Tap to message...</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="chat-title-info">
+                    <span class="status-dot"></span>
+                    <h3>Secure Enclave</h3>
+                </div>
+                <div class="user-badge">
+                    <input type="text" id="username-input" value="You" maxlength="15" title="Change your display name" />
+                </div>
+            </header>
+
+            <div id="chat-messages" class="chat-messages"></div>
+
+            <form id="chat-form" class="chat-input-area">
+                <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required />
+                <button type="submit" id="send-btn">Send</button>
+            </form>
+        </main>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Invite Friends</h3>
+            <p>Scan with another device on your Wi-Fi network:</p>
+            <div id="qrcode"></div>
+            <input type="text" id="share-url" readonly />
+            <button id="close-modal">Close</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

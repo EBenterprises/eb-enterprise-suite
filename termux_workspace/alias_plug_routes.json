@@ -1,0 +1,18 @@
+{
+  "sales.aliasplug.local": {
+    "port": 8080,
+    "service": "Sales Ledger API"
+  },
+  "health.aliasplug.local": {
+    "port": 8081,
+    "service": "Health Dashboard API"
+  },
+  "matrix.aliasplug.local": {
+    "port": 8082,
+    "service": "Puzzle Matrix API"
+  },
+  "events.aliasplug.local": {
+    "port": 8083,
+    "service": "Event Bus Telemetry"
+  }
+}

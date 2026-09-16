@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Node 4: Checkout</title><link rel="stylesheet" href="../assets/css/theme.css"></head>
+<body><div class="nav-bar"><a href="http://localhost:3001/node1/">1.Lead</a> | <a href="http://localhost:3002/node2/">2.Info</a> | <a href="http://localhost:3003/node3/">3.Booking</a> | <a href="http://localhost:3004/node4/">4.Checkout</a> | <a href="http://localhost:3005/node5/">5.Partner</a> | <a href="http://localhost:3006/node6/">6.Traffic</a> | <a href="http://localhost:3007/node7/">7.SubHub</a> | <a href="http://localhost:3008/node8/">8.Router</a> | <a href="http://localhost:3009/node9/">9.Vault</a></div><div class="card">
+<h2>Secure Acquisition Portal</h2><p>Select product model and fulfillment preference.</p>
+<form action="http://localhost:3004/checkout" method="POST">
+<input type="text" name="buyer_name" placeholder="Full Billing Name" required>
+<input type="text" name="product_sku" placeholder="Product SKU / Model" required>
+<select name="payment_type"><option value="direct">Direct Settlement</option><option value="financing">Approved Financing Program</option></select>
+<button type="submit">Complete Order</button></form></div></body></html>

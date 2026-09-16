@@ -1,0 +1,121 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -u
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+STATE="$ROOT/.completion-engine"
+LOG="$STATE/engine.log"
+TASK="$STATE/task"
+LOCK="$STATE/lock"
+
+mkdir -p "$STATE" "$ROOT/.completion-branches"
+
+log(){ printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG"; }
+die(){ log "FATAL: $*"; exit 1; }
+
+command -v git >/dev/null || die "git required"
+command -v node >/dev/null || die "node required"
+
+mkdir -p "$STATE"
+
+run(){
+    local name="$1"; shift
+    log "RUN: $name"
+    "$@" >>"$LOG" 2>&1
+    return $?
+}
+
+checkpoint(){
+    git add -A >/dev/null 2>&1 || true
+    git commit -m "completion-engine checkpoint" >/dev/null 2>&1 || true
+}
+
+phase(){
+    local n="$1"
+    local name="$2"
+    log "PHASE $n — $name"
+}
+
+objective="${*:-}"
+
+[ -n "$objective" ] || {
+    [ -f "$TASK" ] && objective="$(cat "$TASK")"
+}
+
+[ -n "$objective" ] || {
+    echo "Usage:"
+    echo "./COMPLETION_ENGINE.sh \"Build/complete <objective>\""
+    exit 1
+}
+
+printf '%s\n' "$objective" > "$TASK"
+
+exec 9>"$LOCK"
+flock 9 2>/dev/null || true
+
+log "============================================================"
+log "COMPLETION ENGINE® START"
+log "OBJECTIVE: $objective"
+log "============================================================"
+
+while :; do
+
+    phase "AUTO" "Discover current state"
+
+    checkpoint
+
+    if [ -x "$ROOT/FINAL_PRODUCTION_SNAPSHOT.sh" ]; then
+        if "$ROOT/FINAL_PRODUCTION_SNAPSHOT.sh" >/dev/null 2>&1; then
+            log "BASELINE: GREEN"
+        else
+            log "BASELINE: RED — entering repair cycle"
+        fi
+    fi
+
+    phase "AUTO" "Execute project intelligence"
+
+    if [ -x "$ROOT/AUTONOMOUS_BUILD_ENGINE.sh" ]; then
+        "$ROOT/AUTONOMOUS_BUILD_ENGINE.sh" "$objective" >>"$LOG" 2>&1 || true
+    fi
+
+    phase "AUTO" "Run discovered verification"
+
+    failed=0
+
+    for verifier in \
+        "$ROOT/FINAL_PRODUCTION_SNAPSHOT.sh" \
+        "$ROOT/VERIFY_ALL.sh" \
+        "$ROOT/VERIFY.sh"
+    do
+        if [ -x "$verifier" ]; then
+            "$verifier" >>"$LOG" 2>&1 || failed=1
+        fi
+    done
+
+    phase "AUTO" "Evaluate completion"
+
+    if [ "$failed" -eq 0 ] &&
+       grep -qiE 'GREEN|PASS|VERIFIED|COMPLETE|DEPLOYED' "$LOG" 2>/dev/null
+    then
+        log "COMPLETION ENGINE® ACCEPTANCE SIGNAL DETECTED"
+        log "RUNNING FINAL VERIFICATION"
+
+        checkpoint
+
+        if [ -x "$ROOT/FINAL_PRODUCTION_SNAPSHOT.sh" ] &&
+           "$ROOT/FINAL_PRODUCTION_SNAPSHOT.sh" >/dev/null 2>&1
+        then
+            log "============================================================"
+            log "STATUS: COMPLETE"
+            log "OBJECTIVE VERIFIED"
+            log "COMPLETION ENGINE® STOPPING"
+            log "============================================================"
+            break
+        fi
+    fi
+
+    phase "AUTO" "No verified completion — continue"
+
+    checkpoint
+
+    sleep 2
+done

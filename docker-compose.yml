@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  edge-node-1:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - NODE_ID=1
+      - CLUSTER_PEERS=http://edge-node-2:3000
+    volumes:
+      - ./data/node1:/app/data
+
+  edge-node-2:
+    build: .
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - NODE_ID=2
+      - CLUSTER_PEERS=http://edge-node-1:3000
+    volumes:
+      - ./data/node2:/app/data
+
+  load-balancer:
+    image: alpine/socat
+    ports:
+      - "3000:3000"
+    command: TCP-LISTEN:3000,fork TCP:edge-node-1:3000

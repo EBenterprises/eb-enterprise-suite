@@ -1,0 +1,79 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
+
+echo "=== EB PLATFORM® STEP 10B — WIRE LIFECYCLE ==="
+
+BACKUP=".backups/pre-real-lifecycle-20260810-143832"
+test -d "$BACKUP"
+
+cp -f api/domain-service.js \
+  "$BACKUP/domain-service.js.step10"
+
+node <<'NODE'
+const fs = require("fs");
+
+const file = "api/domain-service.js";
+let s = fs.readFileSync(file, "utf8");
+
+if (!s.includes('canonical-lifecycle')) {
+  s = s.replace(
+    'const crypto = require("crypto");',
+    'const crypto = require("crypto");\nconst lifecycle = require("../framework/lifecycle/canonical-lifecycle");'
+  );
+}
+
+const old = `return store.update("requests", requestId, {
+        status
+    });`;
+
+const neu = `const current = request.status;
+    lifecycle.assertRequestTransition(current, status);
+
+    return store.update("requests", requestId, {
+        status
+    });`;
+
+if (s.includes(old) && !s.includes("lifecycle.assertRequestTransition")) {
+  s = s.replace(old, neu);
+}
+
+const oldOrder = `return store.update("orders", orderId, {
+        status
+    });`;
+
+const neuOrder = `const current = order.status;
+    lifecycle.assertOrderTransition(current, status);
+
+    return store.update("orders", orderId, {
+        status
+    });`;
+
+const orderStart = s.indexOf("function updateOrderStatus(orderId, status) {");
+  const driverStart = s.indexOf("\\nfunction assignDriver(", orderStart);
+  const orderFn = orderStart >= 0 && driverStart > orderStart
+    ? s.slice(orderStart, driverStart)
+    : "";
+
+  if (s.includes(oldOrder) && !orderFn.includes("lifecycle.assertOrderTransition(current, status)")) {
+    s = s.replace(oldOrder, neuOrder);
+  }
+
+fs.writeFileSync(file, s);
+NODE
+
+node --check api/domain-service.js
+node --check framework/lifecycle/canonical-lifecycle.js
+
+echo "✓ DOMAIN WIRED"
+echo "✓ SYNTAX PASS"
+
+echo
+echo "=== HEALTH ==="
+curl -fsS http://127.0.0.1:3000/api/health >/dev/null
+echo "✓ API 3000"
+
+curl -fsS http://127.0.0.1:3001/ >/dev/null
+echo "✓ REALTIME 3001"
+
+echo
+echo "=== STEP 10B COMPLETE ==="

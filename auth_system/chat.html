@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <title>Pocket MSN Messenger</title>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="page-layout wide">
+    <div class="msn-stage">
+      <div class="msn-contact-pane" id="contact-pane">
+        <div class="msn-user-card">
+          <div class="identity" id="my-identity">Loading...</div>
+          <div class="status"><span class="status-dot"></span> Online (Available)</div>
+        </div>
+        <div class="msn-pane-header">DIRECTORY & CONTACTS</div>
+        <ul class="msn-contact-list" id="contact-list"></ul>
+      </div>
+
+      <div class="msn-chat-pane hidden-mobile" id="chat-pane">
+        <div class="msn-chat-header">
+          <button id="back-to-contacts" class="btn-primary btn-secondary" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.8rem; display: none;">&larr; Contacts</button>
+          <div class="active-title" id="chat-with-title">Select a contact to start messaging</div>
+          <span style="font-size: 0.75rem; color: var(--teal-bright);" id="chat-status-tag">End-to-End Persisted</span>
+        </div>
+
+        <div class="msn-chat-messages" id="message-container">
+          <div style="text-align: center; color: var(--text-muted); margin: auto; font-size: 0.9rem;">
+            Select any registered user from your directory list to initiate direct messages.
+          </div>
+        </div>
+
+        <div class="msn-input-bar">
+          <input type="text" id="chat-input" placeholder="Type a message..." disabled>
+          <button id="send-btn" class="btn-primary" style="width: auto; padding: 0.85rem 1.5rem;" disabled>Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    renderLayout("Pocket MSN");
+
+    const session = AuthStore.getSession();
+    if (!session) {
+      window.location.href = 'login.html';
+    }
+
+    document.getElementById('my-identity').textContent = session.identity;
+
+    let activeTarget = null;
+    let pollTimer = null;
+
+    function loadContacts() {
+      const users = AuthStore.getUsers().filter(u => u.identity.toLowerCase() !== session.identity.toLowerCase());
+      const listEl = document.getElementById('contact-list');
+      listEl.innerHTML = '';
+
+      if (users.length === 0) {
+        listEl.innerHTML = `<li style="padding: 1.25rem; font-size: 0.85rem; color: var(--text-muted); text-align: center;">No other registered users. Open another tab/browser to register a 2nd user!</li>`;
+        return;
+      }
+
+      users.forEach(user => {
+        const li = document.createElement('li');
+        li.className = `msn-contact-item ${activeTarget === user.identity ? 'active' : ''}`;
+        li.innerHTML = `
+          <div>
+            <div style="font-weight: 600; font-size: 0.9rem;">${escapeHTML(user.identity)}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${user.type === 'phone' ? '📱 Mobile' : '✉️ Email'}</div>
+          </div>
+          <span class="status-dot"></span>
+        `;
+        li.addEventListener('click', () => selectContact(user.identity));
+        listEl.appendChild(li);
+      });
+    }
+
+    function selectContact(targetIdentity) {
+      activeTarget = targetIdentity;
+      document.getElementById('chat-with-title').textContent = `@${activeTarget}`;
+      document.getElementById('chat-input').disabled = false;
+      document.getElementById('send-btn').disabled = false;
+
+      // Mobile responsive toggle
+      if (window.innerWidth <= 768) {
+        document.getElementById('contact-pane').classList.add('hidden-mobile');
+        document.getElementById('chat-pane').classList.remove('hidden-mobile');
+        document.getElementById('back-to-contacts').style.display = 'block';
+      }
+
+      loadContacts();
+      renderMessages();
+
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(renderMessages, 1000);
+    }
+
+    function renderMessages() {
+      if (!activeTarget) return;
+      const msgs = AuthStore.getMessages(session.identity, activeTarget);
+      const container = document.getElementById('message-container');
+
+      const isScrolledBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+
+      container.innerHTML = msgs.length === 0 ? 
+        `<div style="text-align: center; color: var(--text-muted); margin: auto; font-size: 0.85rem;">No conversation history yet. Send a message to start chatting with ${escapeHTML(activeTarget)}.</div>` : '';
+
+      msgs.forEach(m => {
+        const isMe = m.sender === session.identity;
+        const bubble = document.createElement('div');
+        bubble.className = `msn-bubble ${isMe ? 'outgoing' : 'incoming'}`;
+        bubble.innerHTML = `
+          ${escapeHTML(m.text)}
+          <span class="msn-meta">${m.timestamp}</span>
+        `;
+        container.appendChild(bubble);
+      });
+
+      if (isScrolledBottom) {
+        container.scrollTop = container.scrollHeight;
+      }
+    }
+
+    function dispatchMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text || !activeTarget) return;
+
+      AuthStore.sendMessage(session.identity, activeTarget, text);
+      input.value = '';
+      renderMessages();
+    }
+
+    document.getElementById('send-btn').addEventListener('click', dispatchMessage);
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') dispatchMessage();
+    });
+
+    document.getElementById('back-to-contacts').addEventListener('click', () => {
+      document.getElementById('contact-pane').classList.remove('hidden-mobile');
+      document.getElementById('chat-pane').classList.add('hidden-mobile');
+      document.getElementById('back-to-contacts').style.display = 'none';
+    });
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    loadContacts();
+  </script>
+</body>
+</html>

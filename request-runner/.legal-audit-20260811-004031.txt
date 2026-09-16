@@ -1,0 +1,20 @@
+REQUEST RUNNER® — LEGAL / IP HARDENING REPORT
+
+Timestamp: Tue Aug 11 00:41:50 PDT 2026
+Root: /data/data/com.termux/files/home/request-runner
+
+PASS: 43
+WARN: 0
+FAIL: 0
+
+Backup:
+/data/data/com.termux/files/home/request-runner/.legal-backup-20260811-004031
+
+Legal framework:
+/data/data/com.termux/files/home/request-runner/legal
+
+Registered symbol presentation:
+/data/data/com.termux/files/home/request-runner/legal/ui/ip-symbol.css
+/data/data/com.termux/files/home/request-runner/legal/ui/ip-symbol.js
+
+© 2026 Easton Bodeux® / EB Enterprises®.

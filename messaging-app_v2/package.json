@@ -1,0 +1,13 @@
+{
+  "name": "messaging-app-v2",
+  "version": "2.0.0",
+  "description": "Full-stack real-time messaging application v2 with smart port collision avoidance and auto-browser launch",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

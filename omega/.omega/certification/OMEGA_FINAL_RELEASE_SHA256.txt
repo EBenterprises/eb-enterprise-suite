@@ -1,0 +1,4 @@
+988a8541c7d4728b47377eec6d054ae89114b36a7ab63667408b5c38b7d574bd  /data/data/com.termux/files/home/omega/.omega/certification/OMEGA_CERTIFIED.txt
+7cc8227309a0f7daac4ea8adefb82541e92674ad714c617289113900ea02cd9a  /data/data/com.termux/files/home/omega/.omega/certification/OMEGA_RELEASE_FINGERPRINT.txt
+d8326d8d82fc5ca3b6688c2370879ca2463ae0533962a2bb4190c5e25821a694  /data/data/com.termux/files/home/omega/.omega/certification/OMEGA_CERTIFICATION_SHA256.txt
+420cc7b0a382dcae4afed9444718f4a25e4b3e9827bc11fd4ce740bbe846186a  /data/data/com.termux/files/home/omega/.omega/certification/OMEGA_FINAL_RELEASE_MANIFEST.txt

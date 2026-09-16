@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DARKNET // V2 SECURE ENCLAVE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="terminal-container">
+        <header class="terminal-header">
+            <span class="status-indicator"></span>
+            <h1>DARKNET SECURE COMM // PROTOCOL V2</h1>
+            <button id="rotate-circuit-btn">ROTATE CIRCUIT</button>
+            <span id="node-status">NODES: SECURE</span>
+        </header>
+
+        <div class="workspace">
+            <div class="sidebar">
+                <h2>// RELAY TOPOLOGY</h2>
+                <ul id="node-list"></ul>
+                
+                <h2>// EXPANSIONS</h2>
+                <div class="expansion-panel">
+                    <h3>DEAD-DROP VAULT</h3>
+                    <input type="text" id="drop-recipient" placeholder="Target Hash..." />
+                    <textarea id="drop-payload" placeholder="Asynchronous drop payload..."></textarea>
+                    <button id="drop-btn">ARM DEAD DROP</button>
+                    <div id="drop-log" class="drop-log"></div>
+                </div>
+
+                <div class="vault-stats">
+                    <p>ENCRYPTION: <strong>AES-256-GCM</strong></p>
+                    <p>CIRCUIT MASK: <strong>ACTIVE</strong></p>
+                </div>
+            </div>
+
+            <div class="chat-main">
+                <div id="message-log" class="message-log"></div>
+
+                <div class="transmission-box">
+                    <input type="text" id="recipient-input" placeholder="Recipient Onion Hash..." />
+                    <select id="burn-timer">
+                        <option value="5">Burn: 5s</option>
+                        <option value="10" selected>Burn: 10s</option>
+                        <option value="30">Burn: 30s</option>
+                    </select>
+                    <textarea id="payload-input" placeholder="Enter encrypted transmission payload..."></textarea>
+                    <button id="transmit-btn">TRANSMIT PAYLOAD</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

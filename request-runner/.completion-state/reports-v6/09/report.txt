@@ -1,0 +1,10 @@
+WORKER=09
+NAME=DEPENDENCIES
+START=2026-08-11T18:26:34-07:00
+
+DEPENDENCY INTEGRITY
+PASS package-lock present
+.completion-state/workers-v6/09/run.sh: line 221: /tmp/completion-v6-npm-ls-18567.txt: Permission denied
+WARNING npm dependency tree reports issues
+cat: /tmp/completion-v6-npm-ls-18567.txt: No such file or directory
+END=2026-08-11T18:26:34-07:00

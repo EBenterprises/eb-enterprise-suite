@@ -1,0 +1,33 @@
+{
+  "schema": "request-runner-legal-document/v1",
+  "required": [
+    "id",
+    "locale",
+    "version",
+    "effectiveDate",
+    "jurisdiction",
+    "documentType",
+    "status",
+    "authoritativeLanguage"
+  ],
+  "documentTypes": [
+    "terms",
+    "privacy",
+    "copyright",
+    "trademark",
+    "intellectual-property",
+    "acceptable-use",
+    "security",
+    "cookies",
+    "licenses",
+    "disclaimer",
+    "accessibility",
+    "acknowledgments",
+    "data-retention"
+  ],
+  "translationPolicy": {
+    "authoritativeVersion": true,
+    "machineTranslationRequiresReview": true,
+    "legalMeaningMustBePreserved": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "users": [
+    {
+      "id": 1788457946779,
+      "email": "eastonbodeuxenterprises@gmail.com",
+      "password": "fa8c79595d2664dcdbe9a3d15a247722:0cb355595806d7123afec3c7d6d9c1ef8abe44098efe00d96e8e40a833bf2d1593faf8f87c8e91c0f7df4556e0510fb0b3b37d4e15f15687fd6b186c69339d78",
+      "twoFaCode": null,
+      "twoFaExpires": null
+    }
+  ],
+  "sessions": {
+    "c64431376aaecaeb46f8df275c3d4c055edd824998b8fa53ac42298652fa4921": {
+      "userId": 1788457946779,
+      "email": "eastonbodeuxenterprises@gmail.com",
+      "expires": 1788465199777
+    }
+  }
+}

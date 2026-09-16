@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eggfinder-edge
+  labels:
+    app: eggfinder
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: eggfinder
+  template:
+    metadata:
+      labels:
+        app: eggfinder
+    spec:
+      containers:
+      - name: eggfinder
+        image: eggfinder:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eggfinder-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: eggfinder
+  ports:
+  - port: 80
+    targetPort: 3000

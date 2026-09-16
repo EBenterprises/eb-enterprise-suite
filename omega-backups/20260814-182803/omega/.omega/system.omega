@@ -1,0 +1,76 @@
+omega "OMEGA"
+
+system {
+  version "1.0.0"
+  mode adaptive
+  interface dual
+  format ".omega"
+  architecture elastic
+  philosophy "maximize possibility under governed constraints"
+}
+
+objectives {
+  capability maximize
+  resilience maximize
+  usability maximize
+  optionality maximize
+  invention maximize
+  adaptability maximize
+  observability maximize
+  complexity minimize
+  unnecessary_cost minimize
+  irreversible_change minimize
+}
+
+constraints {
+  security hard
+  integrity hard
+  governance hard
+  reversibility hard
+  observability hard
+  interoperability soft
+  resource_awareness soft
+}
+
+intelligence {
+  intent true
+  questioning true
+  assumption_challenge true
+  decomposition true
+  recombination true
+  abstraction true
+  invention true
+  simulation true
+  counterfactuals true
+  adversarial_testing true
+  continuous_learning true
+}
+
+evolution {
+  parallel_versions true
+  candidate_generation true
+  scoring true
+  canary true
+  rollback true
+  preserve_alternatives true
+  continuous_improvement true
+}
+
+runtime {
+  local_first true
+  offline_capable true
+  event_driven true
+  modular true
+  adaptive true
+  recoverable true
+}
+
+ui {
+  command_center true
+  invention_lab true
+  evolution_lab true
+  system_graph true
+  terminal true
+  telemetry true
+  version_explorer true
+}

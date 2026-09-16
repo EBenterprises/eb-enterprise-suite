@@ -1,0 +1,8 @@
+{
+  "repair_mode": "isolated",
+  "source_rewrite": false,
+  "blind_retries": false,
+  "version_branch_per_repair": true,
+  "promotion_requires_gate": true,
+  "rollback_to_known_good": true
+}

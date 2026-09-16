@@ -1,0 +1,15 @@
+{
+  "timestamp":"2026-08-11T19:22:03-07:00",
+  "next_version":"16.3.0",
+  "failure_class":"NEXT_STATIC_SSG_MANIFEST_FINALIZATION",
+  "compilation":"PASS",
+  "typescript":"PASS",
+  "static_generation":"PASS",
+  "failure":"ENOENT",
+  "missing_artifact":"_ssgManifest.js",
+  "action":"TARGETED_ARTIFACT_REPAIR",
+  "blind_retry":"DISABLED",
+  "source_preserved":true,
+  "rollback":".completion-backups/static-finalization-20260811-192156",
+  "log":".completion-logs/static-finalization-20260811-192156.log"
+}

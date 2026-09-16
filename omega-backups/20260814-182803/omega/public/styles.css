@@ -1,0 +1,340 @@
+*{
+ box-sizing:border-box
+}
+
+body{
+ margin:0;
+ background:#07080b;
+ color:#f4f6fa;
+ font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+
+aside{
+ position:fixed;
+ left:0;
+ top:0;
+ bottom:0;
+ width:245px;
+ padding:22px 14px;
+ background:#0c0e13;
+ border-right:1px solid #252a33;
+ display:flex;
+ flex-direction:column;
+ gap:7px
+}
+
+.brand{
+ font-size:22px;
+ font-weight:800;
+ padding:8px 10px 28px
+}
+
+.brand:first-letter{
+ font-size:32px
+}
+
+aside button{
+ border:0;
+ background:transparent;
+ color:#939cab;
+ text-align:left;
+ padding:13px;
+ border-radius:10px;
+ cursor:pointer
+}
+
+aside button:hover{
+ background:#181b22;
+ color:#fff
+}
+
+.online{
+ margin-top:auto;
+ color:#697280;
+ font-size:11px;
+ padding:12px
+}
+
+.online i{
+ display:inline-block;
+ width:7px;
+ height:7px;
+ border-radius:50%;
+ background:#52df8a;
+ margin-right:7px
+}
+
+main{
+ margin-left:245px;
+ padding:30px;
+ max-width:1550px
+}
+
+header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:28px
+}
+
+small{
+ color:#6f7887;
+ letter-spacing:2px;
+ font-size:10px
+}
+
+h1{
+ margin:5px 0;
+ font-size:30px
+}
+
+#version{
+ padding:8px 13px;
+ border:1px solid #2a3039;
+ border-radius:30px;
+ color:#9da6b5
+}
+
+.view{
+ display:none
+}
+
+.view.active{
+ display:block
+}
+
+.hero{
+ min-height:470px;
+ border:1px solid #282e39;
+ border-radius:25px;
+ padding:48px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ background:
+ radial-gradient(
+  circle at 80% 50%,
+  #252b4d,
+  transparent 34%
+ ),
+ #0d0f14
+}
+
+.heroText{
+ max-width:700px
+}
+
+.omega{
+ font-size:22px
+}
+
+.hero h2{
+ font-size:52px;
+ line-height:.98;
+ margin:10px 0 20px
+}
+
+.hero p{
+ color:#919aa9;
+ line-height:1.7;
+ max-width:650px
+}
+
+.command{
+ margin-top:25px;
+ display:flex;
+ background:#07090c;
+ border:1px solid #343a46;
+ border-radius:13px;
+ padding:5px
+}
+
+.command input{
+ flex:1;
+ border:0;
+ outline:0;
+ background:none;
+ color:white;
+ padding:14px
+}
+
+.command button{
+ border:0;
+ border-radius:9px;
+ padding:10px 17px;
+ background:#f3f5f8;
+ color:#08090d;
+ cursor:pointer
+}
+
+.quick{
+ display:flex;
+ gap:8px;
+ margin-top:10px;
+ flex-wrap:wrap
+}
+
+.quick button{
+ border:1px solid #2a3039;
+ border-radius:9px;
+ padding:9px 13px;
+ background:#171a20;
+ color:#c5cbd4
+}
+
+.orb{
+ width:280px;
+ height:280px;
+ border-radius:50%;
+ display:grid;
+ place-items:center;
+ font-size:100px;
+ background:
+ radial-gradient(
+  circle,
+  #414a78,
+  #171b2c 50%,
+  #090b10 72%
+ );
+ box-shadow:0 0 120px #252b50
+}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:12px;
+ margin:14px 0
+}
+
+.card,
+.panel{
+ background:#0d0f14;
+ border:1px solid #252a33;
+ border-radius:16px;
+ padding:18px
+}
+
+.card strong{
+ display:block;
+ margin-top:5px;
+ font-size:25px
+}
+
+.muted{
+ color:#777f8d;
+ font-size:12px
+}
+
+.panel{
+ margin-top:14px
+}
+
+.panel h3{
+ margin-top:0;
+ font-size:12px;
+ letter-spacing:1.5px
+}
+
+.event,
+.candidate,
+.version{
+ margin-top:9px;
+ padding:13px;
+ border:1px solid #20252e;
+ border-radius:10px;
+ background:#090b0f
+}
+
+.event{
+ display:flex;
+ justify-content:space-between
+}
+
+.score{
+ float:right
+}
+
+.bar{
+ height:5px;
+ margin-top:10px;
+ background:#20242d;
+ border-radius:5px;
+ overflow:hidden
+}
+
+.bar i{
+ display:block;
+ height:100%;
+ background:#9ca7ff
+}
+
+.terminal{
+ min-height:600px;
+ background:#030405;
+ border:1px solid #282d36;
+ border-radius:16px;
+ padding:18px;
+ font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+ color:#b9c4d5
+}
+
+.prompt{
+ display:flex;
+ gap:9px;
+ margin-top:15px
+}
+
+.prompt input{
+ flex:1;
+ background:none;
+ border:0;
+ outline:0;
+ color:#fff;
+ font:inherit
+}
+
+pre{
+ white-space:pre-wrap;
+ overflow:auto
+}
+
+@media(max-width:850px){
+
+ aside{
+  position:static;
+  width:100%;
+  height:auto;
+  flex-direction:row;
+  overflow-x:auto
+ }
+
+ .brand{
+  padding:8px 12px
+ }
+
+ .online{
+  display:none
+ }
+
+ main{
+  margin:0;
+  padding:16px
+ }
+
+ .hero{
+  padding:28px
+ }
+
+ .orb{
+  display:none
+ }
+
+ .hero h2{
+  font-size:38px
+ }
+
+ .stats{
+  grid-template-columns:repeat(2,1fr)
+ }
+
+}

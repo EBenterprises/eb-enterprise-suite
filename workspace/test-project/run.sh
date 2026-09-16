@@ -1,0 +1,1 @@
+echo 'Initializing test-project...'

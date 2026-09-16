@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <title>Dashboard</title>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container" style="max-width: 800px;">
+    <div class="auth-card">
+      <h1>Dashboard Overview</h1>
+      <p class="subtitle">System Status and User Metadata</p>
+      
+      <div id="dashboard-content" style="margin-top: 1.5rem; text-align: left;">
+        <!-- Hydrated dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/layout.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    renderLayout("Dashboard");
+
+    const session = AuthStore.getSession();
+    if (!session) {
+      window.location.href = 'login.html';
+    } else {
+      document.getElementById('dashboard-content').innerHTML = `
+        <div style="background: var(--bg-obsidian); padding: 1.5rem; border-radius: 4px; border: 1px solid var(--border-color);">
+          <p><strong>Authenticated Identifier:</strong> ${session.identity}</p>
+          <p style="margin-top:0.5rem;"><strong>Registration Channel:</strong> ${session.type.toUpperCase()}</p>
+          <p style="margin-top:0.5rem;"><strong>System Status:</strong> <span style="color:var(--success-color);">Active / Verified</span></p>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
