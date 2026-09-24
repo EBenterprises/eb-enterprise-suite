@@ -1,0 +1,17 @@
+{
+  "name": "eb-enterprises-next-steps",
+  "version": "16.0.0",
+  "private": true,
+  "description": "Next Steps Production Execution & Live Deployment Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/client src/server deploy dist",
+    "compile:next": "node src/core/next-compiler.js",
+    "start:daemon": "node src/server/daemon.js",
+    "deploy:prod": "bash deploy/trigger-prod.sh"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

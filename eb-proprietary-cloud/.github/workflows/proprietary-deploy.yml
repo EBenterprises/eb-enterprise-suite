@@ -1,0 +1,26 @@
+name: Proprietary Release Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-private:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Configure SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROPRIETARY_SSH_KEY }}
+
+      - name: Trigger Remote Sync
+        env:
+          PROPRIETARY_HOST: ${{ secrets.PROPRIETARY_HOST }}
+          PROPRIETARY_USER: ${{ secrets.PROPRIETARY_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $PROPRIETARY_HOST >> ~/.ssh/known_hosts
+          bash ./scripts/sync.sh

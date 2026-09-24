@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-all-modules",
+  "version": "30.0.0",
+  "private": true,
+  "description": "Complete All-Modules Unified Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules/titan-os src/modules/buyside src/modules/tapchat src/modules/securevault src/modules/coinscan src/modules/eggfinder src/modules/choreits src/modules/coastrpt src/modules/bongdora src/daemon src/api deploy dist public/assets",
+    "compile:all": "node src/core/all-modules-compiler.js",
+    "start": "node src/daemon/all-modules-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

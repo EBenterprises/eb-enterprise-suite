@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-empire",
+  "version": "70.0.0",
+  "private": true,
+  "description": "Full-Stack Multi-Website & Multi-Software Empire Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules/tap src/modules/nexus src/modules/cuff src/modules/eggfinder src/server src/api deploy dist public/assets",
+    "compile:empire": "node src/core/empire-compiler.js",
+    "start": "node src/server/empire-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

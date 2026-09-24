@@ -1,44 +1,33 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+cd /data/data/com.termux/files/home/plug-monolith || { echo "Plug-monolith folder missing!"; exit 1; }
 
-APP_DIR="auth_system"
+echo "==> Ensuring package.json exists..."
+cat << 'INNER_EOF' > package.json
+{
+  "name": "plug-monolith",
+  "version": "1.0.0",
+  "description": "All-in-one monolithic secure plug messenger",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1",
+    "socket.io": "^4.7.5"
+  }
+}
+INNER_EOF
 
-echo "==> Terminating any processes using port 8080..."
-pkill -f "python3.*server.py" || true
-pkill -f "python3 -m http.server" || true
-fuser -k 8080/tcp || true
+echo "==> Installing dependencies..."
+npm install
 
-echo "==> Updating auth_system/server.py with socket reuse and dynamic port fallback..."
-cat <<'PYEOF' > "$APP_DIR/server.py"
-import http.server
-import socketserver
-import os
+echo "==> Moving server.js into place..."
+mv /data/data/com.termux/files/home/server.js ./server.js 2>/dev/null || true
 
-class ReusableTCPServer(socketserver.TCPServer):
-    allow_reuse_address = True
-
-START_PORT = 8080
-MAX_PORT = 8095
-Handler = http.server.SimpleHTTPRequestHandler
-
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-server_started = False
-for port in range(START_PORT, MAX_PORT + 1):
-    try:
-        with ReusableTCPServer(("", port), Handler) as httpd:
-            print(f"\n======================================================")
-            print(f"=> Executive Auth Architecture Live: http://localhost:{port}")
-            print(f"======================================================\n")
-            server_started = True
-            httpd.serve_forever()
-            break
-    except OSError:
-        continue
-
-if not server_started:
-    print(f"Error: All ports in range {START_PORT}-{MAX_PORT} are busy.")
-PYEOF
-
-echo "==> Launching updated server..."
-python3 "$APP_DIR/server.py"
+echo "==> Starting server..."
+npm start

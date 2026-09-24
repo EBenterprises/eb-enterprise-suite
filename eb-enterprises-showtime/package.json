@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-showtime",
+  "version": "40.0.0",
+  "private": true,
+  "description": "Live Showtime Production Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/live src/api deploy dist public/assets",
+    "compile:show": "node src/core/show-compiler.js",
+    "start": "node src/live/showtime-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

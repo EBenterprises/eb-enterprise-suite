@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-omniverse",
+  "version": "100.0.0",
+  "private": true,
+  "description": "The Ultimate Omniverse Master Launcher & Ecosystem Orchestrator for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/orchestrator src/dashboard deploy dist public/assets",
+    "compile:omniverse": "node src/core/omniverse-compiler.js",
+    "start": "node src/orchestrator/master-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

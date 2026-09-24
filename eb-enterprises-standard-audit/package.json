@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-standard-audit",
+  "version": "22.0.0",
+  "private": true,
+  "description": "Standard Compliance, Enterprise Audit & Automated Execution Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/server src/audit deploy dist",
+    "audit:compile": "node src/core/standard-auditor.js",
+    "start": "node src/server/audit-daemon.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

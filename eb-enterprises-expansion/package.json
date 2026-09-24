@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-expansion",
+  "version": "35.0.0",
+  "private": true,
+  "description": "Next-Generation Expansion Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules/nexus-core src/modules/team-sync src/modules/tap-network src/modules/cuff-p2p src/modules/vault-ext src/daemon src/api deploy dist public/assets",
+    "compile:expansion": "node src/core/expansion-compiler.js",
+    "start": "node src/daemon/expansion-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-cluster",
+  "version": "20.0.0",
+  "private": true,
+  "description": "Multi-Process Cluster & Auto-Launching Control Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/cluster src/api deploy dist",
+    "cluster:compile": "node src/core/cluster-compiler.js",
+    "start": "node src/cluster/master.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

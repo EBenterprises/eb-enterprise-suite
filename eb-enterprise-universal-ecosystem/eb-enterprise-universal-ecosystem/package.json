@@ -1,0 +1,17 @@
+{
+  "name": "eb-enterprise-universal-ecosystem",
+  "version": "10.0.0",
+  "private": true,
+  "description": "Cross-Platform Universal Ecosystem Deployment Suite for EB Enterprises®",
+  "scripts": {
+    "init:structure": "mkdir -p config src/core src/modules src/client/mobile src/client/desktop src/server deploy dist",
+    "compile:all": "node src/core/universal-compiler.js",
+    "daemon:start": "node src/server/master-daemon.js",
+    "deploy:production": "bash deploy/sync-all-platforms.sh"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

@@ -1,3 +1,9 @@
 {
-  "uuid": "022f7965-6dd9-4c3a-96b1-781c18d90500"
+  "uuid": "022f7965-6dd9-4c3a-96b1-781c18d90500",
+  "auth": {
+    "sessionSecret": "{\"id\":\"e26efb6b-523f-4782-8532-340a0c7990b0\",\"version\":2}",
+    "userId": "c9b7b572-f6bb-4185-b680-c0146e0c0ea5",
+    "username": "eastinphection",
+    "currentConnection": "Browser-Flow-Authentication"
+  }
 }

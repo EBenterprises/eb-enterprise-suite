@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-ultimate",
+  "version": "25.0.0",
+  "private": true,
+  "description": "Ultimate Autonomous Enterprise Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/daemon src/api deploy dist public/assets",
+    "compile:master": "node src/core/master-compiler.js",
+    "start": "node src/daemon/master-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

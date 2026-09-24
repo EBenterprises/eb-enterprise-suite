@@ -1,0 +1,17 @@
+{
+  "name": "eb-enterprises-official",
+  "version": "15.0.0",
+  "private": true,
+  "description": "Official Full-Stack Application & Control Dashboard for EB Enterprises®",
+  "scripts": {
+    "init:structure": "mkdir -p config src/core src/modules src/client src/server deploy dist",
+    "compile:manifest": "node src/core/enterprise-compiler.js",
+    "start": "node src/server/daemon.js",
+    "deploy:live": "bash deploy/sync-live.sh"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

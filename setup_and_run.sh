@@ -1,316 +1,450 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
-echo "[+] Setting up Secure Vault project structure..."
-mkdir -p secure_vault/src
-mkdir -p secure_vault/templates
-mkdir -p secure_vault/deployment
-mkdir -p secure_vault/data
-mkdir -p secure_vault/keys
+echo "==> Updating plug-monolith workspace..."
+mkdir -p plug-monolith
+cd plug-monolith
 
-echo "[+] Creating server startup script..."
-cat << 'START_EOF' > secure_vault/deployment/start_server.sh
-#!/usr/bin/env bash
-python3 secure_vault/src/app.py
-START_EOF
-chmod +x secure_vault/deployment/start_server.sh
+cat << 'INNER_EOF' > package.json
+{
+  "name": "plug-monolith",
+  "version": "3.2.0",
+  "description": "Monolithic secure plug messenger with instant message sync",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.5"
+  }
+}
+INNER_EOF
 
-echo "[+] Generating initialization and database migration script..."
-cat << 'INIT_EOF' > secure_vault/src/update_vault.py
-import os
-import sqlite3
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+npm install
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-DB_PATH = os.path.join(BASE_DIR, "data", "vault_ledger.db")
-KEYS_DIR = os.path.join(BASE_DIR, "keys")
-PRIVATE_KEY_PATH = os.path.join(KEYS_DIR, "private_key.pem")
-PUBLIC_KEY_PATH = os.path.join(KEYS_DIR, "public_key.pem")
+cat << 'INNER_EOF' > server.js
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
-os.makedirs(KEYS_DIR, exist_ok=True)
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*", methods: ["GET", "POST"] }
+});
 
-if not os.path.exists(PRIVATE_KEY_PATH) or not os.path.exists(PUBLIC_KEY_PATH):
-    print("[+] Generating new RSA-4096 Key Pair...")
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=4096)
-    public_key = private_key.public_key()
+app.use(cors());
+app.use(express.json());
 
-    with open(PRIVATE_KEY_PATH, "wb") as f:
-        f.write(private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        ))
-    with open(PUBLIC_KEY_PATH, "wb") as f:
-        f.write(public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ))
+const DB_FILE = path.join(__dirname, 'database.json');
 
-conn = sqlite3.connect(DB_PATH)
-cursor = conn.cursor()
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        payload_hash TEXT,
-        encrypted_payload BLOB,
-        status TEXT
-    )
-''')
-try:
-    cursor.execute("ALTER TABLE transactions ADD COLUMN encrypted_payload BLOB")
-except sqlite3.OperationalError:
-    pass
-conn.commit()
-conn.close()
-print("[+] Database schema & keys verified successfully.")
-INIT_EOF
+if (!fs.existsSync(DB_FILE)) {
+  fs.writeFileSync(DB_FILE, JSON.stringify({ users: [], messages: [] }, null, 2));
+}
 
-echo "[+] Writing backend application logic (app.py)..."
-cat << 'APP_EOF' > secure_vault/src/app.py
-#!/usr/bin/env python3
-import os
-import sqlite3
-import hashlib
-from flask import Flask, render_template, request, redirect, url_for, make_response
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
+const readDB = () => JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+const writeDB = (data) => fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
 
-app = Flask(__name__, template_folder="../templates")
+const generateToken = (id) => {
+  return jwt.sign({ id }, 'supersecretsecureplugkey123', { expiresIn: '30d' });
+};
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-DB_PATH = os.path.join(BASE_DIR, "data", "vault_ledger.db")
-PUBLIC_KEY_PATH = os.path.join(BASE_DIR, "keys", "public_key.pem")
-PRIVATE_KEY_PATH = os.path.join(BASE_DIR, "keys", "private_key.pem")
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, pin, role } = req.body;
+    if (!username || !pin) return res.status(400).json({ message: 'Alias and PIN required.' });
 
-ADMIN_TOKEN = "VAULT_SECURE_ADMIN_KEY_99"
+    const db = readDB();
+    const userExists = db.users.find(u => u.username === username);
+    if (userExists) return res.status(400).json({ message: 'Alias already taken.' });
 
-def get_db_connection():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    return sqlite3.connect(DB_PATH)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPin = await bcrypt.hash(pin, salt);
 
-@app.route("/", methods=["GET"])
-def index():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, timestamp, payload_hash, status FROM transactions ORDER BY id DESC LIMIT 10")
-    transactions = cursor.fetchall()
-    conn.close()
-    return render_template("dashboard.html", transactions=transactions)
+    const newUser = {
+      _id: 'user_' + Date.now() + Math.random().toString(36).substring(2, 7),
+      username,
+      pin: hashedPin,
+      role: role || 'client',
+      createdAt: new Date().toISOString()
+    };
 
-@app.route("/admin/login", methods=["POST"])
-def admin_login():
-    passkey = request.form.get("passkey")
-    if passkey == ADMIN_TOKEN:
-        resp = redirect(url_for('admin_panel'))
-        resp.set_cookie("vault_admin_session", ADMIN_TOKEN, httponly=True, samesite="Strict")
-        return resp
-    return "[-] Unauthorized: Invalid Manager Password", 403
+    db.users.push(newUser);
+    writeDB(db);
 
-@app.route("/transaction/<int:tx_id>", methods=["GET"])
-def transaction_detail(tx_id):
-    session_cookie = request.cookies.get("vault_admin_session")
-    if session_cookie != ADMIN_TOKEN:
-        return render_template("unauthorized.html", tx_id=tx_id)
+    res.status(201).json({
+      _id: newUser._id,
+      username: newUser.username,
+      role: newUser.role,
+      token: generateToken(newUser._id)
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, timestamp, payload_hash, encrypted_payload, status FROM transactions WHERE id = ?", (tx_id,))
-    tx = cursor.fetchone()
-    conn.close()
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, pin } = req.body;
+    const db = readDB();
+    const user = db.users.find(u => u.username === username);
 
-    if not tx:
-        return "Order not found", 404
+    if (user && (await bcrypt.compare(pin, user.pin))) {
+      res.json({
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+        token: generateToken(user._id)
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid alias or secure PIN.' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-    decrypted_text = "[Decryption Failed]"
-    encrypted_blob = tx[3]
+app.get('/api/contacts/:userId/:role', async (req, res) => {
+  try {
+    const { userId, role } = req.params;
+    const db = readDB();
+    
+    let contacts = [];
+    if (role === 'plug' || role === 'admin') {
+      contacts = db.users.filter(u => u._id !== userId);
+    } else {
+      contacts = db.users.filter(u => u.role === 'plug' || u.role === 'admin');
+    }
+    
+    res.json(contacts.map(({ pin, ...u }) => u));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-    if encrypted_blob and os.path.exists(PRIVATE_KEY_PATH):
-        try:
-            with open(PRIVATE_KEY_PATH, "rb") as key_file:
-                private_key = load_pem_private_key(key_file.read(), password=None)
-            decrypted_bytes = private_key.decrypt(
-                encrypted_blob,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None
-                )
-            )
-            decrypted_text = decrypted_bytes.decode('utf-8')
-        except Exception as e:
-            decrypted_text = f"[Decryption Error: {str(e)}]"
+app.get('/api/messages/:userId/:contactId', async (req, res) => {
+  try {
+    const { userId, contactId } = req.params;
+    const db = readDB();
+    const messages = db.messages.filter(m => 
+      (m.sender === userId && m.recipient === contactId) ||
+      (m.sender === contactId && m.recipient === userId)
+    ).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-    tx_data = (tx[0], tx[1], tx[2], tx[4], decrypted_text)
-    return render_template("transaction.html", tx=tx_data)
+io.on('connection', (socket) => {
+  socket.on('join_room', (userId) => {
+    socket.join(userId);
+  });
 
-@app.route("/admin", methods=["GET"])
-def admin_panel():
-    session_cookie = request.cookies.get("vault_admin_session")
-    if session_cookie != ADMIN_TOKEN:
-        return render_template("admin_login.html")
+  socket.on('send_message', async (data) => {
+    try {
+      const db = readDB();
+      const message = {
+        _id: data._id || 'msg_' + Date.now() + Math.random().toString(36).substring(2, 7),
+        sender: data.sender,
+        recipient: data.recipient,
+        text: data.text,
+        createdAt: data.createdAt || new Date().toISOString()
+      };
+      
+      // Save to database permanently
+      db.messages.push(message);
+      writeDB(db);
+      
+      // Broadcast live to the recipient's room
+      io.to(data.recipient).emit('receive_message', message);
+    } catch (error) {
+      console.error('Socket message error:', error);
+    }
+  });
+});
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, timestamp, payload_hash, status FROM transactions ORDER BY id DESC")
-    transactions = cursor.fetchall()
-    conn.close()
-    return render_template("admin.html", transactions=transactions)
-
-@app.route("/admin/update/<int:tx_id>", methods=["POST"])
-def update_transaction(tx_id):
-    session_cookie = request.cookies.get("vault_admin_session")
-    if session_cookie != ADMIN_TOKEN:
-        return "Unauthorized", 403
-
-    new_status = request.form.get("status", "PENDING_APPROVAL")
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE transactions SET status = ? WHERE id = ?", (new_status, tx_id))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('admin_panel'))
-
-@app.route("/vault", methods=["GET"])
-def vault_diagnostics():
-    session_cookie = request.cookies.get("vault_admin_session")
-    if session_cookie != ADMIN_TOKEN:
-        return render_template("admin_login.html")
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM transactions")
-    total_records = cursor.fetchone()[0]
-    conn.close()
-
-    pub_key_content = "[Public Key Missing]"
-    if os.path.exists(PUBLIC_KEY_PATH):
-        with open(PUBLIC_KEY_PATH, "r") as f:
-            pub_key_content = f.read()
-
-    return render_template("vault.html", db_path=DB_PATH, total_records=total_records, public_key_pem=pub_key_content)
-
-@app.route("/encrypt", methods=["POST"])
-def encrypt():
-    payload = request.form.get("payload")
-    if not payload:
-        return redirect(url_for('index'))
-
-    encrypted_blob = b""
-    try:
-        if os.path.exists(PUBLIC_KEY_PATH):
-            with open(PUBLIC_KEY_PATH, "rb") as key_file:
-                public_key = load_pem_public_key(key_file.read())
-            encrypted_blob = public_key.encrypt(
-                payload.encode('utf-8'),
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None
-                )
-            )
-    except Exception as e:
-        print(f"[-] Encryption error: {e}")
-
-    payload_hash = hashlib.sha256(payload.encode('utf-8')).hexdigest()
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO transactions (payload_hash, encrypted_payload, status) VALUES (?, ?, ?)", 
-        (payload_hash, encrypted_blob, "PENDING_APPROVAL")
-    )
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for('index'))
-
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
-APP_EOF
-
-echo "[+] Writing HTML templates..."
-
-cat << 'EOF' > secure_vault/templates/dashboard.html
-<!DOCTYPE html>
+app.get('*', (req, res) => {
+  res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Vault - Home</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
-        :root {
-            --bg: #09090b; --surface: #121216; --surface-border: #27272a;
-            --accent: #00ff66; --accent-glow: rgba(0, 255, 102, 0.2);
-            --text-main: #f4f4f5; --text-muted: #a1a1aa;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Secure Drop - Monolith Messenger</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            darkBg: '#0b0f19',
+            cardBg: '#111827',
+            neonGreen: '#10b981',
+            neonHover: '#059669',
+            neonRed: '#ef4444'
+          }
         }
-        * { box-sizing: border-box; }
-        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; }
-        .container { width: 100%; max-width: 1000px; background: var(--surface); padding: 30px; border: 1px solid var(--surface-border); border-radius: 8px; box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--surface-border); padding-bottom: 15px; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
-        h2 { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0; }
-        .nav-links { display: flex; gap: 15px; font-size: 12px; }
-        .nav-links a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--accent); }
-        h3 { font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        textarea { width: 100%; min-height: 100px; padding: 15px; background: #09090b; color: var(--text-main); border: 1px solid var(--surface-border); font-family: 'JetBrains Mono', monospace; font-size: 13px; border-radius: 6px; resize: vertical; }
-        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
-        button { width: 100%; padding: 14px; background: var(--accent); color: #000; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 13px; letter-spacing: 1px; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 15px var(--accent-glow); margin-top: 10px; }
-        button:hover { background: #00cc52; box-shadow: 0 0 25px rgba(0, 255, 102, 0.4); }
-        .table-container { width: 100%; overflow-x: auto; margin-top: 25px; border: 1px solid var(--surface-border); border-radius: 6px; background: #09090b; }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
-        th, td { padding: 12px 16px; text-align: left; font-size: 12px; }
-        th { background: #121216; color: var(--text-muted); font-weight: 700; border-bottom: 1px solid var(--surface-border); text-transform: uppercase; }
-        td { border-bottom: 1px solid #18181b; color: var(--text-main); }
-        tr:hover td { background: #121216; }
-        .hash-link { color: var(--accent); text-decoration: none; }
-        .hash-link:hover { text-decoration: underline; }
-        .badge { background: rgba(0, 255, 102, 0.1); color: var(--accent); padding: 3px 8px; border-radius: 4px; font-size: 11px; border: 1px solid rgba(0, 255, 102, 0.2); }
-    </style>
+      }
+    }
+  </script>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h2>Secure Vault</h2>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/admin">Manager Login</a>
-                <a href="/vault">System Status</a>
-            </div>
-        </header>
-        
-        <h3>Send a Secure Message or Order</h3>
-        <form method="POST" action="/encrypt">
-            <textarea name="payload" placeholder="Type your private message, shipping details, or order information here..." required></textarea>
-            <button type="submit">Submit Securely</button>
-        </form>
+<body class="bg-darkBg text-gray-100 font-mono h-screen flex flex-col overflow-hidden">
+  <div id="app" class="h-full flex flex-1 overflow-hidden"></div>
+  <script>
+    const socket = io();
+    let currentUser = JSON.parse(localStorage.getItem('plug_user')) || null;
+    let selectedContact = null;
+    let messages = [];
+    let contacts = [];
+    let mobileView = 'contacts';
 
-        <h3>Recent Orders</h3>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Order #</th>
-                        <th>Date & Time</th>
-                        <th>Security Code (Reference)</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in transactions %}
-                    <tr>
-                        <td><a href="/transaction/{{ row[0] }}" class="hash-link">#{{ row[0] }}</a></td>
-                        <td>{{ row[1] }}</td>
-                        <td><a href="/transaction/{{ row[0] }}" class="hash-link">{{ row[2][:24] }}...</a></td>
-                        <td><span class="badge">{{ row[3] }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    // Global listener for incoming real-time transmissions from peers
+    socket.on('receive_message', (msg) => {
+      if (selectedContact && (msg.sender === selectedContact._id || msg.recipient === selectedContact._id)) {
+        if (!messages.some(m => m._id === msg._id)) {
+          messages.push(msg);
+          renderChat();
+        }
+      } else {
+        fetchContacts();
+      }
+    });
+
+    function render() {
+      const app = document.getElementById('app');
+      if (!currentUser) {
+        app.innerHTML = \`
+          <div class="flex h-full w-full items-center justify-center p-4">
+            <div class="w-full max-w-md bg-cardBg border border-gray-800 rounded-xl p-8 shadow-2xl">
+              <h1 class="text-2xl font-bold text-neonGreen text-center mb-1 tracking-wider">SECURE DROP</h1>
+              <p class="text-xs text-gray-400 text-center mb-6 uppercase tracking-widest">Monolithic Encrypted Tunnel</p>
+              <div id="error-box" class="hidden bg-neonRed/20 border border-neonRed text-neonRed text-sm p-3 rounded mb-4 text-center"></div>
+              <form id="auth-form" class="space-y-4">
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1 uppercase">Alias / Username</label>
+                  <input type="text" id="username" required class="w-full bg-darkBg border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-neonGreen" placeholder="Enter alias...">
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-400 mb-1 uppercase">Secret PIN</label>
+                  <input type="password" id="pin" required class="w-full bg-darkBg border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-neonGreen" placeholder="••••">
+                </div>
+                <div id="role-container" class="hidden">
+                  <label class="block text-xs text-gray-400 mb-1 uppercase">Account Role</label>
+                  <select id="role" class="w-full bg-gray-900 border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-neonGreen">
+                    <option value="client">Client (Customer)</option>
+                    <option value="plug">The Plug (Vendor)</option>
+                  </select>
+                </div>
+                <button type="submit" id="auth-btn" class="w-full bg-neonGreen text-darkBg font-bold py-3 rounded hover:bg-neonHover transition uppercase tracking-wider">Decrypt Session</button>
+              </form>
+              <div class="mt-6 text-center">
+                <button id="toggle-mode" class="text-xs text-gray-400 hover:text-neonGreen underline uppercase tracking-wider">Need an alias? Register account</button>
+              </div>
+            </div>
+          </div>
+        \`;
+
+        let isRegistering = false;
+        document.getElementById('toggle-mode').onclick = () => {
+          isRegistering = !isRegistering;
+          document.getElementById('role-container').classList.toggle('hidden', !isRegistering);
+          document.getElementById('toggle-mode').innerText = isRegistering ? 'Already have credentials? Access vault' : 'Need an alias? Register account';
+          document.getElementById('auth-btn').innerText = isRegistering ? 'Establish Identity' : 'Decrypt Session';
+        };
+
+        document.getElementById('auth-form').onsubmit = async (e) => {
+          e.preventDefault();
+          const username = document.getElementById('username').value;
+          const pin = document.getElementById('pin').value;
+          const role = document.getElementById('role')?.value || 'client';
+          const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
+
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, pin, role })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            const errBox = document.getElementById('error-box');
+            errBox.innerText = data.message;
+            errBox.classList.remove('hidden');
+            return;
+          }
+          localStorage.setItem('plug_user', JSON.stringify(data));
+          currentUser = data;
+          initSocket();
+          fetchContacts();
+          render();
+        };
+      } else {
+        app.innerHTML = \`
+          <div class="\${selectedContact && window.innerWidth < 768 && mobileView === 'chat' ? 'hidden' : 'flex'} w-full md:w-1/3 border-r border-gray-800 bg-cardBg flex-col h-full">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-neonGreen">\${currentUser.username}</div>
+                <div class="text-xs text-gray-500 uppercase">Role: \${currentUser.role}</div>
+              </div>
+              <button id="logout-btn" class="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded hover:bg-neonRed hover:text-white transition">Wipe Session</button>
+            </div>
+            <div class="p-3 bg-gray-900/40 text-xs font-bold text-gray-400 uppercase tracking-wider">
+              \${currentUser.role === 'plug' ? 'Network Peers & Clients' : 'Available Plugs'}
+            </div>
+            <div id="contacts-list" class="flex-1 overflow-y-auto divide-y divide-gray-800/50"></div>
+          </div>
+
+          <div class="\${!selectedContact || (window.innerWidth < 768 && mobileView === 'contacts') ? 'hidden md:flex' : 'flex'} flex-1 flex-col bg-darkBg h-full w-full" id="chat-panel">
+            <div class="flex-1 flex flex-col items-center justify-center text-gray-500 p-6 text-center">
+              <p class="text-lg mb-2">Select a peer from the sidebar to open secure link.</p>
+              <p class="text-xs text-gray-600">Encrypted peer-to-peer drop session active.</p>
+            </div>
+          </div>
+        \`;
+
+        document.getElementById('logout-btn').onclick = () => {
+          localStorage.removeItem('plug_user');
+          currentUser = null;
+          selectedContact = null;
+          render();
+        };
+
+        renderContacts();
+        if (selectedContact) renderChat();
+      }
+    }
+
+    function renderContacts() {
+      const list = document.getElementById('contacts-list');
+      if (!list) return;
+      if (contacts.length === 0) {
+        list.innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">No active secure peers found.</div>';
+        return;
+      }
+      list.innerHTML = contacts.map(c => \`
+        <div onclick="selectContact('\${c._id}')" class="p-4 cursor-pointer transition flex items-center justify-between \${selectedContact?._id === c._id ? 'bg-gray-800/80 border-l-4 border-neonGreen' : 'hover:bg-gray-800/40'}">
+          <div>
+            <div class="font-semibold text-white">\${c.username} <span class="text-[10px] text-gray-400">[\${c.role}]</span></div>
+            <div class="text-xs text-neonGreen">● Online & Ready</div>
+          </div>
         </div>
-    </div>
+      \`).join('');
+    }
+
+    async function selectContact(id) {
+      selectedContact = contacts.find(c => c._id === id);
+      mobileView = 'chat';
+      render();
+      const res = await fetch(\`/api/messages/\${currentUser._id}/\${selectedContact._id}\`);
+      messages = await res.json();
+      renderChat();
+    }
+
+    function renderChat() {
+      const panel = document.getElementById('chat-panel');
+      if (!panel || !selectedContact) return;
+      panel.innerHTML = \`
+        <div class="p-4 border-b border-gray-800 bg-cardBg flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <button id="back-btn" class="md:hidden text-neonGreen font-bold text-sm bg-gray-800/80 px-3 py-1 rounded">← Back</button>
+            <div>
+              <h2 class="font-bold text-white text-sm md:text-base">Tunnel: \${selectedContact.username}</h2>
+              <span class="text-[10px] md:text-xs text-neonGreen">End-to-End Encrypted</span>
+            </div>
+          </div>
+        </div>
+        <div id="msg-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+          \${messages.map(m => \`
+            <div class="flex \${m.sender === currentUser._id ? 'justify-end' : 'justify-start'}">
+              <div class="max-w-[80%] md:max-w-md rounded-lg p-3 text-sm \${m.sender === currentUser._id ? 'bg-neonGreen text-darkBg font-medium' : 'bg-gray-800 text-gray-100'}">
+                <p class="break-words">\${m.text}</p>
+                <span class="block text-[10px] mt-1 text-right \${m.sender === currentUser._id ? 'text-gray-900' : 'text-gray-400'}">
+                  \${new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            </div>
+          \`).join('')}
+        </div>
+        <form id="msg-form" class="p-3 md:p-4 border-t border-gray-800 bg-cardBg flex gap-2">
+          <input type="text" id="msg-input" autocomplete="off" placeholder="Type secure drop payload..." class="flex-1 bg-darkBg border border-gray-700 rounded p-3 text-white text-sm focus:outline-none focus:border-neonGreen">
+          <button type="submit" class="bg-neonGreen text-darkBg font-bold px-4 md:px-6 rounded hover:bg-neonHover transition text-xs md:text-sm uppercase tracking-wider">Send</button>
+        </form>
+      \`;
+
+      const backBtn = document.getElementById('back-btn');
+      if (backBtn) {
+        backBtn.onclick = () => {
+          mobileView = 'contacts';
+          selectedContact = null;
+          render();
+        };
+      }
+
+      const container = document.getElementById('msg-container');
+      container.scrollTop = container.scrollHeight;
+
+      document.getElementById('msg-form').onsubmit = (e) => {
+        e.preventDefault();
+        const input = document.getElementById('msg-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const payload = {
+          _id: 'msg_' + Date.now() + Math.random().toString(36).substring(2, 7),
+          sender: currentUser._id,
+          recipient: selectedContact._id,
+          text,
+          createdAt: new Date().toISOString()
+        };
+
+        // Instantly push to local array & render
+        messages.push(payload);
+        renderChat();
+
+        // Emit through socket to save on server and notify peer
+        socket.emit('send_message', payload);
+        input.value = '';
+      };
+    }
+
+    async function fetchContacts() {
+      if (!currentUser) return;
+      const res = await fetch(\`/api/contacts/\${currentUser._id}/\${currentUser.role}\`);
+      contacts = await res.json();
+      renderContacts();
+    }
+
+    function initSocket() {
+      if (!currentUser) return;
+      socket.emit('join_room', currentUser._id);
+    }
+
+    if (currentUser) {
+      initSocket();
+      fetchContacts();
+    }
+    render();
+  </script>
 </body>
 </html>
+`);
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`==> Monolithic Local Plug Server live on port ${PORT}`);
+});
+INNER_EOF
+
+echo "==> Restarting server..."
+npm start

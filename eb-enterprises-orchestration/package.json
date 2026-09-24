@@ -1,0 +1,17 @@
+{
+  "name": "eb-enterprise-orchestration",
+  "version": "19.0.0",
+  "private": true,
+  "description": "Auto-Compiling & Auto-Opening Orchestration Engine for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/daemon src/api deploy dist",
+    "compile:orchestration": "node src/core/orchestrator.js",
+    "start:auto": "node src/daemon/server.js",
+    "start": "node src/daemon/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

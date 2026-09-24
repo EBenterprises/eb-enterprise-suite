@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-beyond",
+  "version": "60.0.0",
+  "private": true,
+  "description": "The Beyond Horizon Autonomous Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/engine src/api deploy dist public/assets",
+    "compile:horizon": "node src/core/horizon-compiler.js",
+    "start": "node src/engine/beyond-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "eb-enterprise-ecosystem-complete",
+  "version": "12.0.0",
+  "private": true,
+  "description": "Final Grade Complete Multi-Platform Ecosystem for EB Enterprises®",
+  "scripts": {
+    "init:all": "mkdir -p config src/core src/modules src/client/mobile src/client/desktop src/server src/api deploy dist",
+    "compile:ecosystem": "node src/core/ecosystem-compiler.js",
+    "start": "node src/server/daemon.js",
+    "deploy:live": "bash deploy/live-sync.sh"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

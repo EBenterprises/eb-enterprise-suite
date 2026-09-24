@@ -1,14 +1,17 @@
 {
-  "name": "egg-finder-live",
-  "version": "2.0.0",
-  "description": "SnapMap meets Tinder for Farm Fresh Eggs with Persistent JSON Storage, Haversine Radius, and Producer Portal",
-  "main": "server.js",
+  "name": "eb-enterprise-universal-ecosystem",
+  "version": "10.0.0",
+  "private": true,
+  "description": "Cross-Platform Universal Ecosystem Deployment Suite for EB Enterprises®",
   "scripts": {
-    "start": "node server.js",
-    "deploy": "bash deploy.sh"
+    "init:structure": "mkdir -p config src/core src/modules src/client/mobile src/client/desktop src/server deploy dist",
+    "compile:all": "node src/core/universal-compiler.js",
+    "daemon:start": "node src/server/master-daemon.js",
+    "deploy:production": "bash deploy/sync-all-platforms.sh"
   },
   "dependencies": {
-    "expo": "^46.0.21",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
   }
 }

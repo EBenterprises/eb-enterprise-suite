@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-finale",
+  "version": "50.0.0",
+  "private": true,
+  "description": "The Ultimate Grand Finale Production Suite for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/broadcast src/api deploy dist public/assets",
+    "compile:finale": "node src/core/finale-compiler.js",
+    "start": "node src/broadcast/finale-server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

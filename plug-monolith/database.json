@@ -1,0 +1,70 @@
+{
+  "users": [
+    {
+      "_id": "user_1789751959650yk5yo",
+      "username": "Plug",
+      "pin": "$2a$10$nQ0LKxDm6YqiDHo4jv0ZHeBqWGHPG2t.kaQMJg45/Xq.TGmPo94xm",
+      "role": "plug",
+      "createdAt": "2026-09-18T17:19:19.651Z"
+    },
+    {
+      "_id": "user_1789752611386f9rhj",
+      "username": "EBenterprises",
+      "pin": "$2a$10$RZ6GzoGaUosiQrxFsEc2sOvH0g74174t48hHEP3zXPbCOWJUKQ68K",
+      "role": "client",
+      "createdAt": "2026-09-18T17:30:11.388Z"
+    }
+  ],
+  "messages": [
+    {
+      "_id": "msg_1789752050626x5dip",
+      "sender": "user_1789751959650yk5yo",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "Tesiting the app",
+      "burnAfterRead": true,
+      "createdAt": "2026-09-18T17:20:50.628Z"
+    },
+    {
+      "_id": "msg_1789752714465unnld",
+      "sender": "user_1789752611386f9rhj",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "The damn navigation drawer/bottom",
+      "createdAt": "2026-09-18T17:31:54.468Z"
+    },
+    {
+      "_id": "msg_1789752720576dzvpp",
+      "sender": "user_1789752611386f9rhj",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "Is in the way",
+      "createdAt": "2026-09-18T17:32:00.576Z"
+    },
+    {
+      "_id": "msg_1789752877459g4y8l",
+      "sender": "user_1789752611386f9rhj",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "Test",
+      "createdAt": "2026-09-18T17:34:37.462Z"
+    },
+    {
+      "_id": "msg_17897528841293rlfk",
+      "sender": "user_1789752611386f9rhj",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "Test",
+      "createdAt": "2026-09-18T17:34:44.130Z"
+    },
+    {
+      "_id": "msg_1789752902075h1cka",
+      "sender": "user_1789752611386f9rhj",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "Test",
+      "createdAt": "2026-09-18T17:35:02.076Z"
+    },
+    {
+      "_id": "msg_1789753054914jtgac",
+      "sender": "user_1789752611386f9rhj",
+      "recipient": "user_1789751959650yk5yo",
+      "text": "Hmm..",
+      "createdAt": "2026-09-18T17:37:34.915Z"
+    }
+  ]
+}

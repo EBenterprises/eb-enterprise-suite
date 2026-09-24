@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-supermesh",
+  "version": "300.0.0",
+  "private": true,
+  "description": "The Extended Supermesh Suite with Additional Specialized Ecosystem Nodes for EB Enterprises®",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/modules src/services src/gateway deploy dist public/assets",
+    "compile:supermesh": "node src/core/supermesh-compiler.js",
+    "start": "node src/gateway/supermesh-master.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}

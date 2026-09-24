@@ -1,0 +1,16 @@
+{
+  "name": "eb-enterprises-full-mesh",
+  "version": "200.0.0",
+  "private": true,
+  "description": "The Complete Autonomous Multi-Port Mesh Server for All EB Enterprises® Properties",
+  "scripts": {
+    "init:dirs": "mkdir -p config src/core src/nodes src/orchestrator deploy dist public/assets",
+    "compile:mesh": "node src/core/mesh-compiler.js",
+    "start": "node src/orchestrator/mesh-master.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "ws": "^8.17.0"
+  }
+}
