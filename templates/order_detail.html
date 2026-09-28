@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Vault - Order #{{ order.id }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; background: #09090b; color: #f4f4f5; margin: 0; padding: 15px; display: flex; justify-content: center; box-sizing: border-box; }
+        .container { width: 100%; max-width: 800px; background: #121216; padding: 20px; border: 1px solid #27272a; border-radius: 8px; box-sizing: border-box; overflow-x: hidden; }
+        pre { background: #09090b; padding: 15px; border: 1px solid #27272a; border-radius: 6px; overflow-x: auto; color: #00ff66; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 style="color:#00ff66;">Order Details: #{{ order.id }}</h2>
+    <p><strong>Client:</strong> {{ order.username }}</p>
+    <p><strong>Timestamp:</strong> {{ order.timestamp }}</p>
+    <p><strong>Status:</strong> {{ order.status }}</p>
+    <p><strong>Payload Hash:</strong> {{ order.payload_hash }}</p>
+    <h3>Payload Data View:</h3>
+    <pre>{{ decrypted_text }}</pre>
+    <br>
+    <a href="{{ url_for('index') }}" style="color:#00ff66; text-decoration:none; font-size:13px;">← Return to Dashboard</a>
+</div>
+</body></html>

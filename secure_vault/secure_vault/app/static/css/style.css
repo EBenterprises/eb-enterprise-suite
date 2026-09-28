@@ -1,0 +1,63 @@
+
+:root {
+<<<<<<< HEAD
+    --bg: #0b0f19;
+    --card-bg: #111827;
+    --accent: #3b82f6;
+    --text: #f3f4f6;
+    --danger: #ef4444;
+    --success: #22c55e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace, sans-serif; }
+body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
+.login-box { background: var(--card-bg); padding: 2.5rem; border-radius: 8px; border: 1px solid #1f2937; width: 350px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+.login-box h2 { color: var(--accent); margin-bottom: 0.25rem; font-size: 1.5rem; }
+.subtitle { color: #9ca3af; font-size: 0.85rem; margin-bottom: 1.5rem; }
+.input-group { margin-bottom: 1.25rem; }
+.input-group label { display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 0.5rem; }
+.input-group input { width: 100%; padding: 0.75rem; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 4px; }
+.btn { width: 100%; padding: 0.75rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.btn:hover { background: #2563eb; }
+.alert { padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; font-size: 0.85rem; }
+.alert.danger { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: var(--danger); }
+.alert.success { background: rgba(34, 197, 94, 0.2); border: 1px solid var(--success); color: var(--success); }
+.dashboard-container { width: 100%; max-width: 800px; padding: 2rem; }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 1rem; margin-bottom: 2rem; }
+.logout-btn { color: var(--danger); text-decoration: none; border: 1px solid var(--danger); padding: 0.5rem 1rem; border-radius: 4px; }
+.card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid #1f2937; }
+.badge { background: var(--success); color: black; padding: 0.1rem 0.4rem; border-radius: 3px; font-weight: bold; }
+=======
+    --bg: #0B0C10;
+    --card-bg: #1F2833;
+    --accent: #008080;
+    --gold: #D4AF37;
+    --text: #C5C6C7;
+    --danger: #cf6679;
+    --success: #008080;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace, sans-serif; }
+body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
+.login-box { background: var(--card-bg); padding: 2.5rem; border-radius: 8px; border: 1px solid var(--gold); width: 380px; box-shadow: 0 4px 20px rgba(0,128,128,0.2); }
+.login-box h2 { color: var(--gold); margin-bottom: 0.25rem; font-size: 1.6rem; letter-spacing: 1px; }
+.subtitle { color: var(--text); font-size: 0.85rem; margin-bottom: 1.5rem; opacity: 0.8; }
+.input-group { margin-bottom: 1.25rem; }
+.input-group label { display: block; font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; }
+.input-group input { width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--accent); color: white; border-radius: 4px; }
+.input-group input:focus { outline: none; border-color: var(--gold); }
+.btn { width: 100%; padding: 0.75rem; background: var(--accent); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn:hover { background: #006666; }
+.footer-links { margin-top: 1.25rem; text-align: center; font-size: 0.8rem; }
+.footer-links a { color: var(--gold); text-decoration: none; }
+.footer-links a:hover { text-decoration: underline; }
+.alert { padding: 0.5rem; margin-bottom: 1rem; border-radius: 4px; font-size: 0.85rem; }
+.alert.danger { background: rgba(207, 102, 121, 0.2); border: 1px solid var(--danger); color: var(--danger); }
+.alert.success { background: rgba(0, 128, 128, 0.2); border: 1px solid var(--accent); color: #fff; }
+.alert.info { background: rgba(212, 175, 55, 0.2); border: 1px solid var(--gold); color: var(--gold); }
+.dashboard-container { width: 100%; max-width: 800px; padding: 2rem; }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gold); padding-bottom: 1rem; margin-bottom: 2rem; }
+header h1 { color: var(--gold); }
+.logout-btn { color: var(--danger); text-decoration: none; border: 1px solid var(--danger); padding: 0.5rem 1rem; border-radius: 4px; }
+.card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--gold); }
+.card h2 { color: var(--gold); margin-bottom: 0.75rem; }
+.badge { background: var(--accent); color: white; padding: 0.1rem 0.4rem; border-radius: 3px; font-weight: bold; }
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)

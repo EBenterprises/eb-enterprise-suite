@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Vault</title>
+<<<<<<< HEAD
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+=======
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
+</head>
+<body>
+    <div class="container">
+        <h2>Secure Vault Portal</h2>
+<<<<<<< HEAD
+        {% if error %}
+            <p style="color: #fca5a5; text-align: center; font-size: 0.9rem;">{{ error }}</p>
+        {% endif %}
+=======
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
+        <form method="POST">
+            <label for="passcode">Enter Passcode / Key:</label>
+            <input type="password" id="passcode" name="passcode" required placeholder="Enter key...">
+            <button type="submit">Access Vault</button>
+        </form>
+    </div>
+</body>
+</html>

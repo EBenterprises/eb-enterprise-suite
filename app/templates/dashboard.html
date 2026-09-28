@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EB Enterprises | Secure Vault Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>EB Enterprises // Secure Vault Console</h1>
+            <div class="user-info">
+                <span>Node: <strong>{{ user }}</strong> [Role: <span class="badge">{{ role|upper }}</span>]</span>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <main class="grid-layout">
+            <!-- System Status -->
+            <div class="card">
+                <h2>Vault Status</h2>
+                <p>Status: <span class="badge">ONLINE & SECURE</span></p>
+                <p>Cipher Engine: <strong>AES / SHA-256 Hashing</strong></p>
+                <p>Review Mode: <strong>Active (Accept / Reject)</strong></p>
+            </div>
+
+            <!-- Secure Message Dispatch -->
+            <div class="card">
+                <h2>Encrypted Message Dispatch</h2>
+                <form action="{{ url_for('send_message') }}" method="POST">
+                    <div class="input-group">
+                        <label>Recipient Node</label>
+                        <input type="text" name="recipient" required placeholder="admin">
+                    </div>
+                    <div class="input-group">
+                        <label>Message Payload</label>
+                        <textarea name="message" required rows="2" placeholder="Enter confidential message..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">Encrypt & Dispatch</button>
+                </form>
+            </div>
+
+            <!-- Asset Order Registry -->
+            <div class="card">
+                <h2>Asset Order Registry</h2>
+                <form action="{{ url_for('place_order') }}" method="POST">
+                    <div class="input-group">
+                        <label>Item / License SKU</label>
+                        <input type="text" name="item" required placeholder="Titan-OS Module / Hardware Unit">
+                    </div>
+                    <div class="input-group">
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" required min="1" value="1">
+                    </div>
+                    <button type="submit" class="btn">Commit Order Ledger</button>
+                </form>
+            </div>
+
+            <!-- Review Queues (Messages & Orders) -->
+            <div class="card full-width">
+                <h2>Cryptographic Audit Trail & Admin Review Console</h2>
+                
+                <div class="log-section">
+                    <h3>Encrypted Messages Queue</h3>
+                    {% if messages %}
+                        <ul>
+                            {% for m in messages %}
+                                <li>
+                                    <div>
+                                        <strong>{{ m.sender }}</strong> -> <strong>{{ m.recipient }}</strong><br>
+                                        <span class="muted">Encrypted Payload (Base64):</span> <code>{{ m.payload }}</code><br>
+                                        <span class="muted">SHA-256 Hash:</span> <code class="hash-text">{{ m.payload_hash }}</code><br>
+                                        <span class="muted">Timestamp:</span> {{ m.timestamp }} | Status: <span class="badge-status">{{ m.status }}</span>
+                                    </div>
+                                    {% if role == 'admin' and m.status == 'Pending Review' %}
+                                        <div class="action-buttons">
+                                            <form action="{{ url_for('review_item', item_type='message', item_id=m.id, action='accept') }}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn-accept">Accept</button>
+                                            </form>
+                                            <form action="{{ url_for('review_item', item_type='message', item_id=m.id, action='reject') }}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn-reject">Reject</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="muted">No secure messages in vault.</p>
+                    {% endif %}
+                </div>
+
+                <div class="log-section" style="margin-top: 1.5rem;">
+                    <h3>Asset Orders Queue</h3>
+                    {% if orders %}
+                        <ul>
+                            {% for o in orders %}
+                                <li>
+                                    <div>
+                                        <strong>Node: {{ o.username }}</strong> requested <strong>{{ o.quantity }}x {{ o.item }}</strong><br>
+                                        <span class="muted">SHA-256 Hash Checksum:</span> <code class="hash-text">{{ o.payload_hash }}</code><br>
+                                        <span class="muted">Timestamp:</span> {{ o.timestamp }} | Status: <span class="badge-status">{{ o.status }}</span>
+                                    </div>
+                                    {% if role == 'admin' and o.status == 'Pending Review' %}
+                                        <div class="action-buttons">
+                                            <form action="{{ url_for('review_item', item_type='order', item_id=o.id, action='accept') }}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn-accept">Accept</button>
+                                            </form>
+                                            <form action="{{ url_for('review_item', item_type='order', item_id=o.id, action='reject') }}" method="POST" style="display:inline;">
+                                                <button type="submit" class="btn-reject">Reject</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="muted">No asset orders in vault ledger.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

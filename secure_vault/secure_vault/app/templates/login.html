@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EB Enterprises | Vault Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-box">
+        <h2>EB Enterprises</h2>
+        <p class="subtitle">Secure Vault Control Center</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" name="username" required autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">Authenticate</button>
+        </form>
+<<<<<<< HEAD
+=======
+        <div class="footer-links">
+            <a href="{{ url_for('register') }}">Create Account</a> | 
+            <a href="{{ url_for('forgot') }}">Forgot Login?</a>
+        </div>
+>>>>>>> 326a216 (Automated Termux sync: 2026-09-02 02:51:48)
+    </div>
+</body>
+</html>

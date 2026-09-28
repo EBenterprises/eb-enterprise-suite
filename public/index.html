@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
         <style>
             :root {
@@ -212,3 +213,52 @@
     
     <script src="/snapmap_engine.js"></script>
     
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Vault</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Secure Vault</h1>
+        <div class="card">
+            <h2>Master Passphrase</h2>
+            <input type="password" id="passphrase" placeholder="Enter key...">
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h2>Store Secret</h2>
+                <input type="text" id="secretKey" placeholder="Key Name">
+                <textarea id="secretValue" placeholder="Secret Value"></textarea>
+                <button onclick="storeSecret()">Save</button>
+            </div>
+            <div class="card">
+                <h2>Contents</h2>
+                <button onclick="loadVault()">Unlock</button>
+                <div id="vaultOutput" class="output-box">Locked.</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function storeSecret() {
+            const passphrase = document.getElementById('passphrase').value;
+            const key = document.getElementById('secretKey').value;
+            const value = document.getElementById('secretValue').value;
+            const res = await fetch('/', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'store', passphrase, key, value})});
+            const data = await res.json();
+            alert(data.message);
+            if(data.status === 'success') loadVault();
+        }
+        async function loadVault() {
+            const passphrase = document.getElementById('passphrase').value;
+            const res = await fetch('/', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'retrieve', passphrase})});
+            const data = await res.json();
+            document.getElementById('vaultOutput').innerHTML = data.status === 'success' ? '<pre>' + JSON.stringify(data.vault, null, 2) + '</pre>' : 'Error: ' + data.message;
+        }
+    </script>
+</body>
+</html>
+>>>>>>> origin/main
