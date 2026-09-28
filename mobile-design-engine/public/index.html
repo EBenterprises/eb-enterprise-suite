@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unrestricted Mobile Design Engine</title>
+  <style id="dynamic-theme">
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --primary: #f43f5e;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --border: #27272a;
+      --radius: 16px;
+      --shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .editor-pane, .preview-pane {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 { font-size: 1rem; margin-top: 0; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+    
+    textarea {
+      width: 100%;
+      height: 400px;
+      background: #09090b;
+      color: #38bdf8;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    /* Unrestricted Mobile Canvas */
+    .phone-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      border: 4px solid var(--border);
+      border-radius: 40px;
+      height: 640px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--bg);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+      font-family: inherit;
+    }
+    button:hover { filter: brightness(1.1); }
+  </style>
+</head>
+<body>
+  <div class="workspace">
+    <!-- Unrestricted Code & Token Injector -->
+    <div class="editor-pane">
+      <h2>Raw Layout & Token Injection</h2>
+      <textarea id="codeEditor">
+<style>
+  body {
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    font-family: system-ui, sans-serif;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 8px 0; color: var(--primary); }
+  p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 16px 0; }
+  .btn-action {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: var(--radius);
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+  }
+</style>
+
+<div class="card">
+  <h1>Custom UI Component</h1>
+  <p>Modify this HTML/CSS live with zero constraints or proprietary limitations.</p>
+  <button class="btn-action" onclick="alert('Unrestricted click handler fired!')">Execute Action</button>
+</div>
+      </textarea>
+      <div class="toolbar">
+        <button id="injectBtn">Live Inject to Device</button>
+      </div>
+    </div>
+
+    <!-- Live Unrestricted Mobile Viewport -->
+    <div class="preview-pane">
+      <h2>Live Mobile Output</h2>
+      <div class="phone-container">
+        <iframe id="previewFrame"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const iframe = document.getElementById('previewFrame');
+    const editor = document.getElementById('codeEditor');
+
+    function renderContent() {
+      const content = editor.value;
+      const blob = new Blob([content], { type: 'text/html' });
+      iframe.src = URL.createObjectURL(blob);
+    }
+
+    document.getElementById('injectBtn').addEventListener('click', renderContent);
+    
+    // Initial render
+    renderContent();
+  </script>
+</body>
+</html>

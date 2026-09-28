@@ -1,0 +1,13 @@
+{
+  "name": "eb-enterprise-core",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "deploy": "node scripts/deploy.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5"
+  }
+}
