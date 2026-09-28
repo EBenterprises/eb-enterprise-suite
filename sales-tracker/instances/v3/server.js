@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const app = express();
-const PORT = 3002;
+
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -46,7 +47,7 @@ app.get('/', (req, res) => {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Executive Spectrum - Instance v3</title>
+            <title>Executive Spectrum - Instance</title>
             <style>
                 body { font-family: system-ui, sans-serif; background: #0b0f19; color: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
                 .card { background: #131c2e; padding: 30px; border-radius: 16px; width: 460px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #1e293b; }
@@ -69,7 +70,7 @@ app.get('/', (req, res) => {
         <body>
             <div class="card">
                 <h1>Sales & Payments Tracker</h1>
-                <div class="subtitle">Instance: v3 | Port: 3002</div>
+                <div class="subtitle">Executive Spectrum Active</div>
                 
                 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 6px;">Quick Weight Presets</label>
                 <div class="preset-grid">
@@ -159,5 +160,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(\`Server running on http://0.0.0.0:\${PORT}\`);
+    console.log("Server running on port " + PORT);
 });
