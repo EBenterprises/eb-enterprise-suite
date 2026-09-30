@@ -1,0 +1,10 @@
+{
+  "Alice": {
+    "phone": "555-0192",
+    "notes": "VIP Client"
+  },
+  "Bob": {
+    "phone": "555-0144",
+    "notes": "Standard Tier"
+  }
+}

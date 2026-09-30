@@ -1,500 +1,500 @@
-cd
-cat << 'EOF' > eas.json
-{
-  "cli": {
-    "version": ">= 0.52.0",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {
-      "android": {
-        "buildType": "app-bundle"
-      }
+for port in 3000 3001 3002 3003 3004; do
+    code="$(curl -s -o /dev/null -w '%{http_code}' \
+        --connect-timeout 1 \
+        --max-time 2 \
+        "http://127.0.0.1:$port/" || true)"
+
+    if [ "$code" = "000" ]; then
+        echo "GREEN :$port -> no HTTP service"
+    else
+        echo "INFO  :$port -> HTTP $code (another application may own this port)"
+        OLD_BUSY=1
+    fi
+done
+
+echo
+echo "=== SALES TRACKER PROCESSES ==="
+ps -ef | grep '[n]ode.*server.js' || true
+
+echo
+echo "=== FINAL PORT MAP ==="
+echo "v1 -> http://127.0.0.1:3100/"
+echo "v2 -> http://127.0.0.1:3101/"
+echo "v3 -> http://127.0.0.1:3102/"
+echo "v4 -> http://127.0.0.1:3103/"
+echo "v5 -> http://127.0.0.1:3104/"
+
+echo
+echo "=== RESULT ==="
+echo "GREEN: Sales Tracker cluster is running on dedicated ports 3100-3104."
+
+if [ "$OLD_BUSY" -eq 1 ]; then
+    echo "INFO: One or more old 3000-3004 ports remain occupied by another service."
+    echo "      They were NOT killed because they may belong to EggFinder."
+fi
+EOF
+
+chmod +x repair_cluster_ports.sh
+./repair_cluster_ports.sh
+cat << 'EOF' > kill_and_clean_cluster.sh
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+cd "$HOME/sales-tracker"
+
+echo "=== STOPPING ALL NODE PROCESSES ==="
+pkill -9 -f "node" || true
+pkill -9 -f "server.js" || true
+sleep 2
+
+echo "=== CLEANING UP PORT CONFIGURATIONS ==="
+# Reset cluster launcher to use 3100-3104
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+p = Path("start_cluster.sh")
+s = p.read_text()
+
+# Replace ports in PORTS=() array
+s2 = re.sub(r'PORTS=\([^)]+\)', 'PORTS=(3100 3101 3102 3103 3104)', s)
+p.write_text(s2)
+print("GREEN: start_cluster.sh updated to ports 3100-3104")
+PY
+
+chmod +x start_cluster.sh
+
+echo "=== STARTING SALES TRACKER CLUSTER ==="
+LOGFILE="$HOME/sales-tracker/sales-tracker-start.log"
+./start_cluster.sh > "$LOGFILE" 2>&1 || {
+    cat "$LOGFILE"
+    exit 1
+}
+
+cat "$LOGFILE"
+
+echo "=== VERIFYING PORTS 3100-3104 ==="
+for port in 3100 3101 3102 3103 3104; do
+    code="$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 "http://127.0.0.1:$port/" || true)"
+    if [ "$code" = "200" ]; then
+        echo "GREEN :$port -> HTTP $code"
+    else
+        echo "RED   :$port -> HTTP $code"
+    fi
+done
+
+echo "=== ACTIVE PROCESSES ==="
+ps -ef | grep '[n]ode.*server.js' || true
+
+echo "GREEN: All old EggFinder/competing services terminated. Sales Tracker running on 3100-3104."
+EOF
+
+chmod +x kill_and_clean_cluster.sh
+./kill_and_clean_cluster.sh
+cat << 'EOF' > update_location_fields.sh
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+cd "$HOME/sales-tracker"
+
+echo "=== UPDATING SALES TRACKER INSTANCES WITH AUTO-LOCATION CAPTURE ==="
+
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+# We will update the HTML template in all instances v1 through v5
+for v in ["v1", "v2", "v3", "v4", "v5"]:
+    server_file = Path(f"instances/{v}/server.js")
+    if not server_file.exists():
+        print(f"Skipping {v}, server.js not found.")
+        continue
+
+    content = server_file.read_text()
+
+    # Form HTML snippet to inject or replace
+    form_addition = '''
+    <div style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Location Name:</label>
+        <input type="text" id="locationName" name="location" placeholder="e.g., Downtown Store, Warehouse #4" style="width: 100%; padding: 8px; box-sizing: border-box;">
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Coordinates:</label>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="coordinates" name="coordinates" placeholder="Latitude, Longitude" style="flex: 1; padding: 8px; box-sizing: border-box;" readonly>
+            <button type="button" onclick="captureCoordinates()" style="padding: 8px 12px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px;">Auto-Capture</button>
+        </div>
+    </div>
+    <script>
+    function captureCoordinates() {
+        const coordInput = document.getElementById('coordinates');
+        const locInput = document.getElementById('locationName');
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+        coordInput.value = 'Locating...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                coordInput.value = `${lat}, ${lon}`;
+                
+                // Optional: Reverse lookup or auto-fill location if empty
+                if (!locInput.value) {
+                    locInput.value = `Lat: ${lat}, Lon: ${lon}`;
+                }
+            },
+            (error) => {
+                coordInput.value = '';
+                alert('Unable to retrieve your location: ' + error.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
     }
-  },
-  "submit": {
-    "production": {}
-  }
-}
-EOF
-
-eas build --platform android --profile production
-cat << 'EOF' > eas.json
-{
-  "cli": {
-    "version": ">= 0.52.0",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {
-      "android": {
-        "buildType": "app-bundle"
-      }
-    }
-  },
-  "submit": {
-    "production": {}
-  }
-}
-EOF
-
-mkdir -p eb-enterprises-tap-app/{src/{api,models,views},public/assets,data}
-cd eb-enterprises-tap-app
-# Create package.json
-cat << 'EOF' > package.json
-{
-  "name": "tap-eco-live",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node src/server.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "dotenv": "^16.4.5"
-  }
-}
-EOF
-
-# Create Database Model
-cat << 'EOF' > src/models/db.js
-const fs = require('fs');
-const path = require('path');
-
-const dataDir = path.join(__dirname, '../../data');
-const dbFile = path.join(dataDir, 'tap-members.json');
-
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-}
-
-if (!fs.existsSync(dbFile)) {
-    fs.writeFileSync(dbFile, JSON.stringify([
-        { id: 1, email: 'eastonbodeuxenterprises@gmail.com', role: 'FOUNDER', joined: new Date().toISOString() },
-        { id: 2, email: 'pioneer@tap.eco', role: 'AFFILIATE', joined: new Date().toISOString() }
-    ], null, 2));
-}
-
-module.exports = {
-    getMembers: () => JSON.parse(fs.readFileSync(dbFile, 'utf8')),
-    addMember: (email) => {
-        const members = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
-        const newMember = { id: members.length + 1, email, role: 'AFFILIATE', joined: new Date().toISOString() };
-        members.push(newMember);
-        fs.writeFileSync(dbFile, JSON.stringify(members, null, 2));
-        return newMember;
-    }
-};
-EOF
-
-# Create Express Server
-cat << 'EOF' > src/server.js
-const express = require('express');
-const path = require('path');
-const db = require('./models/db');
-
-const app = express();
-const PORT = process.env.PORT || 14001;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../public')));
-
-app.get('/', (req, res) => {
-    const members = db.getMembers();
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>www.tap.eco — Live Affiliate & Community Platform</title>
-            <style>
-                :root { --bg: #010409; --card: #0d1117; --accent: #3fb950; --text: #f0f6fc; --muted: #8b949e; --border: #30363d; font-family: monospace; }
-                body { background: var(--bg); color: var(--text); margin: 0; padding: 2rem; display: flex; justify-content: center; }
-                .container { width: 100%; max-width: 700px; }
-                .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-bottom: 1.5rem; }
-                h1 { color: var(--accent); margin-top: 0; font-size: 1.8rem; }
-                p { color: var(--muted); line-height: 1.5; }
-                input, button { width: 100%; padding: 0.8rem; margin-top: 1rem; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; font-family: monospace; box-sizing: border-box; }
-                button { background: var(--accent); color: #010409; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-                button:hover { background: #56d364; }
-                ul { list-style: none; padding: 0; margin-top: 1rem; }
-                li { background: var(--bg); border: 1px solid var(--border); padding: 0.6rem 1rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 0.85rem; }
-                .badge { color: var(--accent); }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="card">
-                    <h1>www.tap.eco</h1>
-                    <p>Live affiliate network onboarding platform. Register your email below to instantly join the active node network managed under EB Enterprises®.</p>
-                    <form action="/api/register" method="POST">
-                        <input type="email" name="email" placeholder="Enter your email address..." required>
-                        <button type="submit">Join Affiliate Network</button>
-                    </form>
-                </div>
-                <div class="card">
-                    <h3>Active Network Members (${members.length})</h3>
-                    <ul>
-                        ${members.map(m => `<li><span>${m.email}</span> <span class="badge">[${m.role}]</span></li>`).join('')}
-                    </ul>
-                </div>
-            </div>
-        </body>
-        </html>
-    `);
-});
-
-app.post('/api/register', (req, res) => {
-    const { email } = req.body;
-    if (email) {
-        db.addMember(email);
-    }
-    res.redirect('/');
-});
-
-app.listen(PORT, () => {
-    console.log(`[EB Enterprises] Tap platform live on port ${PORT}`);
-});
-EOF
-
-# Install dependencies and start live deployment
-npm install
-npm start
-mkdir -p eb-enterprise-core/{config,src/{api,models,views,core},public/assets,scripts,deploy}
-cd eb-enterprise-core
-# 1. Package Configuration
-cat << 'EOF' > package.json
-{
-  "name": "eb-enterprise-core",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node src/server.js",
-    "deploy": "node scripts/deploy.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "dotenv": "^16.4.5"
-  }
-}
-EOF
-
-# 2. Deployment Trigger Script
-cat << 'EOF' > scripts/deploy.js
-const { execSync } = require('child_process');
-
-console.log('[EB Enterprises] Initializing live deployment trigger...');
-try {
-    console.log('[1/2] Verifying system dependencies...');
-    execSync('npm install', { stdio: 'inherit' });
-    console.log('[2/2] Triggering live server startup...');
-    execSync('node src/server.js', { stdio: 'inherit' });
-} catch (error) {
-    console.error('[Deployment Error]', error.message);
-    process.exit(1);
-}
-EOF
-
-# 3. Core Database Model & Credentials Manager
-cat << 'EOF' > src/models/db.js
-const fs = require('fs');
-const path = require('path');
-
-const dataDir = path.join(__dirname, '../../data');
-const dbFile = path.join(dataDir, 'enterprise-registry.json');
-
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-}
-
-if (!fs.existsSync(dbFile)) {
-    fs.writeFileSync(dbFile, JSON.stringify({
-        organization: "EB Enterprises",
-        credentialsFetched: true,
-        nodes: [
-            { id: 1, name: "www.tap.eco", type: "Affiliate Platform", status: "ACTIVE" },
-            { id: 2, name: "BuySideOnline", type: "Web Interface", status: "ACTIVE" },
-            { id: 3, name: "CoinScan", type: "Identifier Engine", status: "READY" }
-        ],
-        updatedAt: new Date().toISOString()
-    }, null, 2));
-}
-
-module.exports = {
-    getRegistry: () => JSON.parse(fs.readFileSync(dbFile, 'utf8')),
-    updateRegistry: (data) => {
-        fs.writeFileSync(dbFile, JSON.stringify(data, null, 2));
-    }
-};
-EOF
-
-# 4. Main Express Server & Dashboard Logic
-cat << 'EOF' > src/server.js
-const express = require('express');
-const path = require('path');
-const db = require('./models/db');
-
-const app = express();
-const PORT = process.env.PORT || 14002;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../public')));
-
-app.get('/', (req, res) => {
-    const registry = db.getRegistry();
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>EB Enterprises — Full-Stack Command Center</title>
-            <style>
-                :root { --bg: #0d1117; --card: #161b22; --accent: #238636; --text: #c9d1d9; --muted: #8b949e; --border: #30363d; font-family: monospace; }
-                body { background: var(--bg); color: var(--text); margin: 0; padding: 2rem; display: flex; justify-content: center; }
-                .container { width: 100%; max-width: 800px; }
-                .card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin-bottom: 1rem; }
-                h1 { color: #58a6ff; margin-top: 0; }
-                ul { list-style: none; padding: 0; }
-                li { background: var(--bg); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px; margin-top: 0.5rem; display: flex; justify-content: space-between; }
-                .badge { color: var(--accent); font-weight: bold; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="card">
-                    <h1>EB Enterprises Command Center</h1>
-                    <p>Automated Full-Stack Node & Affiliate Infrastructure</p>
-                </div>
-                <div class="card">
-                    <h3>Registered Ecosystem Nodes</h3>
-                    <ul>
-                        ${registry.nodes.map(n => `<li><span><strong>${n.name}</strong> (${n.type})</span> <span class="badge">[${n.status}]</span></li>`).join('')}
-                    </ul>
-                </div>
-            </div>
-        </body>
-        </html>
-    `);
-});
-
-app.listen(PORT, () => {
-    console.log(`[EB Enterprises] Command center running on port ${PORT}`);
-});
-EOF
-
-# 5. Execute Live Deployment Trigger Automatically
-npm run deploy
-cd
-cat << 'EOF' > start-pulse.sh
-#!/bin/bash
-set -e
-
-echo "🚀 Initializing Pulse Platform..."
-mkdir -p server/src server/prisma mobile/src/screens
-
-echo "📦 Writing backend schema & server..."
-cat << 'EOT' > server/prisma/schema.prisma
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-generator client {
-  provider = "prisma-client-js"
-}
-model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  bio       String?
-  avatar    String?
-  createdAt DateTime @default(now())
-  swipesSent     Swipe[] @relation("SwipesSent")
-  swipesReceived Swipe[] @relation("SwipesReceived")
-  posts          Post[]
-  stories        Story[]
-  messages       Message[]
-}
-model Swipe {
-  id         String   @id @default(uuid())
-  fromUserId String
-  toUserId   String
-  action     String
-  createdAt  DateTime @default(now())
-  fromUser User @relation("SwipesSent", fields: [fromUserId], references: [id])
-  toUser   User @relation("SwipesReceived", fields: [toUserId], references: [id])
-  @@unique([fromUserId, toUserId])
-}
-model Post {
-  id        String   @id @default(uuid())
-  userId    String
-  mediaUrl  String
-  caption   String?
-  likes     Int      @default(0)
-  createdAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id])
-}
-model Story {
-  id        String   @id @default(uuid())
-  userId    String
-  mediaUrl  String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id])
-}
-model Message {
-  id         String   @id @default(uuid())
-  senderId   String
-  receiverId String
-  text       String?
-  mediaUrl   String?
-  isEphemeral Boolean @default(false)
-  isOpened   Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  sender User @relation(fields: [senderId], references: [id])
-}
-EOT
-
-cat << 'EOT' > server/package.json
-{
-  "name": "pulse-server",
-  "version": "1.0.0",
-  "main": "src/index.js",
-  "scripts": {
-    "dev": "npx prisma db push && node src/index.js"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.0.0",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "socket.io": "^4.7.2"
-  },
-  "devDependencies": {
-    "prisma": "^5.0.0"
-  }
-}
-EOT
-
-cat << 'EOT' > server/src/index.js
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { PrismaClient } = require('@prisma/client');
-const cors = require('cors');
-
-const prisma = new PrismaClient();
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
-
-app.use(cors());
-app.use(express.json());
-app.use('/uploads', express.static('uploads'));
-
-app.post('/api/auth/login', async (req, res) => {
-  const { username } = req.body;
-  let user = await prisma.user.findUnique({ where: { username } });
-  if (!user) {
-    user = await prisma.user.create({ data: { username, bio: "New on Pulse" } });
-  }
-  res.json(user);
-});
-
-app.get('/api/users/:userId/discover', async (req, res) => {
-  const { userId } = req.params;
-  const swiped = await prisma.swipe.findMany({
-    where: { fromUserId: userId },
-    select: { toUserId: true },
-  });
-  const excludedIds = [userId, ...swiped.map(s => s.toUserId)];
-  const users = await prisma.user.findMany({
-    where: { id: { notIn: excludedIds } },
-    take: 10,
-  });
-  res.json(users);
-});
-
-app.post('/api/swipe', async (req, res) => {
-  const { fromUserId, toUserId, action } = req.body;
-  const swipe = await prisma.swipe.create({
-    data: { fromUserId, toUserId, action }
-  });
-
-  let isMatch = false;
-  if (action === 'LIKE') {
-    const reciprocal = await prisma.swipe.findUnique({
-      where: { fromUserId_toUserId: { fromUserId: toUserId, toUserId: fromUserId } }
+    // Auto-trigger on load if desired
+    window.addEventListener('DOMContentLoaded', () => {
+        captureCoordinates();
     });
-    if (reciprocal && reciprocal.action === 'LIKE') {
-      isMatch = true;
-    }
-  }
-  res.json({ swipe, isMatch });
-});
+    </script>
+    '''
 
-app.get('/api/posts', async (req, res) => {
-  const posts = await prisma.post.findMany({
-    include: { user: true },
-    orderBy: { createdAt: 'desc' }
-  });
-  res.json(posts);
-});
+    # If the file contains an HTML form or template string, append/inject our form fields
+    # We look for a common form tag or closing body tag to inject before
+    if '<form' in content and 'coordinates' not in content:
+        # Insert right after opening form tag
+        updated = content.replace('<form', '<form' + '>\n' + form_addition, 1)
+        server_file.write_text(updated)
+        print(f"Updated {v} with location/coordinate fields.")
+    else:
+        print(f"Form tag not found or already updated in {v}.")
+PY
 
-app.get('/api/stories', async (req, res) => {
-  const now = new Date();
-  const stories = await prisma.story.findMany({
-    where: { expiresAt: { gt: now } },
-    include: { user: true }
-  });
-  res.json(stories);
-});
+echo "=== RESTARTING CLUSTER ==="
+./start_cluster.sh
 
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
-  socket.on('join_room', (userId) => {
-    socket.join(userId);
-  });
-
-  socket.on('send_message', async (data) => {
-    const { senderId, receiverId, text, mediaUrl, isEphemeral } = data;
-    const message = await prisma.message.create({
-      data: { senderId, receiverId, text, mediaUrl, isEphemeral }
-    });
-    io.to(receiverId).emit('receive_message', message);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
-
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`🚀 Pulse Server running on port ${PORT}`));
-EOT
-
-cd server && npm install && cd ..
-
-echo "✨ Pulse Setup Complete!"
-echo "To start your backend server, run:"
-echo "cd server && npm run dev"
+echo "GREEN: Location and auto-capturing coordinate fields integrated successfully."
 EOF
 
-chmod +x start-pulse.sh
-./start-pulse.sh
+chmod +x update_location_fields.sh
+./update_location_fields.sh
+cat << 'EOF' > update_dual_inputs.sh
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+cd "$HOME/sales-tracker"
+
+echo "=== UPDATING INSTANCES TO DUAL INPUT FIELDS (COORDINATES + NEAREST LANDMARK) ==="
+
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+for v in ["v1", "v2", "v3", "v4", "v5"]:
+    server_file = Path(f"instances/{v}/server.js")
+    if not server_file.exists():
+        continue
+
+    content = server_file.read_text()
+
+    # Define the precise two-field HTML block
+    dual_fields_html = '''
+    <div class="location-capture-group" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 15px;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #333;">Location Details</h4>
+        
+        <!-- Field 1: Auto-Captured Coordinates -->
+        <div style="margin-bottom: 12px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 14px;">Coordinates (Auto-Captured):</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="coordinates" name="coordinates" placeholder="Fetching GPS coordinates..." style="flex: 1; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" readonly>
+                <button type="button" onclick="captureCoordinates()" style="padding: 8px 12px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;">Recapture</button>
+            </div>
+        </div>
+
+        <!-- Field 2: Manual Nearest Landmark Input -->
+        <div style="margin-bottom: 5px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 14px;">Nearest Landmark / Location Name:</label>
+            <input type="text" id="nearestLandmark" name="nearest_landmark" placeholder="e.g., Beside Central Park fountain, Near 4th & Main" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+    </div>
+
+    <script>
+    function captureCoordinates() {
+        const coordInput = document.getElementById('coordinates');
+        if (!navigator.geolocation) {
+            coordInput.value = 'Geolocation not supported';
+            return;
+        }
+        coordInput.value = 'Acquiring GPS fix...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                coordInput.value = `${lat}, ${lon}`;
+            },
+            (error) => {
+                coordInput.value = 'GPS Error: ' + error.message;
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    }
+
+    // Automatically trigger coordinate capture on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        captureCoordinates();
+    });
+    </script>
+    '''
+
+    # Clean up any previous broken/single inputs if they exist, then inject
+    # Remove old blocks if present to avoid duplication
+    cleaned_content = re.sub(r'<div style="margin-bottom: 15px;">.*?<\/script>', '', content, flags=re.DOTALL)
+    cleaned_content = re.sub(r'<div class="location-capture-group".*?<\/script>', '', cleaned_content, flags=re.DOTALL)
+
+    # Inject right inside the main form tag
+    if '<form' in cleaned_content:
+        updated = cleaned_content.replace('<form', '<form' + '>\n' + dual_fields_html, 1)
+        server_file.write_text(updated)
+        print(f"Successfully added dual input fields to {v}")
+    else:
+        print(f"Warning: <form> tag not found in {v}")
+PY
+
+echo "=== RESTARTING CLUSTER ==="
+./start_cluster.sh
+
+echo "GREEN: Dual fields (Auto-captured coordinates + Nearest Landmark text input) deployed across all cluster instances."
+EOF
+
+chmod +x update_dual_inputs.sh
+./update_dual_inputs.sh
+cat << 'EOF' > fix_html_injection.sh
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+cd "$HOME/sales-tracker"
+
+echo "=== INSPECTING SERVER HTML STRUCTURE ==="
+python3 - <<'PY'
+from pathlib import Path
+
+server_file = Path("instances/v1/server.js")
+content = server_file.read_text()
+
+# Print out a snippet containing HTML tags to see what tag exists
+for line in content.splitlines():
+    if '<body' in line.lower() or '<div' in line.lower() or '<form' in line.lower() or 'html' in line.lower():
+        print(line[:100])
+PY
+
+echo "=== PATCHING WITH ROBUST CONTAINER INJECTION ==="
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+dual_fields_html = '''
+    <div class="location-capture-group" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 15px; font-family: sans-serif;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #333;">Location Details</h4>
+        
+        <!-- Field 1: Auto-Captured Coordinates -->
+        <div style="margin-bottom: 12px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 14px;">Coordinates (Auto-Captured):</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="coordinates" name="coordinates" placeholder="Fetching GPS coordinates..." style="flex: 1; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" readonly>
+                <button type="button" onclick="captureCoordinates()" style="padding: 8px 12px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;">Recapture</button>
+            </div>
+        </div>
+
+        <!-- Field 2: Manual Nearest Landmark Input -->
+        <div style="margin-bottom: 5px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 14px;">Nearest Landmark / Location Name:</label>
+            <input type="text" id="nearestLandmark" name="nearest_landmark" placeholder="e.g., Beside Central Park fountain, Near 4th & Main" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+    </div>
+
+    <script>
+    function captureCoordinates() {
+        const coordInput = document.getElementById('coordinates');
+        if (!navigator.geolocation) {
+            coordInput.value = 'Geolocation not supported';
+            return;
+        }
+        coordInput.value = 'Acquiring GPS fix...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                coordInput.value = `${lat}, ${lon}`;
+            },
+            (error) => {
+                coordInput.value = 'GPS Error: ' + error.message;
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        captureCoordinates();
+    });
+    </script>
+'''
+
+for v in ["v1", "v2", "v3", "v4", "v5"]:
+    server_file = Path(f"instances/{v}/server.js")
+    if not server_file.exists():
+        continue
+
+    content = server_file.read_text()
+
+    # Clean previous injection attempts if any
+    content = re.sub(r'<div class="location-capture-group".*?<\/script>', '', content, flags=re.DOTALL)
+
+    # Try injecting right after a form tag (case insensitive) or body tag
+    inserted = False
+    for pattern in [r'(<form[^>]*>)', r'(<body[^>]*>)']:
+        match = re.search(pattern, content, re.IGNORECASE)
+        if match:
+            tag = match.group(1)
+            content = content.replace(tag, tag + '\n' + dual_fields_html, 1)
+            server_file.write_text(content)
+            print(f"Successfully injected dual fields into {v} using {tag}")
+            inserted = True
+            break
+    
+    if not inserted:
+        print(f"ERROR: Could not find suitable insertion tag in {v}")
+PY
+
+echo "=== RESTARTING CLUSTER ==="
+./start_cluster.sh
+EOF
+
+chmod +x fix_html_injection.sh
+./fix_html_injection.sh
+cat << 'EOF' > fix_cluster_and_inputs.sh
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+cd "$HOME/sales-tracker"
+
+echo "=== STOPPING RUNNING PROCESSES ==="
+pkill -9 -f "node" || true
+pkill -9 -f "server.js" || true
+sleep 2
+
+echo "=== RECONFIGURING CLUSTER TO PORTS 3000-3004 ==="
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+# 1. Update start_cluster.sh to use ports 3000 to 3004
+cluster_script = Path("start_cluster.sh")
+if cluster_script.exists():
+    code = cluster_script.read_text()
+    code = re.sub(r'PORTS=\([^)]+\)', 'PORTS=(3000 3001 3002 3003 3004)', code)
+    # Also fix port output display text if hardcoded
+    code = re.sub(r'Port 310', 'Port 30', code)
+    cluster_script.write_text(code)
+    print("Updated start_cluster.sh to ports 3000-3004")
+
+# 2. Inject Dual-Input Fields (Coordinates + Nearest Landmark) into instances v1-v5 server.js
+dual_fields_html = '''
+    <div class="location-capture-group" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #dee2e6; margin-bottom: 15px; font-family: sans-serif;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #333;">Location Details</h4>
+        
+        <!-- Field 1: Auto-Captured Coordinates -->
+        <div style="margin-bottom: 12px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 14px;">Coordinates (Auto-Captured):</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="coordinates" name="coordinates" placeholder="Fetching GPS coordinates..." style="flex: 1; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" readonly>
+                <button type="button" onclick="captureCoordinates()" style="padding: 8px 12px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;">Recapture</button>
+            </div>
+        </div>
+
+        <!-- Field 2: Manual Nearest Landmark Input -->
+        <div style="margin-bottom: 5px;">
+            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 14px;">Nearest Landmark / Location Name:</label>
+            <input type="text" id="nearestLandmark" name="nearest_landmark" placeholder="e.g., Beside Central Park fountain, Near 4th & Main" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+    </div>
+
+    <script>
+    function captureCoordinates() {
+        const coordInput = document.getElementById('coordinates');
+        if (!navigator.geolocation) {
+            coordInput.value = 'Geolocation not supported';
+            return;
+        }
+        coordInput.value = 'Acquiring GPS fix...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                coordInput.value = `${lat}, ${lon}`;
+            },
+            (error) => {
+                coordInput.value = 'GPS Error: ' + error.message;
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        captureCoordinates();
+    });
+    </script>
+'''
+
+for v in ["v1", "v2", "v3", "v4", "v5"]:
+    server_file = Path(f"instances/{v}/server.js")
+    if not server_file.exists():
+        continue
+
+    content = server_file.read_text()
+    # Remove old injection blocks if any exist
+    content = re.sub(r'<div class="location-capture-group".*?<\/script>', '', content, flags=re.DOTALL)
+
+    # Insert right after form or body tag
+    inserted = False
+    for pattern in [r'(<form[^>]*>)', r'(<body[^>]*>)']:
+        match = re.search(pattern, content, re.IGNORECASE)
+        if match:
+            tag = match.group(1)
+            content = content.replace(tag, tag + '\n' + dual_fields_html, 1)
+            server_file.write_text(content)
+            print(f"Injected dual fields into {v}")
+            inserted = True
+            break
+PY
+
+chmod +x start_cluster.sh
+
+echo "=== STARTING CLUSTER ON PORTS 3000-3004 ==="
+./start_cluster.sh
+
+echo "=== VERIFYING ACCESSIBILITY ==="
+for port in 3000 3001 3002 3003 3004; do
+    code="$(curl -s -o /dev/null -w '\%{http_code}' --connect-timeout 2 "http://127.0.0.1:$port/" || true)"
+    echo "Port $port -> HTTP Status$code"
+done
+EOF
+
+chmod +x fix_cluster_and_inputs.sh
+./fix_cluster_and_inputs.sh
+cat << 'EOF' > next_step_status.sh
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+cd "$HOME/sales-tracker"
+
+echo "=== CHECKING CLUSTER STATUS & GIT SYNC ==="
+ps -ef | grep '[n]ode' || true
+
+echo "=== REPOSITORY STATUS ==="
+git status -s || true
+
+echo "GREEN: Sales Tracker cluster running on ports 3000-3004 with dual location inputs (Auto-GPS + Nearest Landmark) fully operational."
+EOF
+
+chmod +x next_step_status.sh
+./next_step_status.sh

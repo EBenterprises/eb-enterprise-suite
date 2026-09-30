@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: eb-sales-tracker-v5
+    runtime: docker
+    plan: free
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: PORT
+        value: 5000

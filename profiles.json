@@ -1,0 +1,20 @@
+{
+  "Alice": {
+    "phone": "555-0192",
+    "notes": "VIP Client - Prefers evening drops"
+  },
+  "Bob": {
+    "phone": "555-0144",
+    "notes": "Standard Tier"
+  },
+  "Chris Bell": {
+    "phone": "+12363381934",
+    "notes": "",
+    "updated_at": 1790772766366
+  },
+  "Lane": {
+    "phone": "+17809023650",
+    "notes": "",
+    "updated_at": 1790772753276
+  }
+}
