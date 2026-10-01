@@ -1,0 +1,11 @@
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const app = express();
+const PORT = 3002;
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+const db = new sqlite3.Database(path.join(__dirname, 'data', 'v2.db'));
+db.run(`CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY AUTOINCREMENT, item_name TEXT, amount REAL, category TEXT)`);
+app.get('/api/sales', (req, res) => db.all(`SELECT * FROM sales`, [], (err, rows) => res.json(rows)));
+app.listen(PORT, () => console.log(`[v2] Running on http://localhost:${PORT}`));
