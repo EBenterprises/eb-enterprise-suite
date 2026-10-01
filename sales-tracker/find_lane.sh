@@ -1,0 +1,5 @@
+echo "=== Searching all files and git history for 'Lane' ==="
+git log -S "Lane" -p || echo "Not found in git history commits."
+echo ""
+echo "=== Searching all JSON and JS files in parent and subdirectories ==="
+grep -rn "Lane" ../ || echo "Not found via grep."
