@@ -4,14 +4,23 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 51205;
-const DATA_FILE = path.join(__dirname, 'transactions.json');
+const VERSION_NAME = process.env.VERSION_NAME || 'v5';
+const DATA_FILE = path.join(__dirname, `transactions_${VERSION_NAME}.json`);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 function readTransactionsFromFile() {
   if (!fs.existsSync(DATA_FILE)) {
-    return [];
+    // Fallback seed data if empty
+    return [
+      {
+        id: 'tx-default-1',
+        customer: `Client (${VERSION_NAME})`,
+        amount: 100,
+        timestamp: new Date().toISOString()
+      }
+    ];
   }
   try {
     const data = fs.readFileSync(DATA_FILE, 'utf8');
@@ -36,18 +45,12 @@ app.put('/api/transactions/:id', (req, res) => {
     return res.status(404).json({ error: 'Transaction not found' });
   }
 
-  if (timestamp) {
-    transactions[index].timestamp = timestamp;
-  }
-  if (customer !== undefined) {
-    transactions[index].customer = customer;
-  }
-  if (amount !== undefined) {
-    transactions[index].amount = amount;
-  }
+  if (timestamp) transactions[index].timestamp = timestamp;
+  if (customer !== undefined) transactions[index].customer = customer;
+  if (amount !== undefined) transactions[index].amount = amount;
 
   writeTransactionsToFile(transactions);
-  res.json({ success: true, transaction: transactions[index] });
+  res.json({ success: true, version: VERSION_NAME, transaction: transactions[index] });
 });
 
 app.get('/api/transactions', (req, res) => {
@@ -56,6 +59,10 @@ app.get('/api/transactions', (req, res) => {
   res.json(transactions);
 });
 
+app.get('/api/version', (req, res) => {
+  res.json({ version: VERSION_NAME, port: PORT });
+});
+
 app.listen(PORT, () => {
-  console.log(`Sales-Tracker v5 running on http://127.0.0.1:${PORT}`);
+  console.log(`[${VERSION_NAME.toUpperCase()}] Sales-Tracker running at http://127.0.0.1:${PORT}`);
 });

@@ -1,6 +1,17 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadVersionInfo();
   loadTransactionHistory();
 });
+
+async function loadVersionInfo() {
+  try {
+    const res = await fetch('/api/version');
+    const data = await res.json();
+    document.getElementById('version-badge').textContent = `${data.version.toUpperCase()} (Port: ${data.port})`;
+  } catch (e) {
+    console.error('Could not load version metadata');
+  }
+}
 
 async function loadTransactionHistory() {
   const response = await fetch('/api/transactions');
@@ -16,9 +27,9 @@ async function loadTransactionHistory() {
     <div class="transaction-item" data-id="${tx.id}">
       <div class="tx-info">
         <strong>${tx.customer || 'Guest'}</strong> - $${tx.amount} <br>
-        <small>${new Date(tx.timestamp).toLocaleString()}</small>
+        <small>Timestamp: ${new Date(tx.timestamp).toLocaleString()}</small>
       </div>
-      <button onclick="toggleEditModal('${tx.id}')">Edit</button>
+      <button onclick="toggleEditModal('${tx.id}')">Edit / Time Travel</button>
 
       <div id="edit-modal-${tx.id}" class="edit-popup-menu" style="display: none;">
         <h4>Edit Transaction & Time Travel</h4>

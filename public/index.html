@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sales & Payments Tracker v5</title>
+  <title>Sales & Payments Tracker Cluster</title>
   <style>
     body { font-family: sans-serif; margin: 20px; background: #121212; color: #e0e0e0; }
+    .badge { background: #007acc; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
     .transaction-item { background: #1e1e1e; padding: 15px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #333; }
     .edit-popup-menu { background: #2d2d2d; padding: 15px; margin-top: 10px; border-radius: 4px; border: 1px solid #555; }
     input, button { margin: 5px 0; padding: 8px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; }
@@ -13,10 +14,10 @@
   </style>
 </head>
 <body>
-  <h1>Sales & Payments Tracker v5</h1>
+  <h1>Sales & Payments Tracker <span id="version-badge" class="badge">Loading...</span></h1>
   <div id="history-container">
-    <h2>Transaction History</h2>
-    <div id="transaction-list">Loading...</div>
+    <h2>Transaction History (Time-Travel Edit Enabled)</h2>
+    <div id="transaction-list">Loading transactions...</div>
   </div>
 
   <script src="app.js"></script>
