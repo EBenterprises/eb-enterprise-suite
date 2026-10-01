@@ -60,7 +60,7 @@ function createAppHandler(version) {
                     let txs = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
                     
                     if (action === 'add_sale') {
-                        const hasTimeMachine = version === 'v2' || version === 'v3' || (version === 'v4' || version === 'v5');
+                        const hasTimeMachine = version === 'v2' || version === 'v3' || ((version === 'v4' || version === 'v5') || version === 'v5');
                         const customTs = (hasTimeMachine && payload.customTimestamp) ? new Date(payload.customTimestamp).getTime() : Date.now();
                         const formattedDate = (hasTimeMachine && payload.customTimestamp) ? payload.customTimestamp.replace('T', ' ') : new Date().toISOString().replace('T', ' ').substring(0, 16);
                         
@@ -94,7 +94,7 @@ function createAppHandler(version) {
                         return;
                     }
 
-                    if (action === 'update_tx' && (version === 'v3' || (version === 'v4' || version === 'v5') || version === 'v5')) {
+                    if (action === 'update_tx' && (version === 'v3' || ((version === 'v4' || version === 'v5') || version === 'v5') || version === 'v5')) {
     const { id, customer, landmark, gps, amount, cashCollected, customTimestamp } = payload;
     let transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : [];
     transactions = transactions.map(t => {
@@ -125,7 +125,7 @@ function createAppHandler(version) {
 
                     if (action === 'add_expense') {
                         let expenses = getExpenses();
-                        const hasTimeMachine = version === 'v2' || version === 'v3' || (version === 'v4' || version === 'v5');
+                        const hasTimeMachine = version === 'v2' || version === 'v3' || ((version === 'v4' || version === 'v5') || version === 'v5');
                         const customTs = (hasTimeMachine && payload.customTimestamp) ? new Date(payload.customTimestamp).getTime() : Date.now();
                         const formattedDate = (hasTimeMachine && payload.customTimestamp) ? payload.customTimestamp.split('T')[0] : new Date().toISOString().split('T')[0];
                         
@@ -198,7 +198,7 @@ function createAppHandler(version) {
         const title = titles[version] || titles['v1'];
         const versionBadge = badges[version] || badges['v1'];
         
-        const hasTimeMachine = version === 'v2' || version === 'v3' || (version === 'v4' || version === 'v5');
+        const hasTimeMachine = version === 'v2' || version === 'v3' || ((version === 'v4' || version === 'v5') || version === 'v5');
         const timeMachineBox = hasTimeMachine ? `
             <div class="timetravel-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -216,7 +216,7 @@ function createAppHandler(version) {
             </div>
         ` : '';
 
-        const mapPickerModal = (version === 'v4' || version === 'v5') ? `
+        const mapPickerModal = ((version === 'v4' || version === 'v5') || version === 'v5') ? `
             <div id="mapPickerModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; padding:10px;">
                 <div style="background:#131c2e; border:1px solid #334155; width:100%; max-width:440px; border-radius:12px; padding:14px; display:flex; flex-direction:column; height:85vh;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -311,7 +311,7 @@ function createAppHandler(version) {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <label style="margin:0;">GPS Location Stamp:</label>
                 <div>
-                    ${(version === 'v4' || version === 'v5') ? '<button id="openMapPickerBtn" style="background:#0284c7; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold; margin-right:4px;">🗺️ Pin on Map</button>' : ''}
+                    ${((version === 'v4' || version === 'v5') || version === 'v5') ? '<button id="openMapPickerBtn" style="background:#0284c7; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; font-weight:bold; margin-right:4px;">🗺️ Pin on Map</button>' : ''}
                     <button id="gpsBtn" style="background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">🔄 Refresh GPS</button>
                 </div>
             </div>
@@ -449,14 +449,14 @@ function render() {
             const mapLink = hasGps ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(t.gps) : '#';
             const landmarkDisplay = t.landmark ? '<span style="color:#fbbf24; font-size:10px;">🏷️ ' + t.landmark + '</span><br>' : '';
             
-            const isV3OrV4 = APP_VERSION === 'v3' || (APP_VERSION === 'v4' || APP_VERSION === 'v5');
+            const isV3OrV4 = APP_VERSION === 'v3' || ((APP_VERSION === 'v4' || APP_VERSION === 'v5') || APP_VERSION === 'v5');
             const editControls = isV3OrV4 ? 
                 '<div id="edit_view_' + t.id + '" style="display:none; margin-top:6px; background:#0f172a; padding:6px; border-radius:6px; border:1px solid #334155;">' +
                 '<input type="text" id="edit_cust_' + t.id + '" value="' + t.customer.replace(/"/g, '&quot;') + '" placeholder="Customer" style="padding:6px; font-size:11px; margin-bottom:4px;">' +
                 '<input type="text" id="edit_land_' + t.id + '" value="' + (t.landmark || '').replace(/"/g, '&quot;') + '" placeholder="Landmark" style="padding:6px; font-size:11px; margin-bottom:4px;">' +
                 '<div style="display:flex; gap:4px; margin-bottom:4px;">' +
                 '<input type="text" id="edit_gps_' + t.id + '" value="' + (t.gps || '').replace(/"/g, '&quot;') + '" placeholder="GPS" style="padding:6px; font-size:11px; margin-bottom:0; flex:1;">' +
-                ((APP_VERSION === 'v4' || APP_VERSION === 'v5') ? '<button class="pick-map-edit-btn" data-id="' + t.id + '" style="background:#0284c7; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">🗺️ Pin</button>' : '') +
+                (((APP_VERSION === 'v4' || APP_VERSION === 'v5') || APP_VERSION === 'v5') ? '<button class="pick-map-edit-btn" data-id="' + t.id + '" style="background:#0284c7; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer;">🗺️ Pin</button>' : '') +
                 '</div>' +
                 '<div style="display:flex; gap:4px;"><input type="number" id="edit_amt_' + t.id + '" value="' + t.amount + '" placeholder="Amt" style="padding:6px; font-size:11px; margin-bottom:0;"><input type="number" id="edit_cash_' + t.id + '" value="' + t.cashCollected + '" placeholder="Cash" style="padding:6px; font-size:11px; margin-bottom:0;"></div>' +
                 '<button class="save-edit-btn" data-id="' + t.id + '" style="background:#059669; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; width:100%; margin-top:4px; cursor:pointer;">Save Changes</button>' +
@@ -465,7 +465,7 @@ function render() {
             const editBtn = isV3OrV4 ? '<button class="toggle-edit-btn" data-id="' + t.id + '" style="background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:3px 6px; border-radius:4px; margin-top:2px; cursor:pointer; font-weight:bold; margin-right:4px;">Edit</button>' : '';
 
             const gpsDisplay = hasGps ? (
-                (APP_VERSION === 'v4' || APP_VERSION === 'v5') ? 
+                ((APP_VERSION === 'v4' || APP_VERSION === 'v5') || APP_VERSION === 'v5') ? 
                 '<span class="clickable-gps" data-gps="' + t.gps + '" style="color:#38bdf8; font-size:10px; text-decoration:underline; cursor:pointer;">📍 ' + t.gps + ' (Map)</span>' :
                 '<a href="' + mapLink + '" target="_blank" style="color:#38bdf8; font-size:10px; text-decoration:underline;">📍 ' + t.gps + ' (Map)</a>'
             ) : '<span style="color:#94a3b8; font-size:10px;">📍 ' + t.gps + '</span>';
