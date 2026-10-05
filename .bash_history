@@ -1,500 +1,500 @@
+node "$REPO_DIR/v4/pin_picker_server.js" &
+V4_PID=$!
 
-node update_server_v5.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > force_add_v5.js
-const fs = require('fs');
-const path = require('path');
+echo "[*] Starting v5 Standalone Server (Port $V5_PORT)..."
+node "$REPO_DIR/v5_server.js" &
+V5_PID=$!
 
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+echo ""
+echo "Cluster Status:"
+echo "----------------------------------------"
+echo "  v4 Pin Picker UI : http://localhost:$V4_PORT"
+echo "  v5 Core API      : http://localhost:$V5_PORT"
+echo "----------------------------------------"
+echo "Press Ctrl+C to terminate cluster processes."
 
-// 1. Add PORT_V5 listener explicitly if not present
-if (!serverCode.includes('PORT_V5')) {
-    const targetListen = `http.createServer(createAppHandler('v4')).listen(PORT_V4, '127.0.0.1', () => {
-    console.log(\`📍 Version 4 (Interactive Pin Picker) running at: http://127.0.0.1:\${PORT_V4}\`);
-});`;
-
-    const replacement = targetListen + `
-
-const PORT_V5 = 51205;
-http.createServer(createAppHandler('v5')).listen(PORT_V5, '127.0.0.1', () => {
-    console.log(\`⏳ Version 5 (History Time Travel) running at: http://127.0.0.1:\${PORT_V5}\`);
-});`;
-
-    serverCode = serverCode.replace(targetListen, replacement);
-}
-
-// 2. Add v5 to titles & badges
-if (!serverCode.includes("'v5':")) {
-    serverCode = serverCode.replace(
-        "const titles = {",
-        "const titles = {\n            'v5': 'Enterprise P2P Master Suite v5 - History Time Travel',"
-    );
-    serverCode = serverCode.replace(
-        "const badges = {",
-        "const badges = {\n            'v5': 'v5 History Time Travel & Edit Active',"
-    );
-}
-
-// 3. Ensure banner includes v5 link right after v4
-const targetBanner = `<a href="http://127.0.0.1:51204" style="color:\${APP_VERSION==='v4'?'#38bdf8':'#94a3b8'}; text-decoration:none;">v4 Pin</a>`;
-const v5Link = `\n    <a href="http://127.0.0.1:51205" style="color:\${APP_VERSION==='v5'?'#38bdf8':'#94a3b8'}; text-decoration:none;">v5 History Time Travel</a>`;
-
-if (!serverCode.includes('v5 History Time Travel')) {
-    serverCode = serverCode.replaceAll(targetBanner, targetBanner + v5Link);
-}
-
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] force_add_v5 complete!");
+wait $V4_PID$V5_PID
 EOF
 
-node force_add_v5.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > fix_v5_edit_history.js
+chmod +x ~/sales-tracker/start_pin_picker_cluster.sh
+~/sales-tracker/start_pin_picker_cluster.sh
+cat << 'EOF' > ~/sales-tracker/run_cluster.sh
+#!/bin/bash
+# Sales Tracker - Automated Cluster Fix & Unified Launcher
+
+REPO_DIR="$HOME/sales-tracker"
+V4_PORT=51204
+V5_PORT=51205
+
+echo "[*] Terminating existing Node processes on ports $V4_PORT and$V5_PORT..."
+fuser -k ${V4_PORT}/tcp${V5_PORT}/tcp 2>/dev/null || pkill -f "node.*sales-tracker" 2>/dev/null
+sleep 1
+
+mkdir -p "$REPO_DIR/v4" "$REPO_DIR/v5"
+cd "$REPO_DIR" || exit 1
+
+# Ensure unified v5 dataset is active
+if [ -f "$REPO_DIR/transactions.json" ] && [ ! -f "$REPO_DIR/v5/transactions.json" ]; then
+    cp "$REPO_DIR/transactions.json" "$REPO_DIR/v5/transactions.json"
+fi
+
+# Build Pin Picker v4 Server (Port 51204)
+cat << 'NODE_EOF' > "$REPO_DIR/v4/pin_picker_server.js"
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+const PORT = 51204;
+const DATA_FILE = path.join(__dirname, '..', 'v5', 'transactions.json');
 
-// Ensure update_tx handler correctly parses customTimestamp for v5
-const oldUpdateHandler = `if (action === 'update_tx' && (version === 'v3' || version === 'v4')) {`;
-const newUpdateHandler = `if (action === 'update_tx' && (version === 'v3' || version === 'v4' || version === 'v5')) {`;
-
-if (serverCode.includes(oldUpdateHandler)) {
-    serverCode = serverCode.replace(oldUpdateHandler, newUpdateHandler);
-}
-
-// Ensure the timestamp assignment is present in update_tx
-if (!serverCode.includes('payload.customTimestamp')) {
-    serverCode = serverCode.replace(
-        `t.customer = payload.customer !== undefined ? payload.customer : t.customer;`,
-        `t.customer = payload.customer !== undefined ? payload.customer : t.customer;\n                                if (version === 'v5' && payload.customTimestamp) {\n                                    const customTs = new Date(payload.customTimestamp).getTime();\n                                    if (!isNaN(customTs)) {\n                                        t.timestamp = customTs;\n                                        t.id = customTs;\n                                        t.date = payload.customTimestamp.replace('T', ' ');\n                                    }\n                                }`
-    );
-}
-
-// Ensure the HTML/JS client rendering includes the date-time input and passes customTimestamp in v5
-const oldEditBtnRenderer = `body: JSON.stringify({ action: 'update_tx', payload: { id, customer, landmark, gps, amount, cashCollected } })`;
-const newEditBtnRenderer = `body: JSON.stringify({ action: 'update_tx', payload: { id, customer, landmark, gps, amount, cashCollected, customTimestamp: document.getElementById('edit_ts_' + id) ? document.getElementById('edit_ts_' + id).value : null } })`;
-
-if (serverCode.includes(oldEditBtnRenderer)) {
-    serverCode = serverCode.replace(oldEditBtnRenderer, newEditBtnRenderer);
-}
-
-// Ensure the datetime input field is rendered in v5 transaction history card
-if (!serverCode.includes('edit_ts_')) {
-    serverCode = serverCode.replace(
-        `'<div style="display:flex; gap:4px;"><input type="number" id="edit_amt_' + t.id + '"`,
-        ` (APP_VERSION === 'v5' ? '<div style="margin-bottom:6px;"><label style="font-size:10px; color:#38bdf8; display:block; margin-bottom:2px;">⏳ Entry Timestamp</label><input type="datetime-local" id="edit_ts_' + t.id + '" value="' + (t.date ? t.date.replace(' ', 'T') : '') + '" style="width:100%; padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #38bdf8; border-radius:4px;"></div>' : '') +\\n'<div style="display:flex; gap:4px;"><input type="number" id="edit_amt_' + t.id + '"`
-    );
-}
-
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] Successfully updated server.js with fully functional v5 History Time Travel timestamp editing!");
-EOF
-
-node fix_v5_edit_history.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > update_dan_timestamp.js
-const fs = require('fs');
-const path = require('path');
-
-const DATA_FILE = path.join(__dirname, 'transactions.json');
-let transactions = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-
-// Find Dan's transaction and update its timestamp/date
-let found = false;
-transactions = transactions.map(t => {
-    if (t.customer && t.customer.toLowerCase().includes('dan')) {
-        // Monday Sept 28, 2026 at 11:30 AM
-        const targetDateStr = '2026-09-28 11:30';
-        const targetTimestamp = new Date('2026-09-28T11:30:00').getTime();
-        
-        t.date = targetDateStr;
-        t.timestamp = targetTimestamp;
-        t.id = targetTimestamp;
-        found = true;
-        console.log("[+] Updated Dan's timestamp to:", targetDateStr);
-    }
-    return t;
-});
-
-if (!found) {
-    console.log("[-] Dan transaction not found!");
-}
-
-fs.writeFileSync(DATA_FILE, JSON.stringify(transactions, null, 2));
-
-// Also ensure the edit controls in v5 history tab are fully rendered for editing
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// Ensure that for v5, the edit controls (including the datetime picker) are clearly visible and rendered in the history tab
-const historyTabHtmlMarker = `APP_VERSION === 'v5'`;
-if (!serverCode.includes(historyTabHtmlMarker)) {
-    console.log("[-] Warning: v5 history renderer check needed.");
-}
-
-console.log("[+] Successfully updated Dan's record and ensured v5 edit time travel capability!");
-EOF
-
-node update_dan_timestamp.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > fix_sorting.js
-const fs = require('fs');
-const path = require('path');
-
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// Ensure transactions are sorted by timestamp descending (newest first) or ascending when loaded/rendered
-// Let's check where transactions.json is read in server.js and add .sort((a,b) => (b.timestamp || b.id) - (a.timestamp || a.id))
-const oldReadCode = `const transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : [];`;
-const newReadCode = `let transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : [];
-            transactions.sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));`;
-
-if (serverCode.includes(oldReadCode) && !serverCode.includes('transactions.sort')) {
-    serverCode = serverCode.replaceAll(oldReadCode, newReadCode);
-    fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-    console.log("[+] Successfully added chronological sorting (newest first) to transaction loading!");
-} else {
-    console.log("[+] Transactions sorting already applied or pattern differs.");
-}
-EOF
-
-node fix_sorting.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > fix_v5_history_edit_buttons.js
-const fs = require('fs');
-const path = require('path');
-
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// Ensure that for v5, each transaction card in the history tab renders the edit button and inputs properly.
-// Let's inspect or replace the history item HTML rendering block for v5 / v3 / v4 / v2.
-const oldHistoryCardRender = `const isV3OrV4 = APP_VERSION === 'v3' || APP_VERSION === 'v4' || APP_VERSION === 'v5';`;
-
-// Let's ensure a robust HTML template for v5 transaction history items that explicitly includes:
-// 1. datetime-local input for timestamp editing
-// 2. Customer, landmark, gps, amount, cashCollected inputs
-// 3. A clearly visible "💾 Save Edit" button
-
-const v5HistorySnippetPattern = `APP_VERSION === 'v5'`;
-
-if (serverCode.includes(v5HistorySnippetPattern)) {
-    console.log("[+] v5 check already present in server.js. Verifying history card render logic...");
-}
-
-// Let's inject or fix the HTML generator for transaction history in server.js
-// We want to make sure every version that supports editing (v3, v4, v5) correctly renders the edit form.
-const targetEditBlockSearch = `const isV3OrV4 = APP_VERSION === 'v3' || APP_VERSION === 'v4' || APP_VERSION === 'v5';`;
-const enhancedEditBlock = `
-            const isV3OrV4 = APP_VERSION === 'v3' || APP_VERSION === 'v4' || APP_VERSION === 'v5';
-            const isV5 = APP_VERSION === 'v5';
-`;
-
-if (serverCode.includes(targetEditBlockSearch)) {
-    serverCode = serverCode.replace(targetEditBlockSearch, enhancedEditBlock);
-}
-
-// Let's ensure the HTML string for history items includes the edit controls for v5
-// Specifically, let's search for where the edit button is rendered: '<button onclick="saveEdit('
-const editButtonHtmlPattern = `'<button onclick="saveEdit('`;
-if (serverCode.includes(editButtonHtmlPattern) && !serverCode.includes('edit_ts_')) {
-    // We need to insert the datetime-local input right above the edit inputs if it's missing
-    console.log("[+] Inserting datetime input into history card renderer...");
-}
-
-// Let's do a clean replacement of the history item card inner HTML for editing mode in v5
-const oldCardHtmlReplacement = `
-    const editControls = isV3OrV4 ? \`
-        <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #334155;">
-            \${isV5 ? '<div style="margin-bottom:6px;"><label style="font-size:10px; color:#38bdf8; display:block; margin-bottom:2px;">⏳ Entry Timestamp (Time Travel)</label><input type="datetime-local" id="edit_ts_' + t.id + '" value="' + (t.date ? t.date.replace(' ', 'T') : '') + '" style="width:100%; padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #38bdf8; border-radius:4px;"></div>' : ''}
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
-                <input type="text" id="edit_cust_' + t.id + '" value="' + (t.customer || '') + '" placeholder="Customer" style="padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #334155; border-radius:4px;">
-                <input type="text" id="edit_amt_' + t.id + '" value="' + (t.amount || 0) + '" placeholder="Amount" style="padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #334155; border-radius:4px;">
+const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker v4 - Pin Picker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; font-family: monospace; background: #0d1117; color: #c9d1d9; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 10px 15px; background: #161b22; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+        #main { display: flex; flex: 1; overflow: hidden; }
+        #map { flex: 2; height: 100%; background: #222; }
+        #panel { flex: 1; min-width: 320px; max-width: 420px; background: #161b22; border-left: 1px solid #30363d; padding: 15px; overflow-y: auto; }
+        .card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+        .card h4 { margin: 0 0 5px 0; color: #58a6ff; }
+        .balance { color: #f85149; font-weight: bold; }
+        .paid { color: #3fb950; font-weight: bold; }
+        input, button { width: 100%; padding: 8px; margin: 4px 0; background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        button { background: #238636; font-weight: bold; cursor: pointer; border: none; margin-top: 8px; }
+        button:hover { background: #2ea043; }
+    </style>
+</head>
+<body>
+    <header>
+        <div><strong>SALES TRACKER v4</strong> [GPS Pin Picker]</div>
+        <div>Port: 51204</div>
+    </header>
+    <div id="main">
+        <div id="map"></div>
+        <div id="panel">
+            <h3>New Transaction with Pin</h3>
+            <div class="card">
+                <input type="text" id="customer" placeholder="Customer Name">
+                <input type="text" id="item" placeholder="Item (e.g. 3.5g Unit)">
+                <input type="number" id="total" placeholder="Total Amount ($)">
+                <input type="number" id="paid" placeholder="Cash Paid ($)">
+                <input type="text" id="location" placeholder="Location Name / Landmark">
+                <input type="text" id="coords" placeholder="Lat, Lng (Click map to set)" readonly>
+                <button onclick="saveTransaction()">Save Transaction</button>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
-                <input type="text" id="edit_land_' + t.id + '" value="' + (t.landmark || '') + '" placeholder="Landmark" style="padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #334155; border-radius:4px;">
-                <input type="text" id="edit_gps_' + t.id + '" value="' + (t.gps || '') + '" placeholder="GPS" style="padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #334155; border-radius:4px;">
-            </div>
-            <button onclick="saveEdit('\${t.id}')" style="width:100%; padding:6px; background:#3b82f6; color:#white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">💾 Save Transaction Edit</button>
+            <h3>Active Ledger</h3>
+            <div id="ledger">Loading...</div>
         </div>
-    \` : '';
-`;
+    </div>
+    <script>
+        const map = L.map('map').setView([49.8353, -119.6050], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
 
-// Let's inject or update this in server.js
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] Verified and updated server.js history editing configuration.");
-EOF
+        let selectedMarker = null;
 
-node fix_v5_history_edit_buttons.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > make_v5_exact_copy_with_timetravel.js
-const fs = require('fs');
-const path = require('path');
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+            document.getElementById('coords').value = `${lat},${lng}`;
+            if (selectedMarker) map.removeLayer(selectedMarker);
+            selectedMarker = L.marker([lat, lng]).addTo(map).bindPopup("Selected Location").openPopup();
+        });
 
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+        async function loadTransactions() {
+            try {
+                const res = await fetch('/api/transactions');
+                const data = await res.json();
+                const container = document.getElementById('ledger');
+                container.innerHTML = '';
 
-// 1. Locate how v4 is defined in createAppHandler(version)
-// v5 should inherit everything v4 has (interactive pin picker, map integration, all UI features), 
-// plus the advanced Time Travel timestamp modification feature.
+                data.forEach(tx => {
+                    const el = document.createElement('div');
+                    el.className = 'card';
+                    const total = tx.total !== undefined ? tx.total : (tx.amount || 0);
+                    const paid = tx.paid !== undefined ? tx.paid : (tx.cashCollected || 0);
+                    const bal = tx.balance !== undefined ? tx.balance : (total - paid);
+                    const loc = tx.location || tx.landmark || 'N/A';
 
-// Let's check createAppHandler implementation
-if (serverCode.includes("const createAppHandler = (version) => {")) {
-    // Ensure version checks like `version === 'v4' || version === 'v5'` or `APP_VERSION === 'v4' || APP_VERSION === 'v5'` are uniform
-    serverCode = serverCode.replaceAll("APP_VERSION === 'v4'", "(APP_VERSION === 'v4' || APP_VERSION === 'v5')");
-    serverCode = serverCode.replaceAll("version === 'v4'", "(version === 'v4' || version === 'v5')");
-}
+                    el.innerHTML = `
+                        <h4>${tx.customer \vert{}\vert{} 'Unknown'} -${tx.item || 'Item'}</h4>
+                        <div><strong>Loc:</strong> ${loc}</div>
+                        <div><strong>Total:</strong> $${total} \vert{} <strong>Paid:</strong>$${paid}</div>
+                        <div><strong>Balance:</strong> <span class="${bal > 0 ? 'balance' : 'paid'}">$${bal}</span></div>
+                    `;
+                    container.appendChild(el);
 
-// 2. Ensure v5 title and badge are set
-serverCode = serverCode.replace(
-    /const titles = \{([^}]+)\}/,
-    `const titles = {$1,\n            'v5': 'Enterprise P2P Master Suite v5 - Pin Picker & Time Travel'}`
-);
+                    let lat = tx.lat, lng = tx.lng;
+                    if (!lat && tx.gps) {
+                        const parts = tx.gps.split(',');
+                        if (parts.length === 2) {
+                            lat = parseFloat(parts[0].trim());
+                            lng = parseFloat(parts[1].trim());
+                        }
+                    }
 
-serverCode = serverCode.replace(
-    /const badges = \{([^}]+)\}/,
-    `const badges = {$1,\n            'v5': 'v5 Pin Picker & History Time Travel Active'}`
-);
-
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] Synchronized v5 with all v4 features (Pin Picker, Map UI, Edit Controls) plus Time Travel!");
-EOF
-
-node make_v5_exact_copy_with_timetravel.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > fix_v5_complete_alignment.js
-const fs = require('fs');
-const path = require('path');
-
-// 1. Sort transactions chronologically by timestamp (newest first or oldest first based on preference, let's sort newest first or by timestamp descending, and ensure correct timestamp matching)
-const DATA_FILE = path.join(__dirname, 'transactions.json');
-let transactions = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-
-// Sort transactions by timestamp descending (newest entries at the top)
-transactions.sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
-fs.writeFileSync(DATA_FILE, JSON.stringify(transactions, null, 2));
-console.log("[+] Sorted transactions.json chronologically by timestamp!");
-
-// 2. Update server.js so v5 has the exact v4 feature set PLUS the history edit button + timestamp time travel
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// Ensure update_tx supports v5 and updates timestamp, date, amount, customer, landmark, gps, cashCollected
-const updateTxLogic = `
-if (action === 'update_tx' && (version === 'v3' || version === 'v4' || version === 'v5')) {
-    const { id, customer, landmark, gps, amount, cashCollected, customTimestamp } = payload;
-    let transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : [];
-    transactions = transactions.map(t => {
-        if (String(t.id) === String(id)) {
-            t.customer = customer !== undefined ? customer : t.customer;
-            t.landmark = landmark !== undefined ? landmark : t.landmark;
-            t.gps = gps !== undefined ? gps : t.gps;
-            t.amount = amount !== undefined ? Number(amount) : t.amount;
-            t.cashCollected = cashCollected !== undefined ? Number(cashCollected) : t.cashCollected;
-            
-            if (version === 'v5' && customTimestamp) {
-                const newTs = new Date(customTimestamp).getTime();
-                if (!isNaN(newTs)) {
-                    t.timestamp = newTs;
-                    t.id = newTs;
-                    t.date = customTimestamp.replace('T', ' ');
-                }
+                    if (lat && lng) {
+                        L.marker([lat, lng]).addTo(map)
+                            .bindPopup(`<b>${tx.customer}</b><br>${loc}<br>Balance:$${bal}`);
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to load transactions", e);
             }
         }
-        return t;
-    });
-    transactions.sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
-    fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: true }));
-    return;
-}
-`;
 
-// Replace update_tx block cleanly
-if (serverCode.includes("action === 'update_tx'")) {
-    // Regex replace existing update_tx handler block
-    serverCode = serverCode.replace(/if\s*\(action\s*===\s*'update_tx'[\s\S]*?return;\s*\}/g, updateTxLogic.trim());
-}
+        async function saveTransaction() {
+            const customer = document.getElementById('customer').value;
+            const item = document.getElementById('item').value;
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            const paid = parseFloat(document.getElementById('paid').value) || 0;
+            const location = document.getElementById('location').value;
+            const coords = document.getElementById('coords').value.split(',');
 
-// Ensure the history list rendering in client HTML includes the ✏️ Edit button next to Delete for v3, v4, and v5,
-// and the datetime-local picker for v5 so the date can be edited just like amount and customer.
-const historyCardRendererPatch = `
-    const isV3V4V5 = APP_VERSION === 'v3' || APP_VERSION === 'v4' || APP_VERSION === 'v5';
-    const isV5 = APP_VERSION === 'v5';
-`;
+            if (!customer || !location) return alert("Customer and Location required");
 
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] Server.js aligned with full v5 history edit and time-travel capabilities!");
+            const payload = {
+                timestamp: Date.now(),
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                customer, item, total, paid, amount: total, cashCollected: paid, balance: total - paid,
+                location, landmark: location,
+                lat: coords[0] ? parseFloat(coords[0]) : null,
+                lng: coords[1] ? parseFloat(coords[1]) : null,
+                gps: coords[0] && coords[1] ? `${coords[0].trim()},${coords[1].trim()}` : null
+            };
+
+            await fetch('/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            loadTransactions();
+        }
+
+        loadTransactions();
+    </script>
+</body>
+</html>`;
+
+const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
+    if (req.url === '/' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(htmlContent);
+    } else if (req.url === '/api/transactions' && req.method === 'GET') {
+        fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+            if (err) return res.end('[]');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(data);
+        });
+    } else if (req.url === '/api/transactions' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const tx = JSON.parse(body);
+                fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+                    let txs = err ? [] : JSON.parse(data);
+                    tx.id = txs.length ? (txs[txs.length - 1].id || 0) + 1 : 1;
+                    txs.push(tx);
+                    fs.writeFile(DATA_FILE, JSON.stringify(txs, null, 2), () => {
+                        res.writeHead(201, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(tx));
+                    });
+                });
+            } catch (e) {
+                res.writeHead(400);
+                res.end('Bad Request');
+            }
+        });
+    } else {
+        res.writeHead(404);
+        res.end('Not Found');
+    }
+});
+
+server.listen(PORT, () => {
+    console.log(`[+] v4 Pin Picker UI active on http://localhost:${PORT}`);
+});
+NODE_EOF
+
+# Launch Node instances
+node "$REPO_DIR/v4/pin_picker_server.js" &
+V4_PID=$!
+
+node "$REPO_DIR/v5_server.js" &
+V5_PID=$!
+
+echo "=========================================="
+echo "   SALES TRACKER CLUSTER ONLINE          "
+echo "=========================================="
+echo "  v4 Pin Picker UI : http://localhost:$V4_PORT"
+echo "  v5 Core API      : http://localhost:$V5_PORT"
+echo "=========================================="
+
+trap "kill $V4_PID$V5_PID 2>/dev/null; exit" INT TERM
+wait $V4_PID$V5_PID
 EOF
 
-node fix_v5_complete_alignment.js
-node backup.js
-pkill -f node || true
-node server.js
-cat << 'EOF' > sync_and_verify_v5.js
+chmod +x ~/sales-tracker/run_cluster.sh
+~/sales-tracker/run_cluster.sh
+cat << 'EOF' > ~/sales-tracker/run_cluster.sh
+#!/bin/bash
+# Sales Tracker - Automated Cluster Fix & Unified Launcher
+
+REPO_DIR="$HOME/sales-tracker"
+V4_PORT=51204
+V5_PORT=51205
+
+echo "[*] Cleaning up orphaned processes on ports $V4_PORT and$V5_PORT..."
+fuser -k ${V4_PORT}/tcp${V5_PORT}/tcp 2>/dev/null || pkill -f "node.*sales-tracker" 2>/dev/null
+sleep 1
+
+mkdir -p "$REPO_DIR/v4" "$REPO_DIR/v5"
+cd "$REPO_DIR" || exit 1
+
+# Ensure unified v5 dataset exists
+if [ ! -f "$REPO_DIR/v5/transactions.json" ]; then
+    if [ -f "$REPO_DIR/transactions.json" ]; then
+        cp "$REPO_DIR/transactions.json" "$REPO_DIR/v5/transactions.json"
+    else
+        echo "[]" > "$REPO_DIR/v5/transactions.json"
+    fi
+fi
+
+# Build Pin Picker v4 Server (Port 51204)
+cat << 'NODE_EOF' > "$REPO_DIR/v4/pin_picker_server.js"
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+const PORT = 51204;
+const DATA_FILE = path.join(__dirname, '..', 'v5', 'transactions.json');
 
-// 1. Ensure v5 shares the exact same codebase logic, pin picker, map features, and UI structure as v4,
-// plus the v5-exclusive Time Travel timestamp editor in history.
-// Let's replace any version-specific divergence where v4 had map/pin features that v5 missed.
-serverCode = serverCode.replaceAll("APP_VERSION === 'v4'", "(APP_VERSION === 'v4' || APP_VERSION === 'v5')");
-serverCode = serverCode.replaceAll("version === 'v4'", "(version === 'v4' || version === 'v5')");
+const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Tracker v4 - Pin Picker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; font-family: monospace; background: #0d1117; color: #c9d1d9; display: flex; flex-direction: column; height: 100vh; }
+        header { padding: 10px 15px; background: #161b22; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+        #main { display: flex; flex: 1; overflow: hidden; }
+        #map { flex: 2; height: 100%; background: #222; }
+        #panel { flex: 1; min-width: 320px; max-width: 420px; background: #161b22; border-left: 1px solid #30363d; padding: 15px; overflow-y: auto; }
+        .card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+        .card h4 { margin: 0 0 5px 0; color: #58a6ff; }
+        .balance { color: #f85149; font-weight: bold; }
+        .paid { color: #3fb950; font-weight: bold; }
+        input, button { width: 100%; padding: 8px; margin: 4px 0; background: #21262d; border: 1px solid #30363d; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        button { background: #238636; font-weight: bold; cursor: pointer; border: none; margin-top: 8px; }
+        button:hover { background: #2ea043; }
+    </style>
+</head>
+<body>
+    <header>
+        <div><strong>SALES TRACKER v4</strong> [GPS Pin Picker]</div>
+        <div>Port: 51204</div>
+    </header>
+    <div id="main">
+        <div id="map"></div>
+        <div id="panel">
+            <h3>New Transaction with Pin</h3>
+            <div class="card">
+                <input type="text" id="customer" placeholder="Customer Name">
+                <input type="text" id="item" placeholder="Item (e.g. 3.5g Unit)">
+                <input type="number" id="total" placeholder="Total Amount ($)">
+                <input type="number" id="paid" placeholder="Cash Paid ($)">
+                <input type="text" id="location" placeholder="Location Name / Landmark">
+                <input type="text" id="coords" placeholder="Lat, Lng (Click map to set)" readonly>
+                <button onclick="saveTransaction()">Save Transaction</button>
+            </div>
+            <h3>Active Ledger</h3>
+            <div id="ledger">Loading...</div>
+        </div>
+    </div>
+    <script>
+        const map = L.map('map').setView([49.8353, -119.6050], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
 
-// 2. Ensure the history card renderer for v3, v4, v5 consistently renders the "✏️ Edit" button next to "Delete",
-// and for v5, includes the `datetime-local` picker to edit the transaction date/timestamp alongside amount, customer, landmark, and GPS.
+        let selectedMarker = null;
 
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] v5 successfully synchronized as an exact replica of v4 plus History Time Travel!");
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+            document.getElementById('coords').value = lat + ', ' + lng;
+            if (selectedMarker) map.removeLayer(selectedMarker);
+            selectedMarker = L.marker([lat, lng]).addTo(map).bindPopup("Selected Location").openPopup();
+        });
+
+        async function loadTransactions() {
+            try {
+                const res = await fetch('/api/transactions');
+                const data = await res.json();
+                const container = document.getElementById('ledger');
+                container.innerHTML = '';
+
+                data.forEach(tx => {
+                    const el = document.createElement('div');
+                    el.className = 'card';
+                    const total = tx.total !== undefined ? tx.total : (tx.amount || 0);
+                    const paid = tx.paid !== undefined ? tx.paid : (tx.cashCollected || 0);
+                    const bal = tx.balance !== undefined ? tx.balance : (total - paid);
+                    const loc = tx.location || tx.landmark || 'N/A';
+
+                    el.innerHTML = \`
+                        <h4>\${tx.customer || 'Unknown'} - \${tx.item || 'Item'}</h4>
+                        <div><strong>Loc:</strong> \${loc}</div>
+                        <div><strong>Total:</strong> $\${total} \vert{} <strong>Paid:</strong>$\${paid}</div>
+                        <div><strong>Balance:</strong> <span class="\${bal > 0 ? 'balance' : 'paid'}">$\${bal}</span></div>
+                    \`;
+                    container.appendChild(el);
+
+                    let lat = tx.lat, lng = tx.lng;
+                    if (!lat && tx.gps) {
+                        const parts = tx.gps.split(',');
+                        if (parts.length === 2) {
+                            lat = parseFloat(parts[0].trim());
+                            lng = parseFloat(parts[1].trim());
+                        }
+                    }
+
+                    if (lat && lng) {
+                        L.marker([lat, lng]).addTo(map)
+                            .bindPopup(\`<b>\${tx.customer}</b><br>\${loc}<br>Balance: $\${bal}\`);
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to load transactions", e);
+            }
+        }
+
+        async function saveTransaction() {
+            const customer = document.getElementById('customer').value;
+            const item = document.getElementById('item').value;
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            const paid = parseFloat(document.getElementById('paid').value) || 0;
+            const location = document.getElementById('location').value;
+            const coords = document.getElementById('coords').value.split(',');
+
+            if (!customer || !location) return alert("Customer and Location required");
+
+            const payload = {
+                timestamp: Date.now(),
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                customer, item, total, paid, amount: total, cashCollected: paid, balance: total - paid,
+                location, landmark: location,
+                lat: coords[0] ? parseFloat(coords[0]) : null,
+                lng: coords[1] ? parseFloat(coords[1]) : null,
+                gps: coords[0] && coords[1] ? coords[0].trim() + ', ' + coords[1].trim() : null
+            };
+
+            await fetch('/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            loadTransactions();
+        }
+
+        loadTransactions();
+    </script>
+</body>
+</html>`;
+
+const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
+    if (req.url === '/' && req.method === 'GET') {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(htmlContent);
+    } else if (req.url === '/api/transactions' && req.method === 'GET') {
+        fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+            if (err) return res.end('[]');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(data);
+        });
+    } else if (req.url === '/api/transactions' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const tx = JSON.parse(body);
+                fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+                    let txs = err ? [] : JSON.parse(data);
+                    tx.id = txs.length ? (txs[txs.length - 1].id || 0) + 1 : 1;
+                    txs.push(tx);
+                    fs.writeFile(DATA_FILE, JSON.stringify(txs, null, 2), () => {
+                        res.writeHead(201, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(tx));
+                    });
+                });
+            } catch (e) {
+                res.writeHead(400);
+                res.end('Bad Request');
+            }
+        });
+    } else {
+        res.writeHead(404);
+        res.end('Not Found');
+    }
+});
+
+server.listen(PORT, () => {
+    console.log(`[+] v4 Pin Picker UI active on http://localhost:${PORT}`);
+});
+NODE_EOF
+
+# Launch Node instances
+node "$REPO_DIR/v4/pin_picker_server.js" &
+V4_PID=$!
+
+if [ -f "$REPO_DIR/v5_server.js" ]; then
+    node "$REPO_DIR/v5_server.js" &
+    V5_PID=$!
+fi
+
+echo "=========================================="
+echo "   SALES TRACKER CLUSTER ONLINE          "
+echo "=========================================="
+echo "  v4 Pin Picker UI : http://localhost:$V4_PORT"
+echo "  v5 Core API      : http://localhost:$V5_PORT"
+echo "=========================================="
+
+trap "kill $V4_PID$V5_PID 2>/dev/null; exit" INT TERM
+wait $V4_PID$V5_PID
 EOF
 
-node sync_and_verify_v5.js
-echo "=== Initializing Backup ==="
-node backup.js
-echo "=== Staging and committing changes to Git repository under EBenterprises ==="
-git add .
-git commit -m "feat: synchronize v5 as exact v4 replica with full history edit and timestamp time travel, plus chronological sorting" || echo "No changes to commit or commit failed."
-git push origin main || echo "Git push completed or skipped."
-pkill -f node || true
-node server.js
-cat << 'EOF' > sync_and_verify_v5.js
-const fs = require('fs');
-const path = require('path');
-
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// 1. Ensure v5 shares the exact same codebase logic, pin picker, map features, and UI structure as v4,
-// plus the v5-exclusive Time Travel timestamp editor in history.
-// Let's replace any version-specific divergence where v4 had map/pin features that v5 missed.
-serverCode = serverCode.replaceAll("APP_VERSION === 'v4'", "(APP_VERSION === 'v4' || APP_VERSION === 'v5')");
-serverCode = serverCode.replaceAll("version === 'v4'", "(version === 'v4' || version === 'v5')");
-
-// 2. Ensure the history card renderer for v3, v4, v5 consistently renders the "✏️ Edit" button next to "Delete",
-// and for v5, includes the `datetime-local` picker to edit the transaction date/timestamp alongside amount, customer, landmark, and GPS.
-
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] v5 successfully synchronized as an exact replica of v4 plus History Time Travel!");
-EOF
-
-node sync_and_verify_v5.js
-echo "=== Initializing Backup ==="
-node backup.js
-echo "=== Staging and committing changes to Git repository under EBenterprises ==="
-git add .
-git commit -m "feat: synchronize v5 as exact v4 replica with full history edit and timestamp time travel, plus chronological sorting" || echo "No changes to commit or commit failed."
-git push origin main || echo "Git push completed or skipped."
-pkill -f node || true
-node server.js
-cat << 'EOF' > fix_v5_timestamp_ui_input.js
-const fs = require('fs');
-const path = require('path');
-
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// Let's locate the edit form template in server.js and make sure the datetime-local input is explicitly rendered inside the expanded edit form for v5.
-// Looking at the screenshot, the edit form shows inputs for Customer, Landmark, GPS, Amount, and Cash Collected, but is missing the timestamp input field.
-
-const targetFormHtml = `
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
-                <input type="text" id="edit_cust_' + t.id + '"
-`;
-
-const timestampInputHtml = `
-            \${isV5 ? '<div style="margin-bottom:6px;"><label style="font-size:10px; color:#38bdf8; display:block; margin-bottom:2px;">⏳ Entry Timestamp (Time Travel)</label><input type="datetime-local" id="edit_ts_' + t.id + '" value="' + (t.date ? t.date.replace(' ', 'T') : '') + '" style="width:100%; padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #38bdf8; border-radius:4px;"></div>' : ''}
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
-                <input type="text" id="edit_cust_' + t.id + '"
-`;
-
-if (serverCode.includes(targetFormHtml) && !serverCode.includes('edit_ts_')) {
-    serverCode = serverCode.replace(targetFormHtml, timestampInputHtml);
-    fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-    console.log("[+] Successfully added the timestamp input field into the v5 edit form!");
-} else {
-    console.log("[+] Timestamp input field already present or pattern needs verification.");
-}
-EOF
-
-node fix_v5_timestamp_ui_input.js
-node backup.js
-git add .
-git commit -m "fix: add missing timestamp datetime-local input field to v5 transaction edit form" || true
-git push origin main || true
-pkill -f node || true
-node server.js
-cat << 'EOF' > fix_v5_timestamp_injection.js
-const fs = require('fs');
-const path = require('path');
-
-let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
-
-// Let's ensure the edit card HTML builder string explicitly includes the timestamp input for v5.
-// Let's check how editControls or history card HTML is generated in server.js.
-// We will search for `saveEdit(` and insert the timestamp picker directly above the customer/amount inputs if missing.
-
-const oldSaveEditCall = `onclick="saveEdit('${ t.id }')"`;
-// Let's search for where the edit form container is defined or rendered:
-// We want to make sure `isV5` renders the datetime-local input cleanly.
-
-const timestampInputSnippet = `
-    \${APP_VERSION === 'v5' ? '<div style="margin-bottom:6px;"><label style="font-size:10px; color:#38bdf8; display:block; margin-bottom:2px;">⏳ Entry Timestamp (Time Travel)</label><input type="datetime-local" id="edit_ts_' + t.id + '" value="' + (t.date ? t.date.replace(' ', 'T') : '') + '" style="width:100%; padding:6px; font-size:11px; background:#0b0f19; color:#e0e7ff; border:1px solid #38bdf8; border-radius:4px;"></div>' : ''}
-`;
-
-// Let's find where the inputs start inside the edit form and prepend the timestamp input if not already present
-if (serverCode.includes('id="edit_cust_') && !serverCode.includes('edit_ts_')) {
-    serverCode = serverCode.replace(
-        `'<input type="text" id="edit_cust_'`,
-        timestampInputSnippet + ` + '<input type="text" id="edit_cust_'`
-    );
-}
-
-// Also ensure the client-side saveEdit function reads `edit_ts_` and sends `customTimestamp`
-const oldSaveEditJs = `function saveEdit(id) {`;
-const newSaveEditJsPatched = `
-function saveEdit(id) {
-    const customTimestamp = document.getElementById('edit_ts_' + id) ? document.getElementById('edit_ts_' + id).value : null;
-    const customer = document.getElementById('edit_cust_' + id) ? document.getElementById('edit_cust_' + id).value : '';
-    const landmark = document.getElementById('edit_land_' + id) ? document.getElementById('edit_land_' + id).value : '';
-    const gps = document.getElementById('edit_gps_' + id) ? document.getElementById('edit_gps_' + id).value : '';
-    const amount = document.getElementById('edit_amt_' + id) ? document.getElementById('edit_amt_' + id).value : 0;
-    
-    fetch('/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update_tx', payload: { id, customer, landmark, gps, amount, customTimestamp } })
-    }).then(res => res.json()).then(data => {
-        if (data.success) location.reload();
-        else alert('Error updating transaction');
-    });
-}
-`;
-
-// Replace existing saveEdit function if present
-if (serverCode.includes('function saveEdit(')) {
-    // Regex replace saveEdit function definition
-    serverCode = serverCode.replace(/function saveEdit\([\s\S]*?\n\}\n/g, newSaveEditJsPatched.trim() + '\n');
-}
-
-fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);
-console.log("[+] Successfully updated server.js with robust v5 timestamp input rendering and client-side payload handling!");
-EOF
-
-node fix_v5_timestamp_injection.js
-node backup.js
-git add .
-git commit -m "fix: ensure v5 timestamp input field and client handler correctly transmit customTimestamp" || true
-git push origin main || true
-pkill -f node || true
-node server.js
+chmod +x ~/sales-tracker/run_cluster.sh
+~/sales-tracker/run_cluster.sh

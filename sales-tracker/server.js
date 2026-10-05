@@ -1,3 +1,31 @@
+
+function recalculateRunningBalances(transactions) {
+    const sorted = [...transactions].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    const customerTotals = {};
+    sorted.forEach(t => {
+        const cust = (t.customer || '').trim().toLowerCase();
+        if (!cust) return;
+        const amt = Number(t.amount) || 0;
+        const cash = Number(t.cashCollected) || 0;
+        customerTotals[cust] = (customerTotals[cust] || 0) + amt - cash;
+        t.balance = customerTotals[cust];
+    });
+    return sorted;
+}
+
+
+function getSortedTransactions() {
+    let txs = getSortedTransactions();
+    if (Array.isArray(txs)) {
+        txs.sort((a, b) => {
+            const timeA = a.date ? new Date(a.date.replace(' ', 'T')).getTime() : (a.timestamp || a.id || 0);
+            const timeB = b.date ? new Date(b.date.replace(' ', 'T')).getTime() : (b.timestamp || b.id || 0);
+            return timeB - timeA;
+        });
+    }
+    return txs;
+}
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -88,7 +116,8 @@ function createAppHandler(version) {
                             t.status = t.balance === 0 ? 'Paid' : 'Balance';
                         });
                         txs.sort((a,b)=>b.timestamp - a.timestamp);
-                        fs.writeFileSync(DATA_FILE, JSON.stringify(txs, null, 2));
+                        txs = recalculateRunningBalances(txs);
+            fs.writeFileSync(DATA_FILE, JSON.stringify(txs, null, 2));
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ success: true, timestamp: customTs }));
                         return;
@@ -96,7 +125,7 @@ function createAppHandler(version) {
 
                     if (action === 'update_tx' && (version === 'v3' || ((version === 'v4' || version === 'v5') || version === 'v5') || version === 'v5')) {
     const { id, customer, landmark, gps, amount, cashCollected, customTimestamp } = payload;
-    let transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : [];
+    let transactions = fs.existsSync(DATA_FILE) ? JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) : [];
     transactions = transactions.map(t => {
         if (String(t.id) === String(id)) {
             t.customer = customer !== undefined ? customer : t.customer;
@@ -117,7 +146,7 @@ function createAppHandler(version) {
         return t;
     });
     transactions.sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
-    fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify(transactions, null, 2));
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -155,7 +184,8 @@ function createAppHandler(version) {
 
                     if (action === 'delete_tx') {
                         txs = txs.filter(t => t.id !== payload.id);
-                        fs.writeFileSync(DATA_FILE, JSON.stringify(txs, null, 2));
+                        txs = recalculateRunningBalances(txs);
+            fs.writeFileSync(DATA_FILE, JSON.stringify(txs, null, 2));
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ success: true }));
                         return;
@@ -299,7 +329,13 @@ function createAppHandler(version) {
 
             <div style="display:flex; gap:6px;">
                 <div style="flex:1;"><label>Weight (g)</label><input type="number" id="weightInput" placeholder="Grams"></div>
-                <div style="flex:1;"><label>Amount ($)</label><input type="number" id="amountInput" placeholder="0.00"></div>
+                <div style="flex:1;"><label>Amount ($)</label>
+<div style="margin-bottom:10px;">
+    <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;">Item / Product Name</label>
+    <input type="text" id="itemInput" placeholder="e.g. Premium Item" style="width:100%; padding:8px; background:#0b0f19; color:#e0e7ff; border:1px solid #334155; border-radius:6px; font-size:13px;">
+</div>
+
+<input type="number" id="amountInput" placeholder="0.00"></div>
             </div>
 
             <label>Cash Collected ($)</label>
@@ -444,7 +480,7 @@ function render() {
     if(!globalData.transactions || globalData.transactions.length === 0) {
         hist.innerHTML = 'No transactions recorded.';
     } else {
-        hist.innerHTML = globalData.transactions.map(t => {
+        hist.innerHTML = [...globalData.transactions].sort((a,b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0)).map(t => {
             const hasGps = t.gps && t.gps.includes(',') && !t.gps.includes('No') && !t.gps.includes('Unavailable') && !t.gps.includes('Not');
             const mapLink = hasGps ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(t.gps) : '#';
             const landmarkDisplay = t.landmark ? '<span style="color:#fbbf24; font-size:10px;">🏷️ ' + t.landmark + '</span><br>' : '';
