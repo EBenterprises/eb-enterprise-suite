@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-<<<<<<< HEAD
 <h2>Token Generated</h2>
 <p>Secure reset token for <b>{{ username }}</b>:</p>
 <p><code>{{ token }}</code></p>
@@ -8,14 +7,4 @@
 <div class="links">
     <a href="{{ reset_url }}">Proceed to Reset</a>
 </div>
-=======
-    <h2>Token Generated</h2>
-    <p>A secure recovery token has been generated for <code>{{ username }}</code>.</p>
-    <p><b>Token:</b> <code>{{ token }}</code></p>
-    <p>Click the tracked link below to proceed:</p>
-    <p><a href="{{ reset_url }}" style="word-break: break-all;">{{ reset_url }}</a></p>
-    <div class="links">
-        <a href="{{ url_for('login') }}">Return to Login</a>
-    </div>
->>>>>>> origin/main
 {% endblock %}

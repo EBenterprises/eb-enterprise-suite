@@ -1,0 +1,477 @@
+#!/bin/bash
+
+# ==============================================================================
+# E&B ENTERPRISES - PRODUCTION AUTOMATION & DEPLOYMENT SCRIPT
+# Project: Order & Sales Platform
+# Target Environment: GitHub / Vercel / Netlify Production
+# ==============================================================================
+
+set -e
+
+REPO_NAME="eb-sales-platform"
+ORG_NAME="EBenterprises"
+BUILD_DIR="dist"
+
+echo "[*] Initializing production build directory..."
+mkdir -p $BUILD_DIR
+
+echo "[*] Writing production source code into $BUILD_DIR/index.html..."
+cat << 'HTML_EOF' > $BUILD_DIR/index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E&B Order & Sales Platform</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --card-hover: #1f2937;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .product-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        select, input {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-main);
+            padding: 0.75rem;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+        }
+
+        .price-display {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--success);
+            margin: 0.2rem 0;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+
+        .stat-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            color: var(--accent);
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(17, 24, 39, 0.5);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">E&B Storefront</div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('store', event)">Storefront</button>
+            <button class="tab-btn" onclick="switchTab('admin', event)">Admin Dashboard</button>
+        </div>
+    </header>
+
+    <main>
+        <section id="store-view" class="view-section active">
+            <h2>Available Menu</h2>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-title">Premium Ounce Selection</div>
+                    <div class="product-desc">Top-shelf flower scaled from bulk inventory ($260/oz baseline cost).</div>
+                    
+                    <div class="form-group">
+                        <label for="weightSelect">Select Weight Increment</label>
+                        <select id="weightSelect" onchange="updateStorePrice()">
+                            <option value="1.75" data-price="25">1.75g Unit ($25.00)</option>
+                            <option value="3.5" data-price="50">3.5g Eighth ($50.00)</option>
+                            <option value="7" data-price="100">7g Quarter ($100.00)</option>
+                            <option value="14" data-price="180">14g Half Ounce ($180.00)</option>
+                            <option value="28" data-price="350" selected>28g Full Ounce ($350.00)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantityInput">Quantity</label>
+                        <input type="number" id="quantityInput" value="1" min="1" max="100" oninput="updateStorePrice()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customerName">Customer Name / Handle</label>
+                        <input type="text" id="customerName" placeholder="Enter name">
+                    </div>
+
+                    <div>
+                        <label>Total Price</label>
+                        <div class="price-display" id="displayedPrice">$350.00</div>
+                    </div>
+                    
+                    <button class="btn" onclick="placeOrder()">Place Order</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="admin-view" class="view-section">
+            <h2>Order & Sales Management</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total Orders</div>
+                    <div class="stat-value" id="statOrders">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Gross Revenue</div>
+                    <div class="stat-value" id="statRevenue">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Net Profit</div>
+                    <div class="stat-value" id="statProfit">$0.00</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Selection</th>
+                            <th>Qty</th>
+                            <th>Revenue</th>
+                            <th>Est. Profit</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="8" class="empty-state">No orders recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('eb_orders')) || [];
+
+        function switchTab(tab, event) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            if (tab === 'store') {
+                document.getElementById('store-view').classList.add('active');
+                if(event) event.currentTarget.classList.add('active');
+            } else {
+                document.getElementById('admin-view').classList.add('active');
+                if(event) event.currentTarget.classList.add('active');
+                renderAdminDashboard();
+            }
+        }
+
+        function updateStorePrice() {
+            const select = document.getElementById('weightSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const unitPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+            const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
+            
+            const totalPrice = unitPrice * quantity;
+            document.getElementById('displayedPrice').innerText = `$${totalPrice.toFixed(2)}`;
+        }
+
+        function placeOrder() {
+            const nameInput = document.getElementById('customerName');
+            const customerName = nameInput.value.trim() || 'Anonymous';
+            const select = document.getElementById('weightSelect');
+            const weightGrams = parseFloat(select.value);
+            const selectedOption = select.options[select.selectedIndex];
+            const unitPrice = parseFloat(selectedOption.getAttribute('data-price'));
+            const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
+
+            const totalRevenue = unitPrice * quantity;
+            const costPerGram = 260 / 28;
+            const totalWeight = weightGrams * quantity;
+            const itemCost = totalWeight * costPerGram;
+            const netProfit = totalRevenue - itemCost;
+
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                customer: customerName,
+                weight: `${weightGrams}g`,
+                quantity: quantity,
+                revenue: totalRevenue,
+                profit: netProfit,
+                date: new Date().toLocaleTimeString()
+            };
+
+            orders.push(newOrder);
+            localStorage.setItem('eb_orders', JSON.stringify(orders));
+
+            alert(`Order placed successfully for ${customerName} (${quantity}x ${weightGrams}g)!`);
+            nameInput.value = '';
+            document.getElementById('quantityInput').value = '1';
+            updateStorePrice();
+        }
+
+        function renderAdminDashboard() {
+            const tbody = document.getElementById('ordersTableBody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No orders recorded yet.</td></tr>`;
+                document.getElementById('statOrders').innerText = '0';
+                document.getElementById('statRevenue').innerText = '$0.00';
+                document.getElementById('statProfit').innerText = '$0.00';
+                return;
+            }
+
+            let totalRev = 0;
+            let totalProf = 0;
+
+            tbody.innerHTML = '';
+            orders.forEach((ord, index) => {
+                totalRev += ord.revenue;
+                totalProf += ord.profit;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${ord.id}</strong></td>
+                        <td>${ord.customer}</td>
+                        <td>${ord.weight}</td>
+                        <td>${ord.quantity}</td>
+                        <td>$${ord.revenue.toFixed(2)}</td>
+                        <td style="color: var(--success);">+$${ord.profit.toFixed(2)}</td>
+                        <td><span class="badge">Completed</span></td>
+                        <td><button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="deleteOrder(${index})">Remove</button></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('statOrders').innerText = orders.length;
+            document.getElementById('statRevenue').innerText = `$${totalRev.toFixed(2)}`;
+            document.getElementById('statProfit').innerText = `$${totalProf.toFixed(2)}`;
+        }
+
+        function deleteOrder(index) {
+            orders.splice(index, 1);
+            localStorage.setItem('eb_orders', JSON.stringify(orders));
+            renderAdminDashboard();
+        }
+    </script>
+</body>
+</html>
+HTML_EOF
+
+echo "[*] Creating git repository and committing build..."
+git init
+git config user.name "Easton Bodeux"
+git config user.email "eastonbodeuxenterprises@gmail.com"
+git add $BUILD_DIR/index.html
+git commit -m "feat: Production deployment release for E&B Order & Sales Platform"
+
+echo "[*] Configuring remote origin for organization: $ORG_NAME/$REPO_NAME..."
+git remote add origin https://github.com/$ORG_NAME/$REPO_NAME.git || true
+
+echo "[*] Preparing for live deployment trigger..."
+echo "=========================================================================="
+echo "SUCCESS: Production build prepared in './$BUILD_DIR/index.html'."
+echo "To push and deploy live to production, run:"
+echo "  git branch -M main"
+echo "  git push -u origin main --force"
+echo "=========================================================================="

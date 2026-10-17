@@ -1,85 +1,98 @@
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadVersionInfo();
-  loadTransactionHistory();
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("EB Userbase Platform Initialized.");
+    loadFeed();
+
+    const form = document.getElementById('user-form');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const userTier = document.getElementById('userTier').value;
+
+            if (!email || !password || !userTier) {
+                showToast('Please complete all form fields.', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, userTier })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast('Success: ' + data.message, true);
+                    form.reset();
+                    renderFeed(data.users);
+                } else {
+                    throw new Error(data.error || 'Registration failed.');
+                }
+            } catch (err) {
+                showToast('Error: ' + err.message, false);
+            }
+        });
+    }
 });
 
-async function loadVersionInfo() {
-  try {
-    const res = await fetch('/api/version');
-    const data = await res.json();
-    document.getElementById('version-badge').textContent = `${data.version.toUpperCase()} (Port: ${data.port})`;
-  } catch (e) {
-    console.error('Could not load version metadata');
-  }
+async function loadFeed() {
+    try {
+        const res = await fetch('/api/users');
+        const users = await res.json();
+        renderFeed(users);
+    } catch (err) {
+        console.error("Failed to load userbase feed:", err);
+    }
 }
 
-async function loadTransactionHistory() {
-  const response = await fetch('/api/transactions');
-  const transactions = await response.json();
-  const listContainer = document.getElementById('transaction-list');
-  
-  if (transactions.length === 0) {
-    listContainer.innerHTML = '<p>No transactions found.</p>';
-    return;
-  }
+function renderFeed(users) {
+    const feedList = document.getElementById('feed-list');
+    const userCount = document.getElementById('user-count');
+    if (!feedList) return;
 
-  listContainer.innerHTML = transactions.map(tx => `
-    <div class="transaction-item" data-id="${tx.id}">
-      <div class="tx-info">
-        <strong>${tx.customer || 'Guest'}</strong> - $${tx.amount} <br>
-        <small>Timestamp: ${new Date(tx.timestamp).toLocaleString()}</small>
-      </div>
-      <button onclick="toggleEditModal('${tx.id}')">Edit / Time Travel</button>
+    feedList.innerHTML = '';
+    if (userCount) {
+        userCount.textContent = (users ? users.length : 0) + ' Registered';
+    }
 
-      <div id="edit-modal-${tx.id}" class="edit-popup-menu" style="display: none;">
-        <h4>Edit Transaction & Time Travel</h4>
-        <label>Timestamp:</label><br>
-        <input type="datetime-local" id="edit-time-${tx.id}" value="${formatForDateTimeLocal(tx.timestamp)}"><br>
+    if (!users || users.length === 0) {
+        feedList.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 1.5rem;">No user profiles registered yet.</div>';
+        return;
+    }
+
+    users.forEach(user => {
+        const item = document.createElement('div');
+        item.className = 'feed-item';
         
-        <label>Customer:</label><br>
-        <input type="text" id="edit-customer-${tx.id}" value="${tx.customer || ''}"><br>
-        
-        <label>Amount:</label><br>
-        <input type="number" id="edit-amount-${tx.id}" value="${tx.amount}"><br>
-        
-        <button onclick="submitTransactionEdit('${tx.id}')">Save Changes</button>
-        <button onclick="toggleEditModal('${tx.id}')" style="background:#555;">Cancel</button>
-      </div>
-    </div>
-  `).join('');
+        const dateStr = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Just now';
+
+        item.innerHTML = `
+            <div>
+                <div class="feed-user">${escapeHtml(user.email)}</div>
+                <div class="feed-meta">Tier: ${escapeHtml(user.userTier)}</div>
+            </div>
+            <div class="feed-meta">${dateStr}</div>
+        `;
+        feedList.appendChild(item);
+    });
 }
 
-function formatForDateTimeLocal(isoString) {
-  const date = new Date(isoString);
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+function showToast(message, isSuccess) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.style.display = 'block';
+    toast.style.background = isSuccess ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+    toast.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+    toast.style.border = isSuccess ? '1px solid var(--success)' : '1px solid var(--danger)';
+    toast.textContent = message;
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 4000);
 }
 
-function toggleEditModal(id) {
-  const modal = document.getElementById(`edit-modal-${id}`);
-  if (modal) {
-    modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-  }
-}
-
-async function submitTransactionEdit(id) {
-  const customTimestamp = document.getElementById(`edit-time-${id}`).value;
-  const customer = document.getElementById(`edit-customer-${id}`).value;
-  const amount = parseFloat(document.getElementById(`edit-amount-${id}`).value);
-
-  const response = await fetch(`/api/transactions/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      timestamp: customTimestamp ? new Date(customTimestamp).toISOString() : undefined,
-      customer, 
-      amount 
-    })
-  });
-
-  if (response.ok) {
-    loadTransactionHistory();
-  } else {
-    alert('Failed to update transaction record.');
-  }
+function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

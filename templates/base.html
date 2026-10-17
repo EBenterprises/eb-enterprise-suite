@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<<<<<<< HEAD
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Secure Vault V5{% endblock %}</title>
     <style>
@@ -65,21 +64,6 @@
               <div class="{{ 'success-msg' if cat == 'success' else 'msg' }}">{{ msg }}</div>
             {% endfor %}
           {% endif %}
-=======
-    <title>Secure Vault</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flashes">
-                    {% for message in messages %}
-                        <p>[!] {{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
->>>>>>> origin/main
         {% endwith %}
         {% block content %}{% endblock %}
     </div>

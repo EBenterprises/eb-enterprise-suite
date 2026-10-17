@@ -1,0 +1,7 @@
+{
+  "appName": "EB Sales Tracker",
+  "packageName": "com.ebenterprises.salestracker",
+  "version": "1.0.0",
+  "serverPort": 51201,
+  "description": "Standalone native WebView wrapper package configured for local server daemon execution."
+}

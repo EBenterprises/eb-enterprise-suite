@@ -1,97 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EB Sales & Payments Tracker v5</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>EB Sales & Payments Tracker</h1>
-            <p>Version 5 — Enhanced with Custom Transaction Timestamps</p>
-        </header>
-
-        <!-- Summary Metrics -->
-        <div class="metrics card">
-            <div class="metric-item">
-                <h3>Total Income</h3>
-                <p class="income">${{ "%.2f"|format(total_income) }}</p>
-            </div>
-            <div class="metric-item">
-                <h3>Total Expenses</h3>
-                <p class="expense">${{ "%.2f"|format(total_expense) }}</p>
-            </div>
-            <div class="metric-item">
-                <h3>Net Balance</h3>
-                <p>${{ "%.2f"|format(net_balance) }}</p>
-            </div>
+{% extends "base.html" %}
+{% block content %}
+    {% if session.get('user') %}
+        <h1>Secure Vault</h1>
+        <p>Welcome back, <code>{{ session['user'] }}</code>.</p>
+        <div class="links" style="justify-content: flex-start; gap: 15px;">
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
         </div>
-
-        <!-- Add Transaction Card -->
-        <div class="card">
-            <h3>Add New Transaction</h3>
-            <form action="/add" method="POST">
-                <input type="text" name="title" placeholder="Description" required>
-                <input type="number" step="0.01" name="amount" placeholder="Amount ($)" required>
-                <select name="type">
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
-                <input type="datetime-local" name="timestamp" title="Leave blank for current time">
-                <button type="submit">Add Record</button>
-            </form>
+    {% else %}
+        <h1>Secure Vault</h1>
+        <p>Encrypted Session Terminal</p>
+        <div class="links" style="margin-top: 30px;">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+            <a href="{{ url_for('forgot') }}">Recovery</a>
         </div>
-
-        <!-- Transaction History Table -->
-        <div class="card">
-            <h3>Transaction History</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                        <th>Timestamp</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in transactions %}
-                    <tr>
-                        <form action="/edit/{{ t.id }}" method="POST" class="inline-edit-form" id="edit-form-{{ t.id }}">
-                            <td>
-                                <input type="text" name="title" value="{{ t.title }}" required>
-                            </td>
-                            <td>
-                                <input type="number" step="0.01" name="amount" value="{{ t.amount }}" required>
-                            </td>
-                            <td>
-                                <select name="type">
-                                    <option value="income" {% if t.type == 'income' %}selected{% endif %}>Income</option>
-                                    <option value="expense" {% if t.type == 'expense' %}selected{% endif %}>Expense</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="datetime-local" name="timestamp" value="{{ t.timestamp }}" required>
-                            </td>
-                            <td class="actions">
-                                <button type="submit" class="btn-sm">Save</button>
-                        </form>
-                                <form action="/delete/{{ t.id }}" method="POST" style="display:inline;">
-                                    <button type="submit" class="btn-sm btn-danger">Delete</button>
-                                </form>
-                            </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted);">No transactions recorded yet.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</body>
-</html>
+    {% endif %}
+{% endblock %}

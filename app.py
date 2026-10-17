@@ -1,196 +1,167 @@
-import os
-import json
-from flask import Flask, render_template_string, request, jsonify, redirect, url_for
+import os, sqlite3, hashlib
+from datetime import datetime, date
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
+DB = "vault_auth_v5.db"
 
-DATA_FILE = os.path.join(os.path.dirname(__file__), 'transactions.json')
-PROFILES_FILE = os.path.join(os.path.dirname(__file__), 'profiles.json')
-EXPENSES_FILE = os.path.join(os.path.dirname(__file__), 'expenses.json')
-
-# Ensure data files exist
-if not os.path.exists(DATA_FILE):
-    with open(DATA_FILE, 'w') as f:
-        json.dump([
-            { "id": 1, "timestamp": 1759291860000, "date": "2026-09-30 05:11", "customer": "Alice", "landmark": "Downtown", "gps": "49.8880, -119.4960", "item": "28g Preset", "amount": 250, "cashCollected": 250, "balance": 0, "status": "Paid" }
-        ], f, indent=2)
-
-if not os.path.exists(PROFILES_FILE):
-    with open(PROFILES_FILE, 'w') as f:
-        json.dump({
-            "Alice": { "phone": "555-0192", "notes": "VIP Client - Cash on delivery preferred" }
-        }, f, indent=2)
-
-if not os.path.exists(EXPENSES_FILE):
-    with open(EXPENSES_FILE, 'w') as f:
-        json.dump([
-            { "id": 1, "timestamp": 1759291860000, "date": "2026-09-30", "category": "Packaging", "amount": 15.00, "notes": "Ziploc bags & scales" }
-        ], f, indent=2)
-
-def get_transactions():
-    try:
-        with open(DATA_FILE, 'r') as f:
-            return json.load(f)
-    except:
-        return []
-
-def save_transactions(txs):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(txs, f, indent=2)
-
-def get_profiles():
-    try:
-        with open(PROFILES_FILE, 'r') as f:
-            return json.load(f)
-    except:
-        return {}
-
-def save_profiles(profiles):
-    with open(PROFILES_FILE, 'w') as f:
-        json.dump(profiles, f, indent=2)
-
-def get_expenses():
-    try:
-        with open(EXPENSES_FILE, 'r') as f:
-            return json.load(f)
-    except:
-        return []
-
-def save_expenses(expenses):
-    with open(EXPENSES_FILE, 'w') as f:
-        json.dump(expenses, f, indent=2)
-
-@app.route('/api/data')
-def api_data():
-    return jsonify({
-        "transactions": get_transactions(),
-        "profiles": get_profiles(),
-        "expenses": get_expenses()
-    })
-
-@app.route('/api/action', methods=['POST'])
-def api_action():
-    data = request.get_json() or {}
-    action = data.get('action')
-    payload = data.get('payload', {})
-    
-    txs = get_transactions()
-    
-    if action == 'add_sale':
-        custom_ts = int(payload.get('customTimestamp')) if payload.get('customTimestamp') else 1759291860000 # Fallback or current
-        # In flask/python backend we can use time or payload timestamp
-        import time
-        ts = int(time.time() * 1000)
-        new_tx = {
-            "id": ts,
-            "timestamp": ts,
-            "date": "2026-09-30 05:11",
-            "customer": payload.get('customer', 'Guest'),
-            "landmark": payload.get('landmark', ''),
-            "gps": payload.get('gps', 'No GPS'),
-            "item": payload.get('item', 'Unit'),
-            "amount": float(payload.get('amount', 0)),
-            "cashCollected": float(payload.get('cashCollected', 0)),
-            "balance": 0,
-            "status": "Pending"
-        }
-        txs.append(new_tx)
-        # Recalculate balances
-        txs.sort(key=lambda x: x['timestamp'])
-        bals = {}
-        for t in txs:
-            c = t['customer']
-            if c not in bals:
-                bals[c] = 0.0
-            bals[c] = max(0.0, bals[c] + t['amount'] - t['cashCollected'])
-            t['balance'] = bals[c]
-            t['status'] = 'Paid' if t['balance'] == 0 else 'Balance'
-        txs.sort(key=lambda x: x['timestamp'], reverse=True)
-        save_transactions(txs)
-        return jsonify({"success": True, "timestamp": ts})
-
-    elif action == 'delete_tx':
-        tx_id = payload.get('id')
-        txs = [t for t in txs if t['id'] != tx_id]
-        save_transactions(txs)
-        return jsonify({"success": True})
-
-    return jsonify({"success": False, "error": "Unknown action"})
+def init_db():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        fullname TEXT NOT NULL, 
+        username TEXT UNIQUE NOT NULL, 
+        email TEXT NOT NULL,
+        password TEXT NOT NULL, 
+        birthday TEXT, 
+        gender TEXT, 
+        recovery_phrase TEXT, 
+        recovery_answer TEXT
+    )''')
+    c.execute('CREATE TABLE IF NOT EXISTS secrets (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, content TEXT NOT NULL, timestamp TEXT NOT NULL)')
+    conn.commit(); conn.close()
 
 @app.route('/')
 def index():
-    return render_template_string("""<!DOCTYPE html>
-<html>
-<head>
-    <title>Enterprise P2P Master Suite - Flask Edition</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0b0f19; color: #f1f5f9; margin: 0; padding: 10px; }
-        .card { background: #131c2e; padding: 14px; border-radius: 12px; max-width: 440px; margin: 0 auto; border: 1px solid #1e293b; }
-        h2 { color: #38bdf8; margin: 0 0 4px 0; text-align: center; font-size: 18px; }
-        .sub { color: #94a3b8; font-size: 11px; text-align: center; margin-bottom: 12px; }
-        input, select { width: 100%; padding: 12px; background: #0b0f19; border: 1px solid #334155; color: #fff; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
-        .action-btn { width: 100%; background: #10b981; color: #064e3b; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 4px; }
-        .ledger-box { background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 8px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 11px; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h2>Enterprise P2P Master Suite (Flask)</h2>
-        <div class="sub">Python Full-Stack Runtime Active</div>
-        
-        <label>Customer Name</label>
-        <input type="text" id="custInput" placeholder="Enter name...">
-        
-        <label>Amount ($)</label>
-        <input type="number" id="amountInput" placeholder="0.00">
-        
-        <label>Cash Collected ($)</label>
-        <input type="number" id="cashInput" value="0">
-        
-        <button class="action-btn" id="saveBtn">Record Sale</button>
-        
-        <div style="font-weight:bold; color:#38bdf8; margin: 12px 0 6px 0; font-size:12px;">Transaction History</div>
-        <div id="historyList" class="ledger-box">Loading...</div>
-    </div>
+    return redirect(url_for('dashboard' if 'user' in session else 'login'))
 
-<script>
-async function loadData() {
-    const res = await fetch('/api/data');
-    const data = await res.json();
-    const hist = document.getElementById('historyList');
-    if(!data.transactions || data.transactions.length === 0) {
-        hist.innerHTML = 'No transactions.';
-    } else {
-        hist.innerHTML = data.transactions.map(t => 
-            '<div style="padding:4px 0; border-bottom:1px solid #1e293b;"><b>' + t.customer + '</b>: $' + t.amount + ' (Bal: $' + t.balance + ')</div>'
-        ).join('');
-    }
-}
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    session.clear()
+    if request.method == 'POST':
+        identifier = request.form.get('username')
+        password = hashlib.sha256(request.form.get('password').encode()).hexdigest()
+        conn = sqlite3.connect(DB); c = conn.cursor()
+        # Check if input matches either username OR email
+        c.execute("SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?", (identifier, identifier, password))
+        user = c.fetchone(); conn.close()
+        if user:
+            session['user'], session['fullname'] = user[2], user[1] # user[2] is username, user[1] is fullname
+            return redirect(url_for('dashboard'))
+        flash("Invalid credentials.", "error")
+    return render_template('login.html')
 
-document.getElementById('saveBtn').onclick = async function() {
-    const customer = document.getElementById('custInput').value.trim();
-    const amount = document.getElementById('amountInput').value;
-    const cashCollected = document.getElementById('cashInput').value;
-    
-    if(!customer || !amount) { alert('Fill fields'); return; }
-    
-    await fetch('/api/action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'add_sale', payload: { customer, amount, cashCollected } })
-    });
-    document.getElementById('custInput').value = '';
-    document.getElementById('amountInput').value = '';
-    alert('Saved!');
-    loadData();
-};
+@app.route('/register/step1', methods=['GET', 'POST'])
+def register_step1():
+    if request.method == 'POST':
+        session['reg_fullname'] = request.form.get('fullname')
+        session['reg_username'] = request.form.get('username')
+        session['reg_email'] = request.form.get('email')
+        session['reg_password'] = hashlib.sha256(request.form.get('password').encode()).hexdigest()
+        return redirect(url_for('register_step2'))
+    return render_template('register_step1.html')
 
-loadData();
-</script>
-</body>
-</html>""")
+@app.route('/register/step2', methods=['GET', 'POST'])
+def register_step2():
+    if 'reg_username' not in session: return redirect(url_for('register_step1'))
+    today = date.today().strftime('%Y-%m-%d')
+    if request.method == 'POST':
+        bday = request.form.get('birthday')
+        if datetime.strptime(bday, '%Y-%m-%d').date() > date.today():
+            flash("Birthday cannot be in the future.", "error")
+            return render_template('register_step2.html', max_date=today)
+        session['reg_birthday'] = bday
+        return redirect(url_for('register_step3'))
+    return render_template('register_step2.html', max_date=today)
+
+@app.route('/register/step3', methods=['GET', 'POST'])
+def register_step3():
+    if 'reg_birthday' not in session: return redirect(url_for('register_step1'))
+    if request.method == 'POST':
+        session['reg_gender'] = request.form.get('gender')
+        return redirect(url_for('register_step4'))
+    return render_template('register_step3.html')
+
+@app.route('/register/step4', methods=['GET', 'POST'])
+def register_step4():
+    if 'reg_gender' not in session: return redirect(url_for('register_step1'))
+    if request.method == 'POST':
+        fn = session['reg_fullname']
+        u = session['reg_username']
+        em = session['reg_email']
+        p = session['reg_password']
+        b = session['reg_birthday']
+        g = session['reg_gender']
+        rp = hashlib.sha256(request.form.get('recovery_phrase').encode()).hexdigest()
+        ra = hashlib.sha256(request.form.get('recovery_answer').encode()).hexdigest()
+        try:
+            conn = sqlite3.connect(DB); c = conn.cursor()
+            c.execute("INSERT INTO users (fullname, username, email, password, birthday, gender, recovery_phrase, recovery_answer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (fn, u, em, p, b, g, rp, ra))
+            conn.commit(); conn.close()
+            session.clear()
+            flash("Registration successful. Please log in.", "success")
+            return redirect(url_for('login'))
+        except sqlite3.IntegrityError:
+            flash("Username already exists.", "error")
+            return redirect(url_for('register_step1'))
+    return render_template('register_step4.html')
+
+@app.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    if request.method == 'POST':
+        identifier = request.form.get('username')
+        rp = hashlib.sha256(request.form.get('recovery_phrase').encode()).hexdigest()
+        ra = hashlib.sha256(request.form.get('recovery_answer').encode()).hexdigest()
+        np = hashlib.sha256(request.form.get('new_password').encode()).hexdigest()
+        conn = sqlite3.connect(DB); c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE (username = ? OR email = ?) AND recovery_phrase = ? AND recovery_answer = ?", (identifier, identifier, rp, ra))
+        user = c.fetchone()
+        if user:
+            # user[2] is the actual username column
+            c.execute("UPDATE users SET password = ? WHERE username = ?", (np, user[2]))
+            conn.commit(); conn.close()
+            flash("Password updated successfully.", "success")
+            return redirect(url_for('login'))
+        conn.close()
+        flash("Invalid recovery details.", "error")
+    return render_template('forgot.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user' not in session: return redirect(url_for('login'))
+    return render_template('dashboard.html', fullname=session.get('fullname'), username=session.get('user'))
+
+@app.route('/secrets', methods=['GET', 'POST'])
+def secrets():
+    if 'user' not in session: return redirect(url_for('login'))
+    u = session['user']
+    conn = sqlite3.connect(DB); c = conn.cursor()
+    if request.method == 'POST':
+        content = request.form.get('secret_content')
+        if content:
+            c.execute("INSERT INTO secrets (username, content, timestamp) VALUES (?, ?, ?)", (u, content, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            conn.commit()
+        conn.close()
+        return redirect(url_for('secrets'))
+    c.execute("SELECT id, content, timestamp FROM secrets WHERE username = ? ORDER BY id DESC", (u,))
+    s_list = c.fetchall(); conn.close()
+    return render_template('secrets.html', secrets=s_list)
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if 'user' not in session: return redirect(url_for('login'))
+    if request.method == 'POST':
+        u = session['user']
+        cp = hashlib.sha256(request.form.get('current_password').encode()).hexdigest()
+        np = hashlib.sha256(request.form.get('new_password').encode()).hexdigest()
+        conn = sqlite3.connect(DB); c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (u, cp))
+        if c.fetchone():
+            c.execute("UPDATE users SET password = ? WHERE username = ?", (np, u))
+            conn.commit(); conn.close()
+            flash("Password changed.", "success")
+            return redirect(url_for('dashboard'))
+        conn.close()
+        flash("Incorrect current password.", "error")
+    return render_template('settings.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    init_db()
+    app.run(host='0.0.0.0', port=5001, debug=True)

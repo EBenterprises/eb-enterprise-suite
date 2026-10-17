@@ -1,0 +1,36 @@
+{
+  "host": "127.0.0.1:51201",
+  "name": "EB Sales Tracker",
+  "short_name": "SalesTracker",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0b0f19",
+  "background_color": "#0b0f19",
+  "navigation_color": "#0b0f19",
+  "navigation_color_dark": "#0b0f19",
+  "navigation_divider_color": "#0b0f19",
+  "navigation_divider_color_dark": "#0b0f19",
+  "splash_screen_background_color": "#0b0f19",
+  "iconUrl": "http://127.0.0.1:51201/icon.png",
+  "maskableIconUrl": "http://127.0.0.1:51201/icon.png",
+  "appId": "com.ebenterprises.salestracker",
+  "appName": "EB Sales Tracker",
+  "launcherName": "Sales Tracker",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "generatorApp": "Bubblewrap CLI",
+  "useBrowserChoices": true,
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableCordova": false,
+  "shortcuts": [],
+  "shareTarget": {},
+  "jdkPath": "/data/data/com.termux/files/usr",
+  "androidSdkPath": "/data/data/com.termux/files/usr"
+}

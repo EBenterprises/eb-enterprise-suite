@@ -1,0 +1,7 @@
+{
+  "appName": "EB Sales Tracker",
+  "packageName": "com.ebenterprises.salestracker",
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "engine": "Standalone WebView APK"
+}

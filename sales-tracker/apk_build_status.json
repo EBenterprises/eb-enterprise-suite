@@ -1,0 +1,8 @@
+{
+  "appName": "EB Sales Tracker",
+  "packageName": "com.ebenterprises.salestracker",
+  "version": "1.0.0",
+  "mode": "Offline-First PWA + TWA Ready",
+  "serverUrl": "http://127.0.0.1:51201",
+  "status": "Ready for mobile browser standalone installation or WebView wrapping."
+}

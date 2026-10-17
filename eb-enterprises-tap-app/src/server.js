@@ -3,12 +3,13 @@ const path = require('path');
 const db = require('./models/db');
 
 const app = express();
-const PORT = process.env.PORT || 14001;
+const PORT = 14001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
+// Frontend view with active user registration form
 app.get('/', (req, res) => {
     const members = db.getMembers();
     res.send(`
@@ -55,6 +56,7 @@ app.get('/', (req, res) => {
     `);
 });
 
+// API endpoint for registration handling
 app.post('/api/register', (req, res) => {
     const { email } = req.body;
     if (email) {
@@ -63,6 +65,10 @@ app.post('/api/register', (req, res) => {
     res.redirect('/');
 });
 
+app.get('/api/members', (req, res) => {
+    res.json(db.getMembers());
+});
+
 app.listen(PORT, () => {
-    console.log(`[EB Enterprises] Tap platform live on port ${PORT}`);
+    console.log(`[LIVE] www.tap.eco fully operational at http://localhost:${PORT}`);
 });

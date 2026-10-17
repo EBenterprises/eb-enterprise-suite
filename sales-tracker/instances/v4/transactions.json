@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": 1,
+    "date": "2026-08-25",
+    "item": "28g Oz Preset",
+    "amount": 250,
+    "status": "Completed"
+  },
+  {
+    "id": 2,
+    "date": "2026-08-24",
+    "item": "14g Tier",
+    "amount": 140,
+    "status": "Completed"
+  }
+]
