@@ -66,15 +66,3 @@ app.get('/api/version', (req, res) => {
 app.listen(PORT, () => {
   console.log(`[${VERSION_NAME.toUpperCase()}] Sales-Tracker running at http://127.0.0.1:${PORT}`);
 });
-
-// --- INJECTED UPDATE: Reverse Chronological Sorting ---
-function saveTransactions(transactions) {
-    transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    fs.writeFileSync(DATA_FILE, JSON.stringify(transactions, null, 2));
-}
-
-app.get('/api/transactions', (req, res) => {
-    let txs = getTransactions();
-    txs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    res.json(txs);
-});

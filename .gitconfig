@@ -2,7 +2,7 @@
 	name = Easton Bodeux
 	email = eastonbodeuxenterprises@gmail.com
 [credential]
-	protectProtocol = false
+	helper = store
 [credential "https://github.com"]
 	helper = 
 	helper = !/data/data/com.termux/files/usr/bin/gh auth git-credential

@@ -1,16 +1,3 @@
-
-function getSortedTransactions() {
-    let txs = getSortedTransactions();
-    if (Array.isArray(txs)) {
-        txs.sort((a, b) => {
-            const timeA = a.date ? new Date(a.date.replace(' ', 'T')).getTime() : (a.timestamp || a.id || 0);
-            const timeB = b.date ? new Date(b.date.replace(' ', 'T')).getTime() : (b.timestamp || b.id || 0);
-            return timeB - timeA;
-        });
-    }
-    return txs;
-}
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -109,8 +96,8 @@ function createAppHandler(version) {
 
                     if (action === 'update_tx' && (version === 'v3' || ((version === 'v4' || version === 'v5') || version === 'v5') || version === 'v5')) {
     const { id, customer, landmark, gps, amount, cashCollected, customTimestamp } = payload;
-    let transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : []; if(Array.isArray(transactions)) transactions.reverse();
-    transactions = transactions.slice().reverse().map(t => {
+    let transactions = fs.existsSync(TRANSACTIONS_FILE) ? JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8')) : [];
+    transactions = transactions.map(t => {
         if (String(t.id) === String(id)) {
             t.customer = customer !== undefined ? customer : t.customer;
             t.landmark = landmark !== undefined ? landmark : t.landmark;
@@ -193,13 +180,13 @@ function createAppHandler(version) {
         }
 
         const titles = {
-            'v5': 'Sales Tracker',
-            'v1': 'Sales Tracker v1',
-            'v2': 'Sales Tracker v2 - Time Machine',
-            'v3': 'Sales Tracker v3 - Map & Edit',
-            'v4': 'Sales Tracker v4 - Interactive Pin Picker'
+            'v5': 'Enterprise P2P Master Suite v5 - History Time Travel',
+            'v1': 'Enterprise P2P Master Suite v1',
+            'v2': 'Enterprise P2P Master Suite v2 - Time Machine',
+            'v3': 'Enterprise P2P Master Suite v3 - Map & Edit',
+            'v4': 'Enterprise P2P Master Suite v4 - Interactive Pin Picker'
         ,
-            'v5': 'Sales Tracker'};
+            'v5': 'Enterprise P2P Master Suite v5 - Pin Picker & Time Travel'};
         const badges = {
             'v5': 'v5 History Time Travel & Edit Active',
             'v1': 'v1 Standard Mode',
@@ -356,7 +343,7 @@ function createAppHandler(version) {
         </div>
 
         <div id="paneHist" class="pane">
-            <div style="font-weight:bold; color:#38bdf8; margin-bottom:6px; font-size:12px;">Sales History (Reverse Chronological Order) (Reverse Chronological Order)</div>
+            <div style="font-weight:bold; color:#38bdf8; margin-bottom:6px; font-size:12px;">Transaction History (Chronological Order)</div>
             <div id="historyList" class="ledger-box">Loading history...</div>
         </div>
 
@@ -450,14 +437,14 @@ async function loadData() {
 }
 
 function render() {
-    const names = [...new Set(globalData.transactions.slice().reverse().map(t => t.customer))];
+    const names = [...new Set(globalData.transactions.map(t => t.customer))];
     document.getElementById('custOptions').innerHTML = names.map(n => '<option value="' + n + '">').join('');
     
     const hist = document.getElementById('historyList');
     if(!globalData.transactions || globalData.transactions.length === 0) {
         hist.innerHTML = 'No transactions recorded.';
     } else {
-        hist.innerHTML = globalData.transactions.slice().reverse().map(t => {
+        hist.innerHTML = globalData.transactions.map(t => {
             const hasGps = t.gps && t.gps.includes(',') && !t.gps.includes('No') && !t.gps.includes('Unavailable') && !t.gps.includes('Not');
             const mapLink = hasGps ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(t.gps) : '#';
             const landmarkDisplay = t.landmark ? '<span style="color:#fbbf24; font-size:10px;">🏷️ ' + t.landmark + '</span><br>' : '';
@@ -836,8 +823,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 });
 </script>
-
-<footer style="text-align: center; padding: 25px 0 15px 0; color: #888; font-size: 13px; font-family: sans-serif;">&copy; 2026 EB Enterprises&reg;</footer>
 </body>
 </html>`;
 
@@ -873,16 +858,4 @@ http.createServer(createAppHandler('v4')).listen(PORT_V4, '127.0.0.1', () => {
 const PORT_V5 = 51205;
 http.createServer(createAppHandler('v5')).listen(PORT_V5, '127.0.0.1', () => {
     console.log(`⏳ Version 5 (History Time Travel) running at: http://127.0.0.1:${PORT_V5}`);
-});
-
-// --- INJECTED UPDATE: Reverse Chronological Sorting & Persistence ---
-function saveTransactions(transactions) {
-    transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    fs.writeFileSync(DATA_FILE, JSON.stringify(transactions, null, 2));
-}
-
-app.get('/api/transactions', (req, res) => {
-    let txs = getTransactions();
-    txs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    res.json(txs);
 });

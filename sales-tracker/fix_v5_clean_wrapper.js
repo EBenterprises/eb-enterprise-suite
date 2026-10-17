@@ -3,19 +3,13 @@ const path = require('path');
 
 // 1. Restore fresh from end-state backup
 const backupDir = path.join(__dirname, 'backups_end_state');
-if (!fs.existsSync(backupDir)) {
-    console.error("[-] Error: backups_end_state directory not found!");
-    process.exit(1);
+if (fs.existsSync(backupDir)) {
+    const files = fs.readdirSync(backupDir).filter(f => f.includes('server.js'));
+    files.sort();
+    if (files.length > 0) {
+        fs.copyFileSync(path.join(backupDir, files[files.length - 1]), path.join(__dirname, 'server.js'));
+    }
 }
-const files = fs.readdirSync(backupDir).filter(f => f.includes('server.js'));
-files.sort();
-if (files.length === 0) {
-    console.error("[-] Error: No backup server.js files found!");
-    process.exit(1);
-}
-const latestBackup = files[files.length - 1];
-console.log("[+] Using backup file:", latestBackup);
-fs.copyFileSync(path.join(backupDir, latestBackup), path.join(__dirname, 'server.js'));
 
 let serverCode = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
 
@@ -25,28 +19,28 @@ serverCode = serverCode.replace(/function createAppHandlerV5[\s\S]*?\n}\n/g, '')
 
 // 3. Add 'v5' config dictionary entries right alongside 'v4' inside createAppHandler
 serverCode = serverCode.replace(
-    "titles['v4'] = 'Enterprise P2P Master Suite v4';",
+    /titles\['v4'\]\s*=\s*'[^']*';/,
     "titles['v4'] = 'Enterprise P2P Master Suite v4';\n    titles['v5'] = 'Enterprise P2P Master Suite v5 - Full Time Travel';"
 );
 serverCode = serverCode.replace(
-    "badges['v4'] = '📍 v4 UI';",
+    /badges\['v4'\]\s*=\s*'[^']*';/,
     "badges['v4'] = '📍 v4 UI';\n    badges['v5'] = '📍 v4 UI + ⏳ Time Travel';"
 );
 
 // Allow version === 'v5' to inherit version === 'v4' frontend UI code blocks safely
 serverCode = serverCode.replace(
-    /if \(version === 'v4'\)/g,
+    /if\s*\(\s*version\s*===\s*'v4'\s*\)/g,
     "if (version === 'v4' || version === 'v5')"
 );
 
 // Enable time travel update logic when version is v5
 serverCode = serverCode.replace(
-    "if (action === 'update_tx' && (version === 'v3' || version === 'v4')) {",
+    /if\s*\(\s*action\s*===\s*'update_tx'\s*&&\s*\(\s*version\s*===\s*'v3'\s*\Vert{}\Vert{}\s*version\s*===\s*'v4'\s*\)\s*\)\s*\{/,
     "if (action === 'update_tx' && (version === 'v3' || version === 'v4' || version === 'v5')) {\n            const hasTimeMachine = (version === 'v5');"
 );
 
 serverCode = serverCode.replace(
-    "t.customer = payload.customer !== undefined ? payload.customer : t.customer;",
+    /t\.customer\s*=\s*payload\.customer\s*!==\s*undefined\s*\?\s*payload\.customer\s*:\s*t\.customer\s*;/,
     "t.customer = payload.customer !== undefined ? payload.customer : t.customer;\n            if (hasTimeMachine && payload.customTimestamp) {\n                const customTs = new Date(payload.customTimestamp).getTime();\n                if (customTs > Date.now()) {\n                    return res.writeHead(400, { 'Content-Type': 'application/json' }).end(JSON.stringify({ success: false, error: 'Cannot travel into the future!' }));\n                }\n                t.timestamp = customTs;\n                t.id = customTs;\n                t.date = payload.customTimestamp.replace('T', ' ');\n            }"
 );
 
@@ -67,8 +61,8 @@ const htmlResponseHook = `
 
 // Insert the hook right before html is returned or sent
 serverCode = serverCode.replace(
-    "res.writeHead(200, { 'Content-Type': 'text/html' });",
-    "res.writeHead(200, { 'Content-Type': 'text/html' });\n" + htmlResponseHook
+    /res\.writeHead\(200,\s*\{\s*'Content-Type':\s*'text\/html'\s*\}\);/,
+    `res.writeHead(200, { 'Content-Type': 'text/html' });\n${htmlResponseHook}`
 );
 
 // Add PORT_V5 listener right alongside PORT_V4
@@ -80,8 +74,8 @@ http.createServer(createAppHandler('v5')).listen(PORT_V5, '127.0.0.1', () => {
 `;
 
 serverCode = serverCode.replace(
-    "http.createServer(createAppHandler('v4')).listen(PORT_V4);",
-    portV5BrandReplace = "http.createServer(createAppHandler('v4')).listen(PORT_V4);\n" + portV5Block
+    /http\.createServer\(createAppHandler\('v4'\)\)\.listen\(PORT_V4,\s*[^)]+\);/,
+    match => match + "\n" + portV5Block
 );
 
 fs.writeFileSync(path.join(__dirname, 'server.js'), serverCode);

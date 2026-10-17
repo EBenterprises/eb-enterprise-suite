@@ -4,8 +4,7 @@
   "description": "Sales Tracker with pure JS SQLite",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "apk-build": "echo 'Building APK assets...' && node -e 'console.log(\"[+] PWA web assets packed for APK conversion.\")'"
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
