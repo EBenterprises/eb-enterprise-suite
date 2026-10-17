@@ -1,4 +1,5 @@
 #!/bin/bash
+<<<<<<< HEAD
 # Automatically locate plug-monolith or create it if missing
 if [ -d "plug-monolith" ]; then
     cd plug-monolith
@@ -41,3 +42,12 @@ fi
 
 echo "==> Starting monolithic server..."
 npm start
+=======
+echo "[+] Clearing any lingering python instances..."
+pkill -f app.py || true
+
+echo "[+] Starting Secure Vault on port 5001..."
+export FLASK_APP=app/app.py
+export FLASK_DEBUG=1
+python3 secure_vault/app/app.py || python3 app/app.py
+>>>>>>> origin/main

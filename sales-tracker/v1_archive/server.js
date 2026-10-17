@@ -71,6 +71,6 @@ app.post('/api/sales', (req, res) => {
 
 initDatabase().then(() => {
     app.listen(PORT, () => {
-        console.log(`[+] Executive Spectrum Server running on http://localhost:${PORT}`);
+        console.log(`[+] Executive Spectrum Server running on http://0.0.0.0:${PORT}`);
     });
 });
